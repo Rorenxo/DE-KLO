@@ -13,7 +13,7 @@ export const savingsService = {
   async getGoals(userId) {
     if (!userId || userId === 'guest') return []
     const local = await offlineDatabase.savings_goals.where('user_id').equals(userId).toArray()
-    if (navigator.onLine && userId !== 'device_user') syncService.syncSavingsGoals(userId).then(notify).catch(() => {})
+    if (userId !== 'device_user') syncService.syncSavingsGoals(userId).then(notify).catch(() => {})
     return local.filter((goal) => goal.sync_status !== 'pending-delete')
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
   },

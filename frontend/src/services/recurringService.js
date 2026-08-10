@@ -5,7 +5,7 @@ export const recurringService = {
   async getRecurring(userId) {
     if (!userId) return []
     const local = await offlineDatabase.recurring_transactions.where('user_id').equals(userId).toArray()
-    if (navigator.onLine && userId !== 'device_user') syncService.syncRecurringTransactions(userId).catch(() => {})
+    if (userId !== 'device_user') syncService.syncRecurringTransactions(userId).catch(() => {})
     return local.filter((row) => row.sync_status !== 'pending-delete')
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
   },
