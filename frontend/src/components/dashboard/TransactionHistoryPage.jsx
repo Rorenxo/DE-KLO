@@ -191,7 +191,7 @@ export default function TransactionHistoryPage({
       {/* 1. Page Header */}
       <header className="flex items-center justify-between pt-1 pb-1">
         <div>
-          <h2 className={`text-xl sm:text-2xl font-bold font-Kudryashev tracking-tight ${
+          <h2 className={`text-xl sm:text-2xl font-bold font-brand tracking-tight ${
             isLight ? 'text-slate-900' : 'text-white'
           }`}>
             Transactions

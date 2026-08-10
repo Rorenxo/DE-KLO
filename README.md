@@ -1,13 +1,8 @@
 # De'klo
 
 <p align="center">
-  <img src="./public/logo.png" width="100" alt="De'klo Logo">
-</p>
-
-<h1 align="center">DE'KLO</h1>
-
-<p align="center">
-  Finance Space
+  <img src="frontend/public/logo.png" width="100" alt="De'klo Logo"><br>
+  <img src="frontend/public/deklo-header.svg" width="520" alt="DE'KLO — Finance Space">
 </p>
 
 ## Description
