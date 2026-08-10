@@ -10,10 +10,12 @@ export default function AuthPage() {
   const [mode, setMode] = useState('login')
   const [isLoading, setIsLoading] = useState(false)
   const [apiError, setApiError] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
 
   const handleLoginSubmit = async (credentials) => {
     setIsLoading(true)
     setApiError(null)
+    setSuccessMessage(null)
     try {
       await authService.login(credentials)
     } catch (err) {
@@ -26,8 +28,14 @@ export default function AuthPage() {
   const handleRegisterSubmit = async (data) => {
     setIsLoading(true)
     setApiError(null)
+    setSuccessMessage(null)
     try {
-      await authService.register(data)
+      const result = await authService.register(data)
+      if (result?.user && !result?.session) {
+        setSuccessMessage('Account created successfully! Please check your email to confirm your account.')
+      } else {
+        setSuccessMessage('Account created successfully! You can now log in.')
+      }
     } catch (err) {
       setApiError(err.message || 'Registration error')
     } finally {
@@ -38,6 +46,7 @@ export default function AuthPage() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
     setApiError(null)
+    setSuccessMessage(null)
     try {
       await authService.signInWithGoogle()
     } catch (err) {
@@ -48,6 +57,7 @@ export default function AuthPage() {
 
   const handleSwitchMode = (targetMode) => {
     setApiError(null)
+    setSuccessMessage(null)
     setMode(targetMode)
   }
 
@@ -83,9 +93,9 @@ export default function AuthPage() {
             <RegisterForm
               onSwitchToLogin={() => handleSwitchMode('login')}
               onSubmit={handleRegisterSubmit}
-              onGoogleSignIn={handleGoogleSignIn}
               isLoading={isLoading}
               apiError={apiError}
+              successMessage={successMessage}
             />
           )}
 

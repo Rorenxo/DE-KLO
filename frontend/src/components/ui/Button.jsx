@@ -24,7 +24,7 @@ export default function Button({
         disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
         ${
           isPrimary
-            ? 'bg-[#bdc7ce] text-[#000000] hover:bg-white hover:shadow-lg hover:shadow-[#bdc7ce]/15'
+            ? 'bg-white text-[#000000] font-bold hover:bg-[#e0e0e0] hover:shadow-lg hover:shadow-white/20'
             : 'bg-[#24292e]/60 text-[#bdc7ce] border border-[#4a5156] hover:border-[#808a92] hover:text-white'
         }
         ${className}

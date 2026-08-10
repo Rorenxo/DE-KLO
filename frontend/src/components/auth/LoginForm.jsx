@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
 
@@ -49,8 +49,9 @@ export default function LoginForm({
     <div className="w-full space-y-5 sm:space-y-6 animate-fade-in">
 
       {apiError && (
-        <div className="p-3 rounded-2xl bg-[#000000]/80 border border-[#bdc7ce]/40 text-xs text-[#bdc7ce] text-center">
-          {apiError}
+        <div className="p-3.5 rounded-2xl bg-[#000000]/90 border border-[#bdc7ce]/40 text-xs sm:text-sm text-[#bdc7ce] text-center flex items-center justify-center gap-2.5 shadow-xl backdrop-blur-md animate-fade-in">
+          <AlertCircle className="w-5 h-5 text-[#bdc7ce] shrink-0" />
+          <span className="font-medium tracking-wide">{apiError}</span>
         </div>
       )}
 
