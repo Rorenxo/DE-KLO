@@ -39,7 +39,7 @@ export const profileService = {
       sync_error: null,
     }
     await offlineDatabase.profiles.put(profile)
-    if (navigator.onLine) syncService.syncProfile(user.id).catch(() => {})
+    syncService.syncProfile(user.id).catch(() => {})
     return profile
   },
 

@@ -89,10 +89,14 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
     }
 
     const refreshSyncState = async () => {
-      const syncState = await syncService.getSyncState(userId)
+      const [syncState, connectionState] = await Promise.all([
+        syncService.getSyncState(userId),
+        syncService.getConnectionState(),
+      ])
       setPendingSyncCount(syncState.pendingCount)
       setIsSyncing(syncState.syncing)
       setHasSyncError(syncState.hasError)
+      setIsOnline(connectionState.isOnline)
     }
 
     const refreshTransactions = async () => {
@@ -137,12 +141,18 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
     const unsubscribeSync = transactionService.subscribeSync(() => {
       refreshTransactions().catch(() => {})
     })
-    const updateOnlineState = () => {
-      setIsOnline(navigator.onLine)
+    const updateOnlineState = (forceProbe = false) => {
+      syncService.getConnectionState({ refresh: forceProbe }).then((connectionState) => {
+        setIsOnline(connectionState.isOnline)
+      }).catch((err) => console.error('Connectivity check error:', err))
       refreshSyncState().catch((err) => console.error('Sync state refresh error:', err))
     }
-    window.addEventListener('online', updateOnlineState)
-    window.addEventListener('offline', updateOnlineState)
+    const handleOnline = () => updateOnlineState(true)
+    const handleOffline = () => updateOnlineState(true)
+    updateOnlineState(true)
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    const connectivityProbe = window.setInterval(() => updateOnlineState(true), 30000)
 
     const refreshGoals = async () => {
       const gList = await savingsService.getGoals(userId)
@@ -159,8 +169,9 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
     return () => {
       unsubscribeSync()
       unsubscribeGoalSync()
-      window.removeEventListener('online', updateOnlineState)
-      window.removeEventListener('offline', updateOnlineState)
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+      window.clearInterval(connectivityProbe)
     }
   }, [userId, user])
 
@@ -255,7 +266,8 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
       console.error('Local transaction save failed:', err)
       throw err
     }
-    return navigator.onLine ? 'pending' : 'offline'
+    const connectionState = await syncService.getConnectionState({ refresh: true })
+    return connectionState.isOnline ? 'pending' : 'offline'
   }
 
   const overviewData = {

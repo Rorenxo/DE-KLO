@@ -36,14 +36,25 @@ export default function App() {
         setHasDeviceAccount(true)
         profileService.ensureProfile(sess.user).catch(() => {})
         syncService.syncAll(sess.user.id).catch(() => {})
-      } else if (!navigator.onLine) {
-        const lastUserId = authService.getLastUserId()
-        if (lastUserId && authService.isDeviceConfigured(lastUserId)) {
-          setHasDeviceAccount(true)
-        }
       } else {
         setSession(null)
         setUser(null)
+        syncService.getConnectionState({ refresh: true }).then(({ isOnline }) => {
+          if (!isOnline) {
+            const lastUserId = authService.getLastUserId()
+            if (lastUserId && authService.isDeviceConfigured(lastUserId)) {
+              setHasDeviceAccount(true)
+            }
+          } else {
+            setHasDeviceAccount(false)
+          }
+          setLoading(false)
+        }).catch(() => {
+          setSession(null)
+          setUser(null)
+          setLoading(false)
+        })
+        return
       }
       setLoading(false)
     })

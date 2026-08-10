@@ -1,7 +1,9 @@
-import { supabase } from './supabaseClient'
+import { checkSupabaseConnectivity, supabase } from './supabaseClient'
 import { offlineDatabase } from './offlineDatabase'
 
 let syncInProgress = false
+let lastConnectionCheckAt = 0
+let lastKnownOnline = navigator.onLine
 
 function notifyComplete() {
   window.dispatchEvent(new CustomEvent('deklo:sync-complete'))
@@ -21,7 +23,27 @@ async function markFailed(table, id, attempt, error) {
   })
 }
 
+async function resolveOnlineStatus({ forceProbe = false } = {}) {
+  const now = Date.now()
+  const shouldProbe = forceProbe || !navigator.onLine || (now - lastConnectionCheckAt > 15000)
+
+  if (!shouldProbe) {
+    lastKnownOnline = true
+    return true
+  }
+
+  lastConnectionCheckAt = now
+  const reachable = await checkSupabaseConnectivity()
+  lastKnownOnline = reachable
+  return reachable
+}
+
 export const syncService = {
+  async getConnectionState({ refresh = false } = {}) {
+    const isOnline = await resolveOnlineStatus({ forceProbe: refresh })
+    return { isOnline }
+  },
+
   async getSyncState(userId) {
     const activeId = await currentUserId(userId)
     if (!activeId) return { pendingCount: 0, syncing: false, hasError: false }
@@ -44,7 +66,8 @@ export const syncService = {
 
   async syncPendingTransactions(userId) {
     const activeId = await currentUserId(userId)
-    if (!navigator.onLine || !activeId || activeId === 'guest' || activeId === 'device_user') return false
+    if (!activeId || activeId === 'guest' || activeId === 'device_user') return false
+    if (!(await resolveOnlineStatus())) return false
 
     const pending = await offlineDatabase.transactions.where('user_id').equals(activeId)
       .filter((record) => record.sync_status !== 'synced').toArray()
@@ -89,7 +112,8 @@ export const syncService = {
 
   async syncSavingsGoals(userId) {
     const activeId = await currentUserId(userId)
-    if (!navigator.onLine || !activeId || activeId === 'guest' || activeId === 'device_user') return false
+    if (!activeId || activeId === 'guest' || activeId === 'device_user') return false
+    if (!(await resolveOnlineStatus())) return false
     const pending = await offlineDatabase.savings_goals.where('user_id').equals(activeId)
       .filter((goal) => goal.sync_status !== 'synced').toArray()
     for (const goal of pending) {
@@ -122,7 +146,8 @@ export const syncService = {
 
   async syncRecurringTransactions(userId) {
     const activeId = await currentUserId(userId)
-    if (!navigator.onLine || !activeId || activeId === 'guest' || activeId === 'device_user') return false
+    if (!activeId || activeId === 'guest' || activeId === 'device_user') return false
+    if (!(await resolveOnlineStatus())) return false
     const pending = await offlineDatabase.recurring_transactions.where('user_id').equals(activeId)
       .filter((row) => row.sync_status !== 'synced').toArray()
     for (const row of pending) {
@@ -155,7 +180,8 @@ export const syncService = {
 
   async syncProfile(userId) {
     const activeId = await currentUserId(userId)
-    if (!navigator.onLine || !activeId || activeId === 'guest' || activeId === 'device_user') return false
+    if (!activeId || activeId === 'guest' || activeId === 'device_user') return false
+    if (!(await resolveOnlineStatus())) return false
     const profile = await offlineDatabase.profiles.get(activeId)
     // App startup can run before the local profile cache has been populated.
     // In that case there is nothing local to upload yet; fetch the cloud copy below.
@@ -181,7 +207,8 @@ export const syncService = {
   },
 
   async syncAll(userId) {
-    if (syncInProgress || !navigator.onLine) return false
+    if (syncInProgress) return false
+    if (!(await resolveOnlineStatus())) return false
     syncInProgress = true
     try {
       const activeId = await currentUserId(userId)

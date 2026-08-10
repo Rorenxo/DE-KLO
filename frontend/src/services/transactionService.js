@@ -59,7 +59,7 @@ export const transactionService = {
 
     // IndexedDB is the source of truth for the UI. The network refresh only fills it.
     const local = await this.getLocalTransactions(activeId)
-    if (navigator.onLine && activeId !== 'device_user') {
+    if (activeId !== 'device_user') {
       this.syncTransactions(activeId).catch(() => {})
     }
     return local
@@ -93,7 +93,7 @@ export const transactionService = {
     await offlineDatabase.transactions.put(record)
     await enqueueOperation({ user_id: ownerId, entity: 'transactions', entity_id: record.id, operation: 'upsert' })
     notifySync()
-    if (navigator.onLine && ownerId !== 'device_user') {
+    if (ownerId !== 'device_user') {
       this.syncTransactions(ownerId).catch(() => {})
     }
     return record
@@ -117,7 +117,7 @@ export const transactionService = {
     }
     await enqueueOperation({ user_id: ownerId, entity: 'transactions', entity_id: transactionId, operation: 'delete' })
     notifySync()
-    if (navigator.onLine && ownerId !== 'device_user') this.syncTransactions(ownerId).catch(() => {})
+    if (ownerId !== 'device_user') this.syncTransactions(ownerId).catch(() => {})
     return true
   },
 
