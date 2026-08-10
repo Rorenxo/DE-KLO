@@ -19,9 +19,9 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange, them
   ]
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 lg:hidden max-w-md mx-auto">
+    <div className="fixed bottom-4 md:bottom-6 left-4 right-4 z-50 lg:hidden max-w-md sm:max-w-lg md:max-w-xl mx-auto">
       {showMoreMenu && (
-        <div className={`mb-2 p-3 backdrop-blur-xl border rounded-3xl shadow-2xl space-y-1 animate-fade-in ${
+        <div className={`mb-2 p-3 md:p-4 backdrop-blur-xl border rounded-3xl shadow-2xl space-y-1 md:space-y-1.5 animate-fade-in ${
           isLight
             ? 'bg-white/95 border-slate-200 shadow-slate-300/50'
             : 'bg-[#24292e]/95 border-[#4a5156]/60 shadow-black/90'
@@ -36,13 +36,13 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange, them
                   setShowMoreMenu(false)
                 }}
                 aria-label={item.label}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-semibold active:scale-[0.985] transition-all cursor-pointer ${
+                className={`w-full flex items-center gap-3 px-4 py-2.5 md:py-3 rounded-2xl text-xs md:text-sm font-semibold active:scale-[0.985] transition-all cursor-pointer ${
                   activeTab === item.id
                     ? isLight ? 'bg-slate-900 text-white' : 'bg-[#bdc7ce] text-[#000000]'
                     : isLight ? 'text-slate-600 hover:text-black hover:bg-slate-100' : 'text-[#808a92] hover:text-white hover:bg-[#4a5156]/30'
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4 h-4 md:w-5 md:h-5" />
                 <span>{item.label}</span>
               </button>
             )
@@ -50,7 +50,7 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange, them
         </div>
       )}
 
-      <div className={`w-full backdrop-blur-xl border rounded-[26px] p-2 flex items-center justify-around shadow-2xl ${
+      <div className={`w-full backdrop-blur-xl border rounded-[26px] md:rounded-[32px] p-2 md:p-3 flex items-center justify-around shadow-2xl ${
         isLight
           ? 'bg-white/90 border-slate-200 shadow-slate-300/50'
           : 'bg-[#24292e]/90 border-[#4a5156]/60 shadow-black/90'
@@ -67,22 +67,22 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange, them
                 setShowMoreMenu(false)
               }}
               aria-label={item.label}
-              className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl active:scale-95 transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1 md:py-1.5 px-3 md:px-4 rounded-2xl active:scale-95 transition-all cursor-pointer ${
                 isActive
                   ? isLight ? 'text-slate-900' : 'text-white'
                   : isLight ? 'text-slate-500 hover:text-black' : 'text-[#808a92] hover:text-[#bdc7ce]'
               }`}
             >
               <div
-                className={`p-1.5 rounded-xl transition-all ${
+                className={`p-1.5 md:p-2.5 rounded-xl md:rounded-2xl transition-all ${
                   isActive
                     ? isLight ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20' : 'bg-[#bdc7ce] text-[#000000] shadow-md shadow-[#bdc7ce]/20'
                     : ''
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4 h-4 md:w-5 md:h-5" />
               </div>
-              <span className="text-[10px] sm:text-[11px] font-medium mt-1 leading-none">
+              <span className="text-[10px] sm:text-[11px] md:text-xs font-semibold mt-1 leading-none">
                 {item.label}
               </span>
             </button>
@@ -92,22 +92,22 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange, them
         <button
           onClick={() => setShowMoreMenu(!showMoreMenu)}
           aria-label="More navigation options"
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl active:scale-95 transition-all cursor-pointer ${
+          className={`flex flex-col items-center justify-center py-1 md:py-1.5 px-3 md:px-4 rounded-2xl active:scale-95 transition-all cursor-pointer ${
             showMoreMenu || moreItems.some((i) => i.id === activeTab)
               ? isLight ? 'text-slate-900' : 'text-white'
               : isLight ? 'text-slate-500 hover:text-black' : 'text-[#808a92] hover:text-[#bdc7ce]'
           }`}
         >
           <div
-            className={`p-1.5 rounded-xl transition-all ${
+            className={`p-1.5 md:p-2.5 rounded-xl md:rounded-2xl transition-all ${
               showMoreMenu || moreItems.some((i) => i.id === activeTab)
                 ? isLight ? 'bg-slate-900 text-white' : 'bg-[#bdc7ce] text-[#000000]'
                 : ''
             }`}
           >
-            <MoreHorizontal className="w-4 h-4" />
+            <MoreHorizontal className="w-4 h-4 md:w-5 md:h-5" />
           </div>
-          <span className="text-[10px] sm:text-[11px] font-medium mt-1 leading-none">
+          <span className="text-[10px] sm:text-[11px] md:text-xs font-semibold mt-1 leading-none">
             More
           </span>
         </button>

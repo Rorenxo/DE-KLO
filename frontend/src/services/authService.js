@@ -5,8 +5,21 @@ function sanitizeInput(str) {
   return str.trim().replace(/[<>]/g, '')
 }
 
+export function generateCardNumber() {
+  const block1 = Math.floor(1000 + Math.random() * 9000)
+  const block2 = Math.floor(1000 + Math.random() * 9000)
+  const block3 = Math.floor(1000 + Math.random() * 9000)
+  return `DK-${block1}-${block2}-${block3}`
+}
+
+export function getCtdDate() {
+  const now = new Date()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const year = String(now.getFullYear()).slice(-2)
+  return `${month}/${year}`
+}
+
 export const authService = {
-  // Connects to Supabase Google OAuth provider endpoint
   async signInWithGoogle() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -18,7 +31,6 @@ export const authService = {
     return data
   },
 
-  // Connects to Supabase email/password sign-in endpoint
   async login({ email, password }) {
     const cleanEmail = sanitizeInput(email)
     if (!cleanEmail || !password) {
@@ -33,7 +45,6 @@ export const authService = {
     return data
   },
 
-  // Connects to Supabase user registration endpoint
   async register({ nickname, email, password }) {
     const cleanNickname = sanitizeInput(nickname)
     const cleanEmail = sanitizeInput(email)
@@ -42,18 +53,110 @@ export const authService = {
       throw new Error('Invalid registration data format')
     }
 
+    const cardNumber = generateCardNumber()
+    const ctdDate = getCtdDate()
+
     const { data, error } = await supabase.auth.signUp({
       email: cleanEmail,
       password,
       options: {
-        data: { nickname: cleanNickname },
+        data: {
+          nickname: cleanNickname,
+          card_number: cardNumber,
+          ctd_date: ctdDate,
+          balance: 0,
+          income: 0,
+          expenses: 0,
+          savings: 0,
+        },
       },
     })
     if (error) throw error
+
+    if (data?.user?.id) {
+      try {
+        localStorage.setItem(`deklo_card_${data.user.id}`, cardNumber)
+        localStorage.setItem(`deklo_ctd_${data.user.id}`, ctdDate)
+      } catch (e) {}
+    }
+
     return data
   },
 
-  // Sends 6-digit OTP passcode to email for password reset
+  getUserCardInfo(user) {
+    if (!user) {
+      return {
+        cardNumber: 'DK-0000-0000-0000',
+        cardMasked: '•••• •••• •••• 0000',
+        ctdDate: '01/26',
+      }
+    }
+
+    const userId = user.id || user.email || 'guest'
+    let cardNumber = user?.user_metadata?.card_number
+    let ctdDate = user?.user_metadata?.ctd_date
+
+    if (!cardNumber) {
+      try {
+        cardNumber = localStorage.getItem(`deklo_card_${userId}`)
+      } catch (e) {}
+    }
+
+    if (!ctdDate) {
+      try {
+        ctdDate = localStorage.getItem(`deklo_ctd_${userId}`)
+      } catch (e) {}
+    }
+
+    if (!cardNumber) {
+      cardNumber = generateCardNumber()
+      ctdDate = getCtdDate()
+
+      try {
+        localStorage.setItem(`deklo_card_${userId}`, cardNumber)
+        localStorage.setItem(`deklo_ctd_${userId}`, ctdDate)
+        supabase.auth.updateUser({
+          data: { card_number: cardNumber, ctd_date: ctdDate }
+        }).catch(() => {})
+      } catch (e) {}
+    }
+
+    const last4 = cardNumber.slice(-4)
+    const cardMasked = `•••• •••• •••• ${last4}`
+
+    return {
+      cardNumber,
+      cardMasked,
+      ctdDate: ctdDate || getCtdDate(),
+    }
+  },
+
+  async updateUserData(userId, userData) {
+    if (!userId) return
+
+    try {
+      localStorage.setItem(`deklo_user_data_${userId}`, JSON.stringify(userData))
+    } catch (e) {}
+
+    try {
+      await supabase.auth.updateUser({
+        data: userData,
+      })
+    } catch (err) {
+      console.warn('Supabase user data sync fallback:', err)
+    }
+  },
+
+  getUserSavedData(userId) {
+    if (!userId) return null
+    try {
+      const saved = localStorage.getItem(`deklo_user_data_${userId}`)
+      return saved ? JSON.parse(saved) : null
+    } catch (e) {
+      return null
+    }
+  },
+
   async sendPasswordResetOtp(email) {
     const cleanEmail = sanitizeInput(email)
     const { data, error } = await supabase.auth.signInWithOtp({
@@ -63,7 +166,6 @@ export const authService = {
     return data
   },
 
-  // Verifies 6-digit OTP passcode for password reset
   async verifyPasswordResetOtp(email, token) {
     const cleanEmail = sanitizeInput(email)
     const cleanToken = sanitizeInput(token)
@@ -76,7 +178,6 @@ export const authService = {
     return data
   },
 
-  // Updates authenticated user password
   async updatePassword(newPassword) {
     const { data, error } = await supabase.auth.updateUser({
       password: newPassword,
@@ -85,7 +186,6 @@ export const authService = {
     return data
   },
 
-  // Sends PIN reset verification request to email
   async sendPinResetEmail(email) {
     const cleanEmail = sanitizeInput(email)
     const { data, error } = await supabase.auth.signInWithOtp({
@@ -95,7 +195,6 @@ export const authService = {
     return data
   },
 
-  // Local trusted-device PIN storage for offline PWA authentication
   getStoredPin(userId) {
     if (!userId) return null
     try {
@@ -154,28 +253,24 @@ export const authService = {
     } catch (e) {}
   },
 
-  // Connects to Supabase sign out endpoint and clears local device session
   async logout(userId) {
     this.clearDeviceState(userId)
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   },
 
-  // Fetches current persistent auth session from Supabase (works offline via local storage)
   async getSession() {
     const { data, error } = await supabase.auth.getSession()
     if (error) throw error
     return data.session
   },
 
-  // Verifies current authenticated user token with Supabase backend server
   async getCurrentUser() {
     const { data: { user }, error } = await supabase.auth.getUser()
     if (error) throw error
     return user
   },
 
-  // Listens to Supabase auth state changes
   onAuthStateChange(callback) {
     return supabase.auth.onAuthStateChange(callback)
   }

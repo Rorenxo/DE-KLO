@@ -16,7 +16,7 @@ export default function PinScreen({ user, onPinVerified }) {
   const [firstPin, setFirstPin] = useState('')
   const [error, setError] = useState('')
   const [infoMsg, setInfoMsg] = useState('')
-  
+
   const [resetPasscode, setResetPasscode] = useState(['', '', '', '', '', ''])
   const [generatedOtp, setGeneratedOtp] = useState('')
   const [isSendingReset, setIsSendingReset] = useState(false)
@@ -191,7 +191,6 @@ export default function PinScreen({ user, onPinVerified }) {
       </div>
 
       <div className="relative z-10 w-full max-w-[360px] md:max-w-[440px] mx-auto my-auto flex flex-col items-center text-center space-y-5 md:space-y-6 py-4">
-        
         <div className="flex flex-col items-center gap-2">
           <img
             src={logoImg}
@@ -223,7 +222,6 @@ export default function PinScreen({ user, onPinVerified }) {
           </p>
         )}
 
-        {/* Reset Verification Form */}
         {mode === 'reset_verification' ? (
           <form onSubmit={handleVerifyResetCode} className="w-full space-y-6 pt-2">
             <div className="flex items-center justify-center gap-2 sm:gap-3">
@@ -264,17 +262,17 @@ export default function PinScreen({ user, onPinVerified }) {
           </form>
         ) : (
           <>
-            {/* 4-Digit PIN Dot Slots */}
             <div className="flex items-center justify-center gap-4 md:gap-6 py-3 md:py-4">
               {Array.from({ length: 4 }).map((_, idx) => {
                 const isFilled = idx < pin.length
                 return (
                   <div
                     key={idx}
-                    className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full transition-all duration-250 flex items-center justify-center border ${isFilled
+                    className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full transition-all duration-250 flex items-center justify-center border ${
+                      isFilled
                         ? 'bg-[#bdc7ce] border-[#bdc7ce] scale-110 shadow-lg shadow-[#bdc7ce]/25'
                         : 'bg-[#24292e]/70 border-[#4a5156]'
-                      }`}
+                    }`}
                   >
                     {isFilled && (
                       <span className="w-2.5 h-2.5 rounded-full bg-[#000000]" />
@@ -284,13 +282,11 @@ export default function PinScreen({ user, onPinVerified }) {
               })}
             </div>
 
-            {/* Desktop Minimal Keyboard Helper Hint */}
             <div className="hidden md:flex items-center justify-center gap-2 text-xs text-[#808a92] pt-1">
               <Keyboard className="w-4 h-4 text-[#bdc7ce]" />
               <span>Type your 4-digit PIN using keyboard</span>
             </div>
 
-            {/* Mobile-Only Keypad Grid */}
             <div className="w-full max-w-[280px] grid grid-cols-3 gap-4 pt-2 md:hidden">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                 <button
@@ -303,20 +299,7 @@ export default function PinScreen({ user, onPinVerified }) {
                 </button>
               ))}
 
-              <div className="w-16 h-16 mx-auto flex items-center justify-center">
-                {/* Reset PIN Trigger Icon (Commented out)
-                {mode === 'enter' && (
-                  <button
-                    type="button"
-                    onClick={handleForgotPin}
-                    disabled={isSendingReset}
-                    className="p-2 text-[#808a92] hover:text-[#bdc7ce] transition-colors"
-                  >
-                    <ShieldCheck className="w-6 h-6" />
-                  </button>
-                )}
-                */}
-              </div>
+              <div className="w-16 h-16 mx-auto flex items-center justify-center" />
 
               <button
                 type="button"
@@ -328,31 +311,15 @@ export default function PinScreen({ user, onPinVerified }) {
 
               <button
                 type="button"
-                onClick={handleDelete}
+                onClick={() => handleDelete()}
                 className="w-16 h-16 mx-auto rounded-full bg-transparent hover:bg-[#24292e]/40 active:scale-95 text-[#808a92] hover:text-white flex items-center justify-center transition-all cursor-pointer"
                 aria-label="Delete"
               >
                 <Delete className="w-6 h-6" />
               </button>
             </div>
-
-            {/* Reset PIN Link (Commented out)
-            {mode === 'enter' && (
-              <div className="pt-3">
-                <button
-                  type="button"
-                  onClick={handleForgotPin}
-                  disabled={isSendingReset}
-                  className="text-xs text-[#808a92] hover:text-[#bdc7ce] font-medium transition-colors cursor-pointer"
-                >
-                  {isSendingReset ? 'Sending 6-Digit Code...' : 'Forgot PIN? Reset via 6-Digit Code'}
-                </button>
-              </div>
-            )}
-            */}
           </>
         )}
-
       </div>
     </div>
   )

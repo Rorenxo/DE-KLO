@@ -2,13 +2,15 @@ import React, { useState } from 'react'
 import { Eye, EyeOff, Check, Copy } from 'lucide-react'
 import logoImg from '../../assets/logo.png'
 
-export default function AtmCard({ userName = 'Lorenxo' }) {
+export default function AtmCard({
+  userName = 'User',
+  balanceAmount = '₱0.00',
+  accountIdFull = 'DK-0000-0000-0000',
+  accountIdMasked = '•••• •••• •••• 0000',
+  createdDate = '01/26',
+}) {
   const [showBalance, setShowBalance] = useState(true)
   const [copied, setCopied] = useState(false)
-
-  const accountIdFull = 'DK-4829-7796-8842'
-  const accountIdMasked = '•••• •••• •••• 8842'
-  const balanceAmount = '₱63,420.00'
 
   const handleCopyId = () => {
     navigator.clipboard.writeText(accountIdFull)
@@ -73,7 +75,7 @@ export default function AtmCard({ userName = 'Lorenxo' }) {
             Ctd Date
           </span>
           <span className="text-xs font-mono text-white">
-            10/28
+            {createdDate}
           </span>
         </div>
       </div>

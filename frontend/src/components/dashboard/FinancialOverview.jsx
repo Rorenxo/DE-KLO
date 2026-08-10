@@ -1,21 +1,22 @@
 import React, { useState } from 'react'
 import { Wallet, TrendingUp, PiggyBank, ArrowDownRight, ChevronDown } from 'lucide-react'
 
-export default function FinancialOverview({ theme = 'dark' }) {
+export default function FinancialOverview({
+  theme = 'dark',
+  overviewData = {
+    balance: '₱0',
+    income: '₱0',
+    incomeGrowth: '0%',
+    savings: '₱0',
+    savingsGrowth: '0%',
+    expenses: '₱0',
+    expensesGrowth: '0%',
+  },
+}) {
   const [period, setPeriod] = useState('This Month')
   const [showDropdown, setShowDropdown] = useState(false)
 
   const isLight = theme === 'light'
-
-  const overviewData = {
-    balance: '₱63,420',
-    income: '₱28,750',
-    incomeGrowth: '+18.6%',
-    savings: '₱12,430',
-    savingsGrowth: '+12.4%',
-    expenses: '₱16,320',
-    expensesGrowth: '-8.7%',
-  }
 
   return (
     <div className="w-full space-y-3">

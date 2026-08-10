@@ -3,6 +3,7 @@ import AuthPage from './components/auth/AuthPage'
 import PinScreen from './components/auth/PinScreen'
 import TestSuccessPage from './components/auth/TestSuccessPage'
 import { authService } from './services/authService'
+import { profileService } from './services/profileService'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -18,6 +19,9 @@ export default function App() {
     authService.getSession().then((sess) => {
       setSession(sess)
       setUser(sess?.user || null)
+      if (sess?.user) {
+        profileService.ensureProfile(sess.user).catch(() => {})
+      }
       setLoading(false)
     }).catch(() => {
       setLoading(false)
@@ -28,6 +32,7 @@ export default function App() {
         setSession(sess)
         setUser(sess.user)
         setHasDeviceAccount(true)
+        profileService.ensureProfile(sess.user).catch(() => {})
       } else if (!navigator.onLine) {
         const lastUserId = authService.getLastUserId()
         if (lastUserId && authService.isDeviceConfigured(lastUserId)) {
@@ -44,6 +49,16 @@ export default function App() {
       subscription?.unsubscribe()
     }
   }, [])
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout(user?.id)
+    } catch (e) {}
+    setSession(null)
+    setUser(null)
+    setIsPinVerified(false)
+    setHasDeviceAccount(false)
+  }
 
   if (loading) {
     return (
@@ -69,6 +84,7 @@ export default function App() {
       <TestSuccessPage
         user={activeUser}
         onLockApp={() => setIsPinVerified(false)}
+        onLogout={handleLogout}
       />
     )
   }
