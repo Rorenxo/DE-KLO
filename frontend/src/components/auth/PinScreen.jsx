@@ -8,7 +8,7 @@ export default function PinScreen({ user, onPinVerified }) {
   const userId = user?.id || user?.email || 'default_user'
   const userEmail = user?.email || ''
 
-  const existingPin = authService.getStoredPin(userId)
+  const existingPin = authService.getStoredPin(userId, userEmail)
   const pinLength = 4
 
   const [mode, setMode] = useState(existingPin ? 'enter' : 'create')
@@ -68,7 +68,7 @@ export default function PinScreen({ user, onPinVerified }) {
       setPin('')
     } else if (mode === 'confirm') {
       if (completedPin === firstPin) {
-        authService.savePin(userId, completedPin)
+        authService.savePin(userId, userEmail, completedPin)
         onPinVerified()
       } else {
         setError('PINs do not match. Try again.')
@@ -83,7 +83,7 @@ export default function PinScreen({ user, onPinVerified }) {
         setTimeout(() => setPin(''), 300)
       }
     } else if (mode === 'change') {
-      authService.savePin(userId, completedPin)
+      authService.savePin(userId, userEmail, completedPin)
       setInfoMsg('New PIN set successfully!')
       setTimeout(() => onPinVerified(), 800)
     }

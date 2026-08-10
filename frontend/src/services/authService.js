@@ -195,22 +195,38 @@ export const authService = {
     return data
   },
 
-  getStoredPin(userId) {
-    if (!userId) return null
+  // Permanent Device & User PIN Management
+  getStoredPin(userId, email) {
     try {
-      return localStorage.getItem(`deklo_pin_${userId}`) || localStorage.getItem('deklo_device_pin') || null
+      let pin = null
+      if (userId) pin = localStorage.getItem(`deklo_pin_${userId}`)
+      if (!pin && email) pin = localStorage.getItem(`deklo_pin_${email}`)
+      if (!pin) pin = localStorage.getItem('deklo_device_pin')
+      return pin || null
     } catch (e) {
       return null
     }
   },
 
-  savePin(userId, pin) {
-    if (!userId) return
+  savePin(userId, email, pin) {
+    // Overload support for (userId, pin) or (userId, email, pin)
+    let actualPin = pin
+    let actualEmail = email
+    if (!pin && typeof email === 'string' && /^\d{4}$/.test(email)) {
+      actualPin = email
+      actualEmail = null
+    }
+
+    if (!actualPin) return
+
     try {
-      localStorage.setItem(`deklo_pin_${userId}`, pin)
-      localStorage.setItem('deklo_device_pin', pin)
-      localStorage.setItem(`deklo_device_setup_${userId}`, 'true')
-      localStorage.setItem('deklo_last_user_id', userId)
+      if (userId) localStorage.setItem(`deklo_pin_${userId}`, actualPin)
+      if (actualEmail) localStorage.setItem(`deklo_pin_${actualEmail}`, actualPin)
+      localStorage.setItem('deklo_device_pin', actualPin)
+      if (userId) {
+        localStorage.setItem(`deklo_device_setup_${userId}`, 'true')
+        localStorage.setItem('deklo_last_user_id', userId)
+      }
     } catch (e) {}
   },
 
@@ -242,21 +258,13 @@ export const authService = {
     }
   },
 
-  clearDeviceState(userId) {
-    try {
-      if (userId) {
-        localStorage.removeItem(`deklo_pin_${userId}`)
-        localStorage.removeItem(`deklo_device_setup_${userId}`)
-      }
-      localStorage.removeItem('deklo_device_pin')
-      localStorage.removeItem('deklo_last_user_id')
-    } catch (e) {}
-  },
-
+  // On Logout: sign out of Supabase auth, but PRESERVE the user's saved PIN on device!
   async logout(userId) {
-    this.clearDeviceState(userId)
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    try {
+      await supabase.auth.signOut()
+    } catch (e) {
+      console.warn('Supabase signout fallback:', e)
+    }
   },
 
   async getSession() {
