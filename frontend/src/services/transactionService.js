@@ -4,8 +4,9 @@ export const transactionService = {
   // Fetch all transactions belonging strictly to authenticated user
   async getTransactions(userId) {
     try {
-      const { data: authData } = await supabase.auth.getUser()
-      const activeUserId = authData?.user?.id || userId
+      const { data: sessionData } = await supabase.auth.getSession()
+      const authUser = sessionData?.session?.user || (await supabase.auth.getUser()).data?.user
+      const activeUserId = authUser?.id || userId
 
       if (!activeUserId || activeUserId === 'guest' || activeUserId === 'device_user') {
         return []
@@ -30,14 +31,16 @@ export const transactionService = {
 
   // Insert a new transaction record into Supabase PostgreSQL
   async createTransaction({ userId, type, amount, category, description }) {
-    // 1. Get authenticated Supabase user ID
-    const { data: authData } = await supabase.auth.getUser()
-    const activeUserId = authData?.user?.id || userId
+    // 1. Fetch current active Supabase authenticated user session
+    const { data: sessionData } = await supabase.auth.getSession()
+    const currentAuthUser = sessionData?.session?.user || (await supabase.auth.getUser()).data?.user
 
-    if (!activeUserId || activeUserId === 'guest' || activeUserId === 'device_user') {
-      console.warn('Supabase Insert Skipped: User is not logged in with Supabase Auth.')
-      throw new Error('Please log in with Google or Email/Password to sync with Supabase Cloud Database.')
+    if (!currentAuthUser || !currentAuthUser.id) {
+      console.warn('Supabase DB Insert Cancelled: No active Supabase auth session found.')
+      throw new Error('Please sign in with Google or Email/Password to persist data to Supabase Database.')
     }
+
+    const activeUserId = currentAuthUser.id
 
     if (typeof amount !== 'number' || amount <= 0) {
       throw new Error('Transaction amount must be a positive number')
@@ -52,29 +55,28 @@ export const transactionService = {
       user_id: activeUserId,
       type,
       amount,
-      category: category || (type === 'deposit' ? 'Deposit' : type === 'withdrawal' ? 'Withdrawal' : 'General'),
+      category: category || (type === 'deposit' ? 'Deposit' : 'Withdrawal'),
       description: description || '',
       transaction_date: new Date().toISOString(),
     }
 
-    console.log('Sending transaction to Supabase PostgreSQL table "transactions":', payload)
+    console.log('Inserting into Supabase PostgreSQL table "transactions":', payload)
 
     try {
       const { data, error } = await supabase
         .from('transactions')
-        .insert(payload)
+        .insert([payload])
         .select()
-        .single()
 
       if (error) {
-        console.error('Supabase PostgreSQL transaction insert error:', error)
+        console.error('Supabase PostgreSQL insert failed:', error)
         throw error
       }
 
-      console.log('SUCCESSFULLY INSERTED INTO SUPABASE POSTGRESQL:', data)
-      return data
+      console.log('SUCCESS: Transaction inserted into Supabase PostgreSQL:', data)
+      return data && data.length > 0 ? data[0] : payload
     } catch (err) {
-      console.error('Create transaction error:', err)
+      console.error('Create transaction failed:', err)
       throw err
     }
   },
@@ -82,8 +84,8 @@ export const transactionService = {
   // Delete transaction by ID
   async deleteTransaction(transactionId, userId) {
     if (!transactionId) return false
-    const { data: authData } = await supabase.auth.getUser()
-    const activeUserId = authData?.user?.id || userId
+    const { data: sessionData } = await supabase.auth.getSession()
+    const activeUserId = sessionData?.session?.user?.id || userId
 
     if (!activeUserId) return false
 
