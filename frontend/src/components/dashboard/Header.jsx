@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Bell, User, Sun, Moon, LogOut, CreditCard, Edit3, X, Check, Camera } from 'lucide-react'
 import { profileService } from '../../services/profileService'
 
@@ -11,6 +11,10 @@ export default function Header({
   cardInfo,
   onLogout,
   onProfileUpdated,
+  pendingSyncCount = 0,
+  isOnline = true,
+  isSyncing = false,
+  hasSyncError = false,
 }) {
   const [dateTimeStr, setDateTimeStr] = useState('')
   const [showProfileMenu, setShowProfileMenu] = useState(false)
@@ -117,6 +121,11 @@ export default function Header({
       </div>
 
       <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#808a92]" title={isOnline ? (hasSyncError ? 'Sync issue; retrying automatically' : 'All local changes synced') : 'Offline; local changes are safe'}>
+          <span className={`w-1.5 h-1.5 rounded-full ${!isOnline ? 'bg-slate-400' : hasSyncError ? 'bg-rose-400' : pendingSyncCount || isSyncing ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+          <span className="hidden sm:inline">{!isOnline ? `Offline${pendingSyncCount ? ` · ${pendingSyncCount} pending` : ''}` : hasSyncError ? 'Sync issue' : isSyncing ? 'Syncing...' : pendingSyncCount ? `${pendingSyncCount} pending` : 'Synced'}</span>
+        </div>
+
         <button
           onClick={onToggleTheme}
           aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -329,7 +338,7 @@ export default function Header({
                       <span>Saved!</span>
                     </>
                   ) : isSavingProfile ? (
-                    <span>Saving to Supabase...</span>
+                    <span>Saving...</span>
                   ) : (
                     <span>Save Profile</span>
                   )}

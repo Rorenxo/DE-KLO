@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { ArrowDownLeft, ArrowUpRight, X, DollarSign, CheckCircle2, AlertCircle } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowDownLeft, ArrowUpRight, X, CheckCircle2, AlertCircle } from 'lucide-react'
 
 export default function TransactionModal({
   isOpen,
@@ -13,24 +13,16 @@ export default function TransactionModal({
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   const isLight = theme === 'light'
   const isDeposit = type === 'deposit'
 
   const presets = isDeposit ? [500, 1000, 5000, 10000] : [500, 1000, 2000, 5000]
 
-  useEffect(() => {
-    if (isOpen) {
-      setAmount('')
-      setNote('')
-      setError('')
-      setIsSuccess(false)
-    }
-  }, [isOpen, type])
-
   if (!isOpen) return null
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
@@ -45,11 +37,17 @@ export default function TransactionModal({
       return
     }
 
-    setIsSuccess(true)
-    setTimeout(() => {
-      onConfirm(numAmount, note || (isDeposit ? 'Deposit' : 'Withdrawal'))
-      onClose()
-    }, 600)
+    setIsSaving(true)
+    try {
+      const saveResult = await onConfirm(numAmount, note || (isDeposit ? 'Deposit' : 'Withdrawal'))
+      setIsSuccess(saveResult || 'offline')
+      setTimeout(() => onClose(), 900)
+    } catch (err) {
+      console.error('Transaction save failed:', err)
+      setError(err?.message || 'Unable to save this transaction locally. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handlePresetClick = (val) => {
@@ -112,10 +110,15 @@ export default function TransactionModal({
               <CheckCircle2 className="w-8 h-8 animate-bounce" />
             </div>
             <h4 className="text-lg font-bold text-white">
-              {isDeposit ? 'Deposit Successful!' : 'Withdrawal Successful!'}
+              {isSuccess === 'synced'
+                ? (isDeposit ? 'Deposit Synced!' : 'Withdrawal Synced!')
+                : (isDeposit ? 'Deposit Saved!' : 'Withdrawal Saved!')}
             </h4>
             <p className="text-xs text-[#808a92]">
               ₱{parseFloat(amount).toLocaleString()} has been {isDeposit ? 'added to' : 'deducted from'} your balance.
+            </p>
+            <p className="text-xs text-[#808a92]">
+              {isSuccess === 'offline' ? 'Saved offline; sync will retry automatically.' : 'Saved locally; waiting for sync.'}
             </p>
           </div>
         ) : (
@@ -223,13 +226,14 @@ export default function TransactionModal({
               </button>
               <button
                 type="submit"
+                disabled={isSaving}
                 className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs shadow-lg transition-all active:scale-[0.985] cursor-pointer ${
                   isDeposit
                     ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/20'
                     : 'bg-rose-500 hover:bg-rose-400 text-white shadow-rose-500/20'
                 }`}
               >
-                {isDeposit ? 'Confirm Deposit' : 'Confirm Withdraw'}
+                {isSaving ? 'Saving...' : isDeposit ? 'Confirm Deposit' : 'Confirm Withdraw'}
               </button>
             </div>
           </form>

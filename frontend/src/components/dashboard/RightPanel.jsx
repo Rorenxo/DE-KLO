@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   Wallet,
   TrendingUp,
@@ -8,7 +8,6 @@ import {
   Target,
   Plus,
   X,
-  CheckCircle2,
   AlertCircle,
 } from 'lucide-react'
 import ScrollFadeIn from '../ui/ScrollFadeIn'
@@ -60,13 +59,12 @@ export default function RightPanel({
     const numCurrent = parseFloat(initialAmount) || 0
 
     if (!userId || userId === 'guest') {
-      setGoalError('Please sign in to save goals to Supabase.')
+      setGoalError('Please sign in to save goals.')
       return
     }
 
     setIsSubmittingGoal(true)
     try {
-      // Insert row into Supabase PostgreSQL savings_goals table
       await savingsService.createGoal({
         userId,
         name: goalName.trim(),
@@ -85,7 +83,8 @@ export default function RightPanel({
       }
     } catch (err) {
       setIsSubmittingGoal(false)
-      setGoalError(`Supabase Error: ${err.message || 'Failed to create goal'}`)
+      console.error('Goal save failed:', err)
+      setGoalError(err.message || 'Failed to create goal')
     }
   }
 
@@ -381,7 +380,7 @@ export default function RightPanel({
                   disabled={isSubmittingGoal}
                   className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#bdc7ce] text-black font-bold text-xs shadow-lg hover:opacity-90 transition-opacity"
                 >
-                  {isSubmittingGoal ? 'Saving to Supabase...' : 'Save Goal to Database'}
+                  {isSubmittingGoal ? 'Saving...' : 'Save Goal'}
                 </button>
               </div>
             </form>

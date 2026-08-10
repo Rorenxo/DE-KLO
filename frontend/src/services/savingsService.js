@@ -1,118 +1,58 @@
-import { supabase } from './supabaseClient'
+import { syncService } from './syncService'
+import { createLocalId, enqueueOperation, offlineDatabase } from './offlineDatabase'
+
+const listeners = new Set()
+const notify = () => listeners.forEach((listener) => listener())
 
 export const savingsService = {
-  // Fetch savings goals belonging strictly to authenticated user
+  subscribeSync(listener) {
+    listeners.add(listener)
+    return () => listeners.delete(listener)
+  },
+
   async getGoals(userId) {
-    try {
-      const { data: authData } = await supabase.auth.getUser()
-      const activeUserId = authData?.user?.id || userId
-
-      if (!activeUserId || activeUserId === 'guest' || activeUserId === 'device_user') {
-        return []
-      }
-
-      const { data, error } = await supabase
-        .from('savings_goals')
-        .select('*')
-        .eq('user_id', activeUserId)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('Supabase fetch savings_goals error:', error)
-        return []
-      }
-      return data || []
-    } catch (err) {
-      console.error('Savings goals fetch error:', err)
-      return []
-    }
+    if (!userId || userId === 'guest') return []
+    const local = await offlineDatabase.savings_goals.where('user_id').equals(userId).toArray()
+    if (navigator.onLine && userId !== 'device_user') syncService.syncSavingsGoals(userId).then(notify).catch(() => {})
+    return local.filter((goal) => goal.sync_status !== 'pending-delete')
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
   },
 
-  // Insert a new savings goal record into Supabase PostgreSQL
   async createGoal({ userId, name, target_amount, current_amount = 0, deadline = null }) {
-    const { data: authData } = await supabase.auth.getUser()
-    const activeUserId = authData?.user?.id || userId
-
-    if (!activeUserId || activeUserId === 'guest' || activeUserId === 'device_user') {
-      throw new Error('Please log in with Google or Email/Password to sync with Supabase Cloud Database.')
-    }
-
+    if (!userId || userId === 'guest') throw new Error('Please sign in to save goals.')
     if (!name) throw new Error('Goal name is required')
-    if (typeof target_amount !== 'number' || target_amount <= 0) {
-      throw new Error('Target amount must be a positive number')
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('savings_goals')
-        .insert({
-          user_id: activeUserId,
-          name,
-          target_amount,
-          current_amount,
-          deadline,
-        })
-        .select()
-        .single()
-
-      if (error) {
-        console.error('Supabase savings_goals insert error:', error)
-        throw error
-      }
-      return data
-    } catch (err) {
-      console.error('Create savings goal error:', err)
-      throw err
-    }
+    if (typeof target_amount !== 'number' || target_amount <= 0) throw new Error('Target amount must be positive')
+    const now = new Date().toISOString()
+    const goal = { id: createLocalId(), user_id: userId, name, target_amount, current_amount, deadline, created_at: now, updated_at: now, sync_status: 'pending', last_sync_attempt: null, sync_error: null }
+    await offlineDatabase.savings_goals.put(goal)
+    await enqueueOperation({ user_id: userId, entity: 'savings_goals', entity_id: goal.id, operation: 'upsert' })
+    syncService.syncSavingsGoals(userId).then(notify).catch(() => {})
+    return goal
   },
 
-  // Update existing goal in Supabase
   async updateGoal(goalId, userId, updates) {
-    if (!goalId) throw new Error('Goal ID is required')
-    const { data: authData } = await supabase.auth.getUser()
-    const activeUserId = authData?.user?.id || userId
-
-    try {
-      const { data, error } = await supabase
-        .from('savings_goals')
-        .update(updates)
-        .eq('id', goalId)
-        .eq('user_id', activeUserId)
-        .select()
-        .single()
-
-      if (error) {
-        console.error('Supabase savings_goals update error:', error)
-        throw error
-      }
-      return data
-    } catch (err) {
-      console.error('Update savings goal error:', err)
-      throw err
-    }
+    const goal = await offlineDatabase.savings_goals.get(goalId)
+    if (!goal || goal.user_id !== userId) throw new Error('Goal not found')
+    const updated = { ...goal, ...updates, updated_at: new Date().toISOString(), sync_status: 'pending', sync_error: null }
+    await offlineDatabase.savings_goals.put(updated)
+    await enqueueOperation({ user_id: userId, entity: 'savings_goals', entity_id: goalId, operation: 'upsert' })
+    syncService.syncSavingsGoals(userId).then(notify).catch(() => {})
+    return updated
   },
 
-  // Delete goal by ID
   async deleteGoal(goalId, userId) {
-    if (!goalId) return false
-    const { data: authData } = await supabase.auth.getUser()
-    const activeUserId = authData?.user?.id || userId
-
-    try {
-      const { error } = await supabase
-        .from('savings_goals')
-        .delete()
-        .eq('id', goalId)
-        .eq('user_id', activeUserId)
-
-      if (error) {
-        console.error('Supabase savings_goals delete error:', error)
-        throw error
-      }
-      return true
-    } catch (err) {
-      console.error('Delete savings goal error:', err)
-      throw err
+    const goal = await offlineDatabase.savings_goals.get(goalId)
+    if (!goal || goal.user_id !== userId) return false
+    if (goal.sync_status === 'pending') {
+      await offlineDatabase.savings_goals.delete(goalId)
+      await offlineDatabase.sync_operations.where({ entity: 'savings_goals', entity_id: goalId, status: 'pending' }).modify({ status: 'completed' })
+    } else {
+      await offlineDatabase.savings_goals.update(goalId, { sync_status: 'pending-delete', updated_at: new Date().toISOString() })
     }
+    await enqueueOperation({ user_id: userId, entity: 'savings_goals', entity_id: goalId, operation: 'delete' })
+    syncService.syncSavingsGoals(userId).then(notify).catch(() => {})
+    return true
   },
 }
+
+window.addEventListener('deklo:sync-complete', notify)

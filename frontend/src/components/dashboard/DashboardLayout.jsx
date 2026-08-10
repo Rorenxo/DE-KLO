@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './Header'
 import AtmCard from './AtmCard'
 import ActionButtons from './ActionButtons'
@@ -13,13 +13,15 @@ import { authService } from '../../services/authService'
 import { profileService } from '../../services/profileService'
 import { transactionService } from '../../services/transactionService'
 import { savingsService } from '../../services/savingsService'
+import { syncService } from '../../services/syncService'
 
 export default function DashboardLayout({ user, onLockApp, onLogout }) {
   const [activeTab, setActiveTab] = useState('home')
   const [theme, setTheme] = useState(() => {
     try {
       return localStorage.getItem('deklo_theme') || 'dark'
-    } catch (e) {
+    } catch (err) {
+      console.warn('Theme preference unavailable:', err)
       return 'dark'
     }
   })
@@ -28,12 +30,16 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
   const [userProfile, setUserProfile] = useState(null)
   const cardInfo = authService.getUserCardInfo(user)
 
-  // Real Database Transactions State
+  // Local-first transactions state
   const [transactions, setTransactions] = useState([])
   const [isTxLoading, setIsTxLoading] = useState(false)
+  const [pendingSyncCount, setPendingSyncCount] = useState(0)
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine)
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [hasSyncError, setHasSyncError] = useState(false)
   const [goalsList, setGoalsList] = useState([])
 
-  // Dynamic Financial Metrics (Derived from Supabase Transactions)
+  // Dynamic Financial Metrics (Derived from local transactions)
   const [balance, setBalance] = useState(0)
   const [income, setIncome] = useState(0)
   const [expenses, setExpenses] = useState(0)
@@ -71,24 +77,33 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
     ],
   })
 
-  // 1. Fetch Profile & Real Supabase Records on Mount
+  // 1. Load local-first profile, transactions, and goals on mount.
   useEffect(() => {
     if (!userId || userId === 'guest') return
 
-    // Ensure Profile exists in Supabase public.profiles table
+    // Ensure the profile exists locally, then sync when online.
     if (user && user.id) {
       profileService.ensureProfile(user).then((prof) => {
         if (prof) setUserProfile(prof)
       }).catch((err) => console.error('Profile load error:', err))
     }
 
-    // Load Transactions from Supabase public.transactions table
-    transactionService.getTransactions(userId).then((txList) => {
+    const refreshSyncState = async () => {
+      const syncState = await syncService.getSyncState(userId)
+      setPendingSyncCount(syncState.pendingCount)
+      setIsSyncing(syncState.syncing)
+      setHasSyncError(syncState.hasError)
+    }
+
+    const refreshTransactions = async () => {
+      setIsTxLoading(true)
+      const txList = await transactionService.getTransactions(userId)
       setTransactions(txList || [])
       const metrics = transactionService.calculateMetrics(txList || [])
       setBalance(metrics.balance)
       setIncome(metrics.totalIncome)
       setExpenses(metrics.totalExpenses)
+      await refreshSyncState()
 
       // Calculate chart week node if transactions exist
       if (txList && txList.length > 0) {
@@ -111,21 +126,50 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
           return { ...prev, 'Per Week': updatedWeek }
         })
       }
-    }).catch((err) => console.error('Transactions load error:', err))
+      setIsTxLoading(false)
+    }
 
-    // Load Goals from Supabase public.savings_goals table
-    savingsService.getGoals(userId).then((gList) => {
+    refreshTransactions().catch((err) => {
+      console.error('Transactions load error:', err)
+      setIsTxLoading(false)
+    })
+
+    const unsubscribeSync = transactionService.subscribeSync(() => {
+      refreshTransactions().catch(() => {})
+    })
+    const updateOnlineState = () => {
+      setIsOnline(navigator.onLine)
+      refreshSyncState().catch((err) => console.error('Sync state refresh error:', err))
+    }
+    window.addEventListener('online', updateOnlineState)
+    window.addEventListener('offline', updateOnlineState)
+
+    const refreshGoals = async () => {
+      const gList = await savingsService.getGoals(userId)
       setGoalsList(gList || [])
       const totalGoalCurrent = (gList || []).reduce((acc, g) => acc + (Number(g.current_amount) || 0), 0)
       setSavings(totalGoalCurrent)
-    }).catch((err) => console.error('Goals load error:', err))
+      await refreshSyncState()
+    }
+    refreshGoals().catch((err) => console.error('Goals load error:', err))
+    const unsubscribeGoalSync = savingsService.subscribeSync(() => {
+      refreshGoals().catch(() => {})
+    })
 
+    return () => {
+      unsubscribeSync()
+      unsubscribeGoalSync()
+      window.removeEventListener('online', updateOnlineState)
+      window.removeEventListener('offline', updateOnlineState)
+    }
   }, [userId, user])
 
   useEffect(() => {
     try {
       localStorage.setItem('deklo_theme', theme)
-    } catch (e) { }
+    } catch (err) {
+      console.warn('Theme preference unavailable:', err)
+    }
 
     const root = document.documentElement
     if (theme === 'light') {
@@ -159,12 +203,12 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
     setIsModalOpen(true)
   }
 
-  // 2. Perform Real Supabase PostgreSQL Transaction Insert
+  // 2. Persist locally, then let the sync service upload when possible.
   const handleConfirmTransaction = async (amount, note) => {
     const txType = modalType === 'deposit' ? 'deposit' : 'withdrawal'
 
     try {
-      // Insert row into Supabase public.transactions table
+      // Persist locally first; the sync service uploads it when possible.
       const createdRecord = await transactionService.createTransaction({
         userId,
         type: txType,
@@ -174,8 +218,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
       })
 
       if (createdRecord) {
-        // Re-fetch transactions from Supabase to guarantee 100% database sync
-        const updatedList = await transactionService.getTransactions(userId)
+        const updatedList = await transactionService.getLocalTransactions(userId)
         setTransactions(updatedList)
 
         const metrics = transactionService.calculateMetrics(updatedList)
@@ -195,7 +238,12 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
           return { ...prev, 'Per Week': updatedWeek }
         })
 
-        // Also update local storage for offline fast load
+        const syncState = await syncService.getSyncState(userId)
+        setPendingSyncCount(syncState.pendingCount)
+        setIsSyncing(syncState.syncing)
+        setHasSyncError(syncState.hasError)
+
+        // Keep the existing cached summary for fast dashboard startup.
         authService.updateUserData(userId, {
           balance: metrics.balance,
           income: metrics.totalIncome,
@@ -204,36 +252,10 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
         })
       }
     } catch (err) {
-      console.error('Supabase transaction insert failed:', err)
-      let newBalance = balance
-      let newIncome = income
-      let newExpenses = expenses
-
-      const fallbackTx = {
-        id: 'tx_' + Date.now(),
-        user_id: userId,
-        type: txType,
-        amount,
-        category: note || (txType === 'deposit' ? 'Deposit' : 'Withdrawal'),
-        description: note || '',
-        transaction_date: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-      }
-
-      setTransactions((prev) => [fallbackTx, ...prev])
-
-      if (modalType === 'deposit') {
-        newBalance = balance + amount
-        newIncome = income + amount
-        setBalance(newBalance)
-        setIncome(newIncome)
-      } else {
-        newBalance = Math.max(0, balance - amount)
-        newExpenses = expenses + amount
-        setBalance(newBalance)
-        setExpenses(newExpenses)
-      }
+      console.error('Local transaction save failed:', err)
+      throw err
     }
+    return navigator.onLine ? 'pending' : 'offline'
   }
 
   const overviewData = {
@@ -273,6 +295,10 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
             cardInfo={cardInfo}
             onLogout={onLogout}
             onProfileUpdated={(updatedProf) => setUserProfile(updatedProf)}
+            pendingSyncCount={pendingSyncCount}
+            isOnline={isOnline}
+            isSyncing={isSyncing}
+            hasSyncError={hasSyncError}
           />
         </div>
 
@@ -323,17 +349,25 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
                   setBalance(metrics.balance)
                   setIncome(metrics.totalIncome)
                   setExpenses(metrics.totalExpenses)
+                  const syncState = await syncService.getSyncState(userId)
+                  setPendingSyncCount(syncState.pendingCount)
+                  setIsSyncing(syncState.syncing)
+                  setHasSyncError(syncState.hasError)
                   setIsTxLoading(false)
                 }}
                 onAddTransaction={handleOpenDeposit}
                 onDeleteTransaction={async (txId) => {
                   await transactionService.deleteTransaction(txId, userId)
-                  const updated = await transactionService.getTransactions(userId)
+                  const updated = await transactionService.getLocalTransactions(userId)
                   setTransactions(updated)
                   const metrics = transactionService.calculateMetrics(updated)
                   setBalance(metrics.balance)
                   setIncome(metrics.totalIncome)
                   setExpenses(metrics.totalExpenses)
+                  const syncState = await syncService.getSyncState(userId)
+                  setPendingSyncCount(syncState.pendingCount)
+                  setIsSyncing(syncState.syncing)
+                  setHasSyncError(syncState.hasError)
                 }}
               />
             )}
@@ -374,14 +408,16 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
         theme={theme}
       />
 
-      <TransactionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        type={modalType}
-        currentBalance={balance}
-        onConfirm={handleConfirmTransaction}
-        theme={theme}
-      />
+      {isModalOpen && (
+        <TransactionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          type={modalType}
+          currentBalance={balance}
+          onConfirm={handleConfirmTransaction}
+          theme={theme}
+        />
+      )}
     </div>
   )
 }

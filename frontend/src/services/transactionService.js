@@ -1,132 +1,144 @@
 import { supabase } from './supabaseClient'
+import { createLocalId, enqueueOperation, offlineDatabase } from './offlineDatabase'
+import { syncService } from './syncService'
+
+const VALID_TYPES = ['income', 'expense', 'deposit', 'withdrawal']
+const syncListeners = new Set()
+
+function notifySync() {
+  syncListeners.forEach((listener) => listener())
+}
+
+function visibleTransactions(records) {
+  return records
+    .filter((record) => record.sync_status !== 'pending-delete')
+    .sort((a, b) => new Date(b.transaction_date || b.created_at) - new Date(a.transaction_date || a.created_at))
+}
+
+async function activeUserId(fallback) {
+  try {
+    const { data } = await supabase.auth.getSession()
+    return data?.session?.user?.id || fallback
+  } catch {
+    return fallback
+  }
+}
 
 export const transactionService = {
-  // Fetch all transactions belonging strictly to authenticated user
-  async getTransactions(userId) {
-    try {
-      const { data: sessionData } = await supabase.auth.getSession()
-      const authUser = sessionData?.session?.user || (await supabase.auth.getUser()).data?.user
-      const activeUserId = authUser?.id || userId
+  subscribeSync(listener) {
+    syncListeners.add(listener)
+    return () => syncListeners.delete(listener)
+  },
 
-      if (!activeUserId || activeUserId === 'guest' || activeUserId === 'device_user') {
-        return []
-      }
+  async getLocalTransactions(userId) {
+    if (!userId) return []
+    return visibleTransactions(await offlineDatabase.transactions.where('user_id').equals(userId).toArray())
+  },
 
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', activeUserId)
-        .order('transaction_date', { ascending: false })
+  async getPendingCount(userId) {
+    if (!userId) return 0
+    return offlineDatabase.transactions
+      .where('user_id').equals(userId)
+      .filter((record) => record.sync_status !== 'synced')
+      .count()
+  },
 
-      if (error) {
-        console.error('Supabase fetch transactions error:', error)
-        return []
-      }
-      return data || []
-    } catch (err) {
-      console.error('Transaction list error:', err)
-      return []
+  async getSyncState(userId) {
+    const records = await offlineDatabase.transactions.where('user_id').equals(userId).toArray()
+    const pending = records.filter((record) => record.sync_status !== 'synced')
+    return {
+      pendingCount: pending.length,
+      syncing: pending.some((record) => record.sync_status === 'syncing'),
+      hasError: pending.some((record) => record.sync_status === 'failed' || record.sync_error),
     }
   },
 
-  // Insert a new transaction record into Supabase PostgreSQL
+  async getTransactions(userId) {
+    const activeId = await activeUserId(userId)
+    if (!activeId || activeId === 'guest') return []
+
+    // IndexedDB is the source of truth for the UI. The network refresh only fills it.
+    const local = await this.getLocalTransactions(activeId)
+    if (navigator.onLine && activeId !== 'device_user') {
+      this.syncTransactions(activeId).catch(() => {})
+    }
+    return local
+  },
+
   async createTransaction({ userId, type, amount, category, description }) {
-    // 1. Fetch current active Supabase authenticated user session
-    const { data: sessionData } = await supabase.auth.getSession()
-    const currentAuthUser = sessionData?.session?.user || (await supabase.auth.getUser()).data?.user
+    if (typeof amount !== 'number' || amount <= 0) throw new Error('Transaction amount must be a positive number')
+    if (!VALID_TYPES.includes(type)) throw new Error(`Invalid transaction type: ${type}`)
 
-    if (!currentAuthUser || !currentAuthUser.id) {
-      console.warn('Supabase DB Insert Cancelled: No active Supabase auth session found.')
-      throw new Error('Please sign in with Google or Email/Password to persist data to Supabase Database.')
-    }
-
-    const activeUserId = currentAuthUser.id
-
-    if (typeof amount !== 'number' || amount <= 0) {
-      throw new Error('Transaction amount must be a positive number')
-    }
-
-    const validTypes = ['income', 'expense', 'deposit', 'withdrawal']
-    if (!validTypes.includes(type)) {
-      throw new Error(`Invalid transaction type: ${type}`)
-    }
-
-    const payload = {
-      user_id: activeUserId,
+    // A persisted Supabase session is authoritative when available. The fallback
+    // is only used for device-local data and can never be uploaded to another user.
+    const ownerId = await activeUserId(userId)
+    if (!ownerId || ownerId === 'guest') throw new Error('A local user identity is required')
+    const timestamp = new Date().toISOString()
+    const record = {
+      id: createLocalId(),
+      user_id: ownerId,
       type,
       amount,
       category: category || (type === 'deposit' ? 'Deposit' : 'Withdrawal'),
       description: description || '',
-      transaction_date: new Date().toISOString(),
+      transaction_date: timestamp,
+      created_at: timestamp,
+      updated_at: timestamp,
+      sync_status: 'pending',
+      last_sync_attempt: null,
+      sync_error: null,
     }
 
-    console.log('Inserting into Supabase PostgreSQL table "transactions":', payload)
-
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .insert([payload])
-        .select()
-
-      if (error) {
-        console.error('Supabase PostgreSQL insert failed:', error)
-        throw error
-      }
-
-      console.log('SUCCESS: Transaction inserted into Supabase PostgreSQL:', data)
-      return data && data.length > 0 ? data[0] : payload
-    } catch (err) {
-      console.error('Create transaction failed:', err)
-      throw err
+    // Commit locally before attempting any network work. This promise is the durability boundary.
+    await offlineDatabase.transactions.put(record)
+    await enqueueOperation({ user_id: ownerId, entity: 'transactions', entity_id: record.id, operation: 'upsert' })
+    notifySync()
+    if (navigator.onLine && ownerId !== 'device_user') {
+      this.syncTransactions(ownerId).catch(() => {})
     }
+    return record
   },
 
-  // Delete transaction by ID
   async deleteTransaction(transactionId, userId) {
-    if (!transactionId) return false
-    const { data: sessionData } = await supabase.auth.getSession()
-    const activeUserId = sessionData?.session?.user?.id || userId
+    if (!transactionId || !userId) return false
+    const record = await offlineDatabase.transactions.get(transactionId)
+    if (!record) return false
+    const ownerId = await activeUserId(userId)
+    if (record.user_id !== ownerId) return false
 
-    if (!activeUserId) return false
+    if (record.sync_status === 'pending') {
+      await offlineDatabase.transactions.delete(transactionId)
+      await offlineDatabase.sync_operations.where({ entity: 'transactions', entity_id: transactionId, status: 'pending' }).modify({ status: 'completed' })
+    } else {
+      await offlineDatabase.transactions.update(transactionId, {
+        sync_status: 'pending-delete',
+        updated_at: new Date().toISOString(),
+      })
+    }
+    await enqueueOperation({ user_id: ownerId, entity: 'transactions', entity_id: transactionId, operation: 'delete' })
+    notifySync()
+    if (navigator.onLine && ownerId !== 'device_user') this.syncTransactions(ownerId).catch(() => {})
+    return true
+  },
 
+  async syncTransactions(userId) {
     try {
-      const { error } = await supabase
-        .from('transactions')
-        .delete()
-        .eq('id', transactionId)
-        .eq('user_id', activeUserId)
-
-      if (error) {
-        console.error('Supabase transaction delete error:', error)
-        throw error
-      }
-      return true
-    } catch (err) {
-      console.error('Delete transaction error:', err)
-      throw err
+      return await syncService.syncPendingTransactions(userId)
+    } finally {
+      notifySync()
     }
   },
 
-  // Derived Financial Summary Metrics calculated from real user transactions
   calculateMetrics(transactionsList = []) {
     let totalIncome = 0
     let totalExpenses = 0
-
     transactionsList.forEach((tx) => {
-      const amt = Number(tx.amount) || 0
-      if (tx.type === 'deposit' || tx.type === 'income') {
-        totalIncome += amt
-      } else if (tx.type === 'withdrawal' || tx.type === 'expense') {
-        totalExpenses += amt
-      }
+      const amount = Number(tx.amount) || 0
+      if (tx.type === 'deposit' || tx.type === 'income') totalIncome += amount
+      if (tx.type === 'withdrawal' || tx.type === 'expense') totalExpenses += amount
     })
-
-    const balance = totalIncome - totalExpenses
-
-    return {
-      balance,
-      totalIncome,
-      totalExpenses,
-    }
+    return { balance: totalIncome - totalExpenses, totalIncome, totalExpenses }
   },
 }
+
+window.addEventListener('deklo:sync-complete', notifySync)
