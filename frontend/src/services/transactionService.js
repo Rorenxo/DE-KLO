@@ -32,24 +32,26 @@ export const transactionService = {
 
   async getLocalTransactions(userId) {
     if (!userId) return []
-    return visibleTransactions(await offlineDatabase.transactions.where('user_id').equals(userId).toArray())
+    const all = await offlineDatabase.transactions.toArray()
+    const records = all.filter(
+      (record) => record.user_id === userId || record.user_id === 'device_user' || record.user_id === 'active_user'
+    )
+    return visibleTransactions(records)
   },
 
   async getPendingCount(userId) {
     if (!userId) return 0
-    return offlineDatabase.transactions
-      .where('user_id').equals(userId)
-      .filter((record) => record.sync_status !== 'synced')
-      .count()
+    const records = await this.getLocalTransactions(userId)
+    return records.filter((record) => record.sync_status !== 'synced').length
   },
 
   async getSyncState(userId) {
-    const records = await offlineDatabase.transactions.where('user_id').equals(userId).toArray()
+    const records = await this.getLocalTransactions(userId)
     const pending = records.filter((record) => record.sync_status !== 'synced')
     return {
       pendingCount: pending.length,
       syncing: pending.some((record) => record.sync_status === 'syncing'),
-      hasError: pending.some((record) => record.sync_status === 'failed' || record.sync_error),
+      hasError: pending.some((record) => record.sync_status === 'failed' || Boolean(record.sync_error)),
     }
   },
 
