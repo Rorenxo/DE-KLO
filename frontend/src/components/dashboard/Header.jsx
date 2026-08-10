@@ -109,8 +109,10 @@ export default function Header({
   }
 
   return (
-    <header className="w-full flex items-center justify-between py-3 border-b border-[#4a5156]/30 select-none relative z-40">
-      <div className="flex items-center gap-2 text-xs font-Manrope font-medium text-[#808a92] dark:text-[#bdc7ce] tracking-wide">
+    <header className={`w-full flex items-center justify-between py-3 border-b select-none relative z-40 ${isLight ? 'border-slate-200' : 'border-[#4a5156]/30'
+      }`}>
+      <div className={`flex items-center gap-2 text-xs font-Manrope font-semibold tracking-wide ${isLight ? 'text-slate-800' : 'text-[#bdc7ce]'
+        }`}>
         <span>{dateTimeStr}</span>
       </div>
 
@@ -121,12 +123,12 @@ export default function Header({
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           className="w-9 h-9 rounded-full bg-[#24292e]/10 dark:bg-[#24292e]/80 border border-[#4a5156]/30 dark:border-[#4a5156]/50 flex items-center justify-center text-[#4a5156] dark:text-[#bdc7ce] hover:text-[#000000] dark:hover:text-white transition-all cursor-pointer active:scale-95 shadow-sm"
         >
-          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-slate-700" />}
+          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-white" />}
         </button>
 
         <button
           onClick={onNotificationClick}
-          className="w-9 h-9 rounded-full bg-[#24292e]/10 dark:bg-[#24292e]/80 border border-[#4a5156]/30 dark:border-[#4a5156]/50 flex items-center justify-center text-[#808a92] hover:text-[#000000] dark:hover:text-[#bdc7ce] transition-colors cursor-pointer relative shadow-sm"
+          className="w-9 h-9 rounded-full bg-[#24292e]/10 dark:bg-[#24292e]/80 border border-[#4a5156]/30 dark:border-[#4a5156]/50 flex items-center justify-center text-[#ffffffff] hover:text-[#000000] dark:hover:text-[#bdc7ce] transition-colors cursor-pointer relative shadow-sm"
           aria-label="Notifications"
         >
           <Bell className="w-4 h-4" />
@@ -150,11 +152,10 @@ export default function Header({
           {/* Profile Dropdown Popover */}
           {showProfileMenu && (
             <div
-              className={`absolute right-0 mt-2 w-64 rounded-2xl border shadow-2xl p-3 space-y-3 z-50 animate-fade-in ${
-                isLight
-                  ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
-                  : 'bg-[#1a1e22]/95 border-[#4a5156]/60 text-white backdrop-blur-xl shadow-black/90'
-              }`}
+              className={`absolute right-0 mt-2 w-64 rounded-2xl border shadow-2xl p-3 space-y-3 z-50 animate-fade-in ${isLight
+                ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
+                : 'bg-[#1a1e22]/95 border-[#4a5156]/60 text-white backdrop-blur-xl shadow-black/90'
+                }`}
             >
               {/* User Header Info */}
               <div className="flex items-center gap-3 pb-2.5 border-b border-white/10">
@@ -173,9 +174,8 @@ export default function Header({
 
               {/* Card Number Info Badge */}
               <div
-                className={`p-2.5 rounded-xl border flex items-center gap-2.5 ${
-                  isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/50 border-[#4a5156]/30'
-                }`}
+                className={`p-2.5 rounded-xl border flex items-center gap-2.5 ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/50 border-[#4a5156]/30'
+                  }`}
               >
                 <CreditCard className="w-4 h-4 text-[#bdc7ce] shrink-0" />
                 <div className="flex flex-col min-w-0">
@@ -192,11 +192,10 @@ export default function Header({
               <div className="space-y-1.5 pt-1">
                 <button
                   onClick={handleOpenEditModal}
-                  className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-                    isLight
-                      ? 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200'
-                      : 'bg-[#24292e] border-[#4a5156]/60 text-[#bdc7ce] hover:text-white hover:border-white/40'
-                  }`}
+                  className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${isLight
+                    ? 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200'
+                    : 'bg-[#24292e] border-[#4a5156]/60 text-[#bdc7ce] hover:text-white hover:border-white/40'
+                    }`}
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                   <span>Customize Profile</span>
@@ -227,11 +226,10 @@ export default function Header({
           />
 
           <div
-            className={`relative w-full max-w-md rounded-3xl border p-6 shadow-2xl z-10 transition-all ${
-              isLight
-                ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
-                : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
-            }`}
+            className={`relative w-full max-w-md rounded-3xl border p-6 shadow-2xl z-10 transition-all ${isLight
+              ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
+              : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
+              }`}
           >
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2.5">
@@ -272,11 +270,10 @@ export default function Header({
                   placeholder="e.g. Lorenxo"
                   value={nicknameInput}
                   onChange={(e) => setNicknameInput(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-semibold outline-none border transition-all ${
-                    isLight
-                      ? 'bg-slate-100 border-slate-300 text-slate-900'
-                      : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                  }`}
+                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-semibold outline-none border transition-all ${isLight
+                    ? 'bg-slate-100 border-slate-300 text-slate-900'
+                    : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
+                    }`}
                 />
               </div>
 
@@ -290,11 +287,10 @@ export default function Header({
                   placeholder="https://..."
                   value={avatarInput}
                   onChange={(e) => setAvatarInput(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none border transition-all ${
-                    isLight
-                      ? 'bg-slate-100 border-slate-300 text-slate-900'
-                      : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                  }`}
+                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none border transition-all ${isLight
+                    ? 'bg-slate-100 border-slate-300 text-slate-900'
+                    : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
+                    }`}
                 />
               </div>
 
@@ -304,11 +300,10 @@ export default function Header({
                   De'klo Card Number
                 </label>
                 <div
-                  className={`py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold border ${
-                    isLight
-                      ? 'bg-slate-200 border-slate-300 text-slate-700'
-                      : 'bg-[#000000]/40 border-[#4a5156]/40 text-[#bdc7ce]'
-                  }`}
+                  className={`py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold border ${isLight
+                    ? 'bg-slate-200 border-slate-300 text-slate-700'
+                    : 'bg-[#000000]/40 border-[#4a5156]/40 text-[#bdc7ce]'
+                    }`}
                 >
                   {cardNumber}
                 </div>

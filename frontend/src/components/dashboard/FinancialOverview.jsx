@@ -21,7 +21,7 @@ export default function FinancialOverview({
   return (
     <div className="w-full space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className={`text-sm font-bold tracking-wide uppercase ${
+        <h3 className={`text-xs font-bold tracking-wide uppercase ${
           isLight ? 'text-slate-900' : 'text-white'
         }`}>
           Financial Overview
@@ -30,8 +30,8 @@ export default function FinancialOverview({
         <div className="relative">
           <button
             onClick={() => setShowDropdown(!showDropdown)}
-            className={`flex items-center gap-1.5 px-3 py-1 border rounded-xl text-xs transition-colors cursor-pointer ${
-              isLight ? 'bg-white border-slate-300 text-slate-700' : 'bg-[#24292e]/80 border-[#4a5156]/50 text-[#bdc7ce]'
+            className={`flex items-center gap-1.5 px-3 py-1 border rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              isLight ? 'bg-white border-slate-300 text-slate-800 hover:text-black' : 'bg-[#24292e]/80 border-[#4a5156]/50 text-[#bdc7ce]'
             }`}
           >
             <span>{period}</span>
@@ -40,7 +40,7 @@ export default function FinancialOverview({
 
           {showDropdown && (
             <div className={`absolute right-0 mt-1 w-32 border rounded-xl shadow-2xl z-30 overflow-hidden py-1 ${
-              isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-[#24292e] border-[#4a5156] text-white'
+              isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300' : 'bg-[#24292e] border-[#4a5156] text-white'
             }`}>
               {['This Week', 'This Month'].map((p) => (
                 <button
@@ -51,7 +51,7 @@ export default function FinancialOverview({
                   }}
                   className={`w-full text-left px-3 py-1.5 text-xs transition-colors cursor-pointer ${
                     period === p
-                      ? isLight ? 'bg-slate-100 font-semibold' : 'bg-[#bdc7ce]/15 text-[#bdc7ce] font-semibold'
+                      ? isLight ? 'bg-slate-100 font-bold text-slate-900' : 'bg-[#bdc7ce]/15 text-[#bdc7ce] font-semibold'
                       : isLight ? 'text-slate-600 hover:text-black' : 'text-[#808a92] hover:text-white'
                   }`}
                 >
@@ -64,12 +64,15 @@ export default function FinancialOverview({
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {/* Total Balance */}
         <div className={`p-4 rounded-2xl border space-y-2 relative overflow-hidden ${
           isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#24292e]/70 border-[#4a5156]/40'
         }`}>
-          <div className="flex items-center justify-between text-[#808a92]">
-            <span className="text-[11px] font-medium tracking-wide">Total Balance</span>
-            <Wallet className="w-4 h-4 text-[#bdc7ce]" />
+          <div className="flex items-center justify-between">
+            <span className={`text-[11px] font-semibold tracking-wide ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
+              Total Balance
+            </span>
+            <Wallet className={`w-4 h-4 ${isLight ? 'text-slate-800' : 'text-[#bdc7ce]'}`} />
           </div>
           <div className={`text-lg sm:text-xl font-bold font-mono ${
             isLight ? 'text-slate-900' : 'text-white'
@@ -78,11 +81,14 @@ export default function FinancialOverview({
           </div>
         </div>
 
+        {/* Income */}
         <div className={`p-4 rounded-2xl border space-y-2 relative overflow-hidden ${
           isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#24292e]/70 border-[#4a5156]/40'
         }`}>
-          <div className="flex items-center justify-between text-[#808a92]">
-            <span className="text-[11px] font-medium tracking-wide">Income</span>
+          <div className="flex items-center justify-between">
+            <span className={`text-[11px] font-semibold tracking-wide ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
+              Income
+            </span>
             <TrendingUp className="w-4 h-4 text-emerald-500" />
           </div>
           <div>
@@ -95,28 +101,36 @@ export default function FinancialOverview({
           </div>
         </div>
 
+        {/* Savings */}
         <div className={`p-4 rounded-2xl border space-y-2 relative overflow-hidden ${
           isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#24292e]/70 border-[#4a5156]/40'
         }`}>
-          <div className="flex items-center justify-between text-[#808a92]">
-            <span className="text-[11px] font-medium tracking-wide">Savings</span>
-            <PiggyBank className="w-4 h-4 text-blue-500" />
+          <div className="flex items-center justify-between">
+            <span className={`text-[11px] font-semibold tracking-wide ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
+              Savings
+            </span>
+            <PiggyBank className={`w-4 h-4 ${isLight ? 'text-slate-800' : 'text-[#bdc7ce]'}`} />
           </div>
           <div>
-            <div className="text-lg sm:text-xl font-bold font-mono text-blue-500">
+            <div className={`text-lg sm:text-xl font-bold font-mono ${
+              isLight ? 'text-slate-900' : 'text-white'
+            }`}>
               {overviewData.savings}
             </div>
-            <span className="text-[10px] text-blue-500/90 font-medium">
+            <span className={`text-[10px] font-medium ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
               {overviewData.savingsGrowth} vs last month
             </span>
           </div>
         </div>
 
+        {/* Expenses */}
         <div className={`p-4 rounded-2xl border space-y-2 relative overflow-hidden ${
           isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#24292e]/70 border-[#4a5156]/40'
         }`}>
-          <div className="flex items-center justify-between text-[#808a92]">
-            <span className="text-[11px] font-medium tracking-wide">Expenses</span>
+          <div className="flex items-center justify-between">
+            <span className={`text-[11px] font-semibold tracking-wide ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
+              Expenses
+            </span>
             <ArrowDownRight className="w-4 h-4 text-rose-500" />
           </div>
           <div>

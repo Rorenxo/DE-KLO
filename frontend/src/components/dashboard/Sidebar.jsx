@@ -25,7 +25,7 @@ export default function Sidebar({ activeTab = 'home', onTabChange, onLeaveApp, t
   ]
 
   return (
-    <aside className={`hidden lg:flex flex-col items-center justify-between w-20 h-dvh sticky top-0 border-r py-6 select-none shrink-0 z-30 transition-colors ${
+    <aside className={`hidden xl:flex flex-col items-center justify-between w-20 h-dvh sticky top-0 border-r py-6 select-none shrink-0 z-30 transition-colors ${
       isLight ? 'bg-white border-slate-200' : 'bg-[#0d0f12] border-[#4a5156]/30'
     }`}>
       <div className="flex flex-col items-center gap-8 w-full">

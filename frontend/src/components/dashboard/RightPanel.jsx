@@ -90,7 +90,7 @@ export default function RightPanel({
   }
 
   return (
-    <aside className="hidden xl:flex flex-col justify-between w-105 space-y-6 select-none shrink-0">
+    <aside className="hidden xl:flex flex-col space-y-6 w-105 select-none shrink-0 self-start">
       <ScrollFadeIn delay={100}>
         <div className={`p-3.5 rounded-2xl border space-y-3 shadow-lg transition-colors ${
           isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-[#24292e]/70 border-[#4a5156]/40 text-white'
@@ -171,14 +171,14 @@ export default function RightPanel({
               isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/50 border-[#4a5156]/30'
             }`}>
               <div className="flex items-center justify-between text-[#808a92]">
-                <span className="text-[10px] sm:text-[11px] font-medium tracking-wide">Savings</span>
-                <PiggyBank className="w-3.5 h-3.5 text-blue-500" />
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>Savings</span>
+                <PiggyBank className={`w-3.5 h-3.5 ${isLight ? 'text-slate-800' : 'text-[#bdc7ce]'}`} />
               </div>
               <div>
-                <div className="text-base font-bold font-mono text-blue-500">
+                <div className={`text-base font-bold font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>
                   {overviewData.savings}
                 </div>
-                <span className="text-[10px] sm:text-[11px] text-blue-500/90 font-medium">
+                <span className={`text-[10px] sm:text-[11px] font-medium ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
                   {overviewData.savingsGrowth}
                 </span>
               </div>
@@ -188,7 +188,7 @@ export default function RightPanel({
               isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/50 border-[#4a5156]/30'
             }`}>
               <div className="flex items-center justify-between text-[#808a92]">
-                <span className="text-[10px] sm:text-[11px] font-medium tracking-wide">Expenses</span>
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>Expenses</span>
                 <ArrowDownRight className="w-3.5 h-3.5 text-rose-500" />
               </div>
               <div>
@@ -210,12 +210,14 @@ export default function RightPanel({
         }`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-[#bdc7ce]" />
-              <h4 className="text-xs font-bold tracking-wide uppercase">
+              <Target className={`w-4 h-4 ${isLight ? 'text-slate-900' : 'text-[#bdc7ce]'}`} />
+              <h4 className={`text-xs font-bold tracking-wide uppercase ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 Savings Goals
               </h4>
             </div>
-            <button className="text-[10px] sm:text-[11px] text-[#808a92] hover:text-[#000000] dark:hover:text-[#bdc7ce] font-semibold transition-colors cursor-pointer">
+            <button className={`text-[10px] sm:text-[11px] font-semibold transition-colors cursor-pointer ${
+              isLight ? 'text-slate-600 hover:text-black' : 'text-[#808a92] hover:text-[#bdc7ce]'
+            }`}>
               View All
             </button>
           </div>
@@ -223,7 +225,7 @@ export default function RightPanel({
           {goals.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-4 px-3 space-y-2.5 min-h-[224px] my-auto">
               <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
-                isLight ? 'bg-amber-100 text-amber-600' : 'bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30'
+                isLight ? 'bg-slate-100 text-slate-800 border border-slate-300' : 'bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30'
               }`}>
                 <Target className="w-5.5 h-5.5" />
               </div>

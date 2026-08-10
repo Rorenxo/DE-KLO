@@ -8,6 +8,7 @@ import Sidebar from './Sidebar'
 import RightPanel from './RightPanel'
 import BottomNavigation from './BottomNavigation'
 import TransactionModal from './TransactionModal'
+import TransactionHistoryPage from './TransactionHistoryPage'
 import { authService } from '../../services/authService'
 import { profileService } from '../../services/profileService'
 import { transactionService } from '../../services/transactionService'
@@ -29,6 +30,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
 
   // Real Database Transactions State
   const [transactions, setTransactions] = useState([])
+  const [isTxLoading, setIsTxLoading] = useState(false)
   const [goalsList, setGoalsList] = useState([])
 
   // Dynamic Financial Metrics (Derived from Supabase Transactions)
@@ -207,6 +209,19 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
       let newIncome = income
       let newExpenses = expenses
 
+      const fallbackTx = {
+        id: 'tx_' + Date.now(),
+        user_id: userId,
+        type: txType,
+        amount,
+        category: note || (txType === 'deposit' ? 'Deposit' : 'Withdrawal'),
+        description: note || '',
+        transaction_date: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+      }
+
+      setTransactions((prev) => [fallbackTx, ...prev])
+
       if (modalType === 'deposit') {
         newBalance = balance + amount
         newIncome = income + amount
@@ -261,7 +276,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
           />
         </div>
 
-        <div className="flex-1 flex flex-col xl:flex-row p-4 sm:p-6 md:p-8 lg:p-6 gap-6 sm:gap-8 lg:gap-6 pb-28 md:pb-36 lg:pb-6">
+        <div className="flex-1 flex flex-col xl:flex-row p-4 sm:p-6 md:p-8 lg:p-6 gap-6 sm:gap-8 lg:gap-6 pb-20 md:pb-24 lg:pb-6 items-start">
           <main className="flex-1 min-w-0 space-y-6 sm:space-y-8 lg:space-y-6">
             {activeTab === 'home' && (
               <div className="space-y-6 sm:space-y-8 lg:space-y-6 animate-fade-in">
@@ -296,54 +311,31 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
             )}
 
             {activeTab === 'history' && (
-              <div className="space-y-4 animate-fade-in">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-white uppercase tracking-wider">
-                    Transaction History
-                  </h3>
-                  <span className="text-xs text-[#808a92]">
-                    {transactions.length} Record{transactions.length === 1 ? '' : 's'}
-                  </span>
-                </div>
-
-                {transactions.length === 0 ? (
-                  <div className={`p-8 text-center rounded-2xl border space-y-2 ${theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#24292e]/40 border-[#4a5156]/30'
-                    }`}>
-                    <p className="text-sm font-semibold text-white">No Transactions Recorded Yet</p>
-                    <p className="text-xs text-[#808a92]">Your deposits and withdrawals will appear here automatically from Supabase.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
-                    {transactions.map((tx) => (
-                      <div
-                        key={tx.id}
-                        className={`p-3.5 rounded-2xl border flex items-center justify-between transition-colors ${theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#24292e]/70 border-[#4a5156]/40'
-                          }`}
-                      >
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${tx.type === 'deposit' || tx.type === 'income'
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                              }`}>
-                              {tx.type}
-                            </span>
-                            <span className="text-xs font-semibold text-white">{tx.category || tx.type}</span>
-                          </div>
-                          <p className="text-[10px] text-[#808a92] font-mono">
-                            {new Date(tx.transaction_date || tx.created_at).toLocaleString()}
-                          </p>
-                        </div>
-
-                        <div className={`text-sm font-bold font-mono ${tx.type === 'deposit' || tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'
-                          }`}>
-                          {tx.type === 'deposit' || tx.type === 'income' ? '+' : '-'}₱{Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <TransactionHistoryPage
+                theme={theme}
+                transactions={transactions}
+                loading={isTxLoading}
+                onRefresh={async () => {
+                  setIsTxLoading(true)
+                  const updated = await transactionService.getTransactions(userId)
+                  setTransactions(updated)
+                  const metrics = transactionService.calculateMetrics(updated)
+                  setBalance(metrics.balance)
+                  setIncome(metrics.totalIncome)
+                  setExpenses(metrics.totalExpenses)
+                  setIsTxLoading(false)
+                }}
+                onAddTransaction={handleOpenDeposit}
+                onDeleteTransaction={async (txId) => {
+                  await transactionService.deleteTransaction(txId, userId)
+                  const updated = await transactionService.getTransactions(userId)
+                  setTransactions(updated)
+                  const metrics = transactionService.calculateMetrics(updated)
+                  setBalance(metrics.balance)
+                  setIncome(metrics.totalIncome)
+                  setExpenses(metrics.totalExpenses)
+                }}
+              />
             )}
 
             {activeTab !== 'home' && activeTab !== 'history' && (
