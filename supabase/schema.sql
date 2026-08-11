@@ -62,6 +62,14 @@ CREATE INDEX IF NOT EXISTS idx_transactions_date ON public.transactions(transact
 CREATE INDEX IF NOT EXISTS idx_savings_goals_user_id ON public.savings_goals(user_id);
 CREATE INDEX IF NOT EXISTS idx_recurring_user_id ON public.recurring_transactions(user_id);
 
+-- GRANT TABLE & SCHEMA PRIVILEGES (Prevents "permission denied" errors)
+GRANT USAGE ON SCHEMA public TO authenticated, anon;
+GRANT ALL ON TABLE public.profiles TO authenticated, anon;
+GRANT ALL ON TABLE public.transactions TO authenticated, anon;
+GRANT ALL ON TABLE public.savings_goals TO authenticated, anon;
+GRANT ALL ON TABLE public.recurring_transactions TO authenticated, anon;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated, anon;
+
 -- ROW LEVEL SECURITY (RLS) POLICIES
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;

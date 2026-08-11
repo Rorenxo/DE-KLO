@@ -9,13 +9,9 @@ export default function App() {
   const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
   const [isPinVerified, setIsPinVerified] = useState(false)
-  const [hasDeviceAccount, setHasDeviceAccount] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const hasAcc = authService.hasDeviceAccount()
-    setHasDeviceAccount(hasAcc)
-
     authService.getSession().then((sess) => {
       setSession(sess)
       setUser(sess?.user || null)
@@ -28,17 +24,12 @@ export default function App() {
     })
 
     const { data: { subscription } } = authService.onAuthStateChange((_event, sess) => {
+      setSession(sess)
+      setUser(sess?.user || null)
       if (sess?.user) {
-        setSession(sess)
-        setUser(sess.user)
-        setHasDeviceAccount(true)
         profileService.ensureProfile(sess.user).catch(() => {})
       } else {
-        setSession(null)
-        setUser(null)
-        setHasDeviceAccount(false)
-        setLoading(false)
-        return
+        setIsPinVerified(false)
       }
       setLoading(false)
     })
@@ -55,7 +46,6 @@ export default function App() {
     setSession(null)
     setUser(null)
     setIsPinVerified(false)
-    setHasDeviceAccount(false)
   }
 
   if (loading) {
@@ -66,13 +56,11 @@ export default function App() {
     )
   }
 
-  const activeUser = user || (hasDeviceAccount ? { id: authService.getLastUserId() || 'device_user', email: 'Device User' } : null)
-
-  if (activeUser) {
+  if (user) {
     if (!isPinVerified) {
       return (
         <PinScreen
-          user={activeUser}
+          user={user}
           onPinVerified={() => setIsPinVerified(true)}
         />
       )
@@ -80,7 +68,7 @@ export default function App() {
 
     return (
       <TestSuccessPage
-        user={activeUser}
+        user={user}
         onLockApp={() => setIsPinVerified(false)}
         onLogout={handleLogout}
       />

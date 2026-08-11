@@ -31,10 +31,11 @@ export default function AuthPage() {
     setSuccessMessage(null)
     try {
       const result = await authService.register(data)
-      if (result?.user && !result?.session) {
-        setSuccessMessage('Account created successfully! Please check your email to confirm your account.')
+      if (result?.session) {
+        setSuccessMessage('Account created successfully! Logging you in...')
       } else {
-        setSuccessMessage('Account created successfully! You can now log in.')
+        setSuccessMessage('Account created successfully! Redirecting to login...')
+        setTimeout(() => handleSwitchMode('login'), 1200)
       }
     } catch (err) {
       setApiError(err.message || 'Registration error')

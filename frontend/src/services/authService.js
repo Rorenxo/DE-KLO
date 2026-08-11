@@ -34,14 +34,21 @@ export const authService = {
   async login({ email, password }) {
     const cleanEmail = sanitizeInput(email)
     if (!cleanEmail || !password) {
-      throw new Error('Invalid credentials format')
+      throw new Error('Please enter both email and password.')
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: cleanEmail,
       password,
     })
-    if (error) throw error
+
+    if (error) {
+      if (error.message?.toLowerCase().includes('invalid login credentials')) {
+        throw new Error('Invalid email or password. If you just registered, ensure Email Confirmation is disabled in your Supabase Dashboard (Auth -> Providers -> Email).')
+      }
+      throw new Error(error.message || 'Login failed')
+    }
+
     return data
   },
 
@@ -71,12 +78,25 @@ export const authService = {
         },
       },
     })
-    if (error) throw error
+
+    if (error) throw new Error(error.message || 'Registration failed')
 
     if (data?.user?.id) {
       try {
         localStorage.setItem(`deklo_card_${data.user.id}`, cardNumber)
         localStorage.setItem(`deklo_ctd_${data.user.id}`, ctdDate)
+      } catch (e) {}
+    }
+
+    if (!data?.session) {
+      try {
+        const loginRes = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password,
+        })
+        if (loginRes?.data?.session) {
+          return loginRes.data
+        }
       } catch (e) {}
     }
 
