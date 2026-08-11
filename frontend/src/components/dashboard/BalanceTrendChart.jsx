@@ -27,11 +27,25 @@ const RANGES = ['10', '7D', '1M', '3M', '1Y', 'All']
 const BAR_SPACING = 14
 const MIN_BAR_SPACING = 6
 
+// Below this container width we switch to a smaller chart height and a
+// more compact right-axis label so the chart fits comfortably on a phone
+// screen instead of overflowing it — this app is mobile-first.
+const MOBILE_BREAKPOINT = 420
+const CHART_HEIGHT_MOBILE = 240
+const CHART_HEIGHT_DESKTOP = 320
+
 function formatPeso(value, decimals = 2) {
   return `₱${Number(value || 0).toLocaleString('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   })}`
+}
+
+// Right-axis tick labels don't need cents — dropping them keeps the axis
+// column narrow so more of the chart width goes to the candles themselves,
+// which matters most on narrow mobile screens.
+function formatAxisPeso(value) {
+  return formatPeso(value, 0)
 }
 
 function toTimestampMs(tx) {
@@ -272,7 +286,8 @@ export default function BalanceTrendChart({ transactions = [] }) {
     if (!container || candles.length === 0) return undefined
 
     const width = Math.max(260, container.clientWidth)
-    const height = 320
+    const isMobile = width < MOBILE_BREAKPOINT
+    const height = isMobile ? CHART_HEIGHT_MOBILE : CHART_HEIGHT_DESKTOP
 
     const chart = createChart(container, {
       width,
@@ -282,6 +297,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
         textColor: COLORS.textMuted,
         // Hides the "powered by" attribution logo/watermark.
         attributionLogo: false,
+        fontSize: isMobile ? 10 : 12,
       },
       grid: {
         vertLines: { color: COLORS.grid, style: LineStyle.Solid, visible: true },
@@ -290,7 +306,10 @@ export default function BalanceTrendChart({ transactions = [] }) {
       rightPriceScale: {
         visible: true,
         borderColor: COLORS.border,
-        scaleMargins: { top: 0.08, bottom: 0.27 },
+        // Slightly less reserved bottom space on mobile since the overall
+        // chart is already shorter — keeps the candles from looking overly
+        // squeezed on small screens.
+        scaleMargins: { top: 0.08, bottom: isMobile ? 0.22 : 0.27 },
       },
       timeScale: {
         visible: false,
@@ -317,7 +336,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
         },
       },
       localization: {
-        priceFormatter: (price) => formatPeso(price, 2),
+        priceFormatter: (price) => formatAxisPeso(price),
       },
       handleScroll: {
         mouseWheel: true,
@@ -491,7 +510,15 @@ export default function BalanceTrendChart({ transactions = [] }) {
 
       resizeObserver = new ResizeObserver(() => {
         const newWidth = Math.max(260, container.clientWidth)
-        chart.applyOptions({ width: newWidth })
+        const newIsMobile = newWidth < MOBILE_BREAKPOINT
+        chart.applyOptions({
+          width: newWidth,
+          height: newIsMobile ? CHART_HEIGHT_MOBILE : CHART_HEIGHT_DESKTOP,
+          layout: { fontSize: newIsMobile ? 10 : 12 },
+        })
+        chart.priceScale('right').applyOptions({
+          scaleMargins: { top: 0.08, bottom: newIsMobile ? 0.22 : 0.27 },
+        })
         chart.timeScale().applyOptions({ barSpacing: BAR_SPACING, minBarSpacing: MIN_BAR_SPACING })
       })
 

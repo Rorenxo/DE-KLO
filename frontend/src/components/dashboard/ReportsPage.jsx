@@ -17,7 +17,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Info,
-  ChevronDown,
 } from 'lucide-react'
 import ScrollFadeIn from '../ui/ScrollFadeIn'
 import BalanceTrendChart from './BalanceTrendChart'
@@ -246,42 +245,21 @@ export default function ReportsPage({
 
   return (
     <div className="w-full space-y-5 select-none pb-12 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-        <div>
-          <h2
-            className={`text-xl sm:text-2xl font-bold tracking-tight ${
-              isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
-            }`}
-          >
-            Reports
-          </h2>
-          <p
-            className={`text-xs mt-0.5 ${
-              isLight ? 'text-[#68707C] font-medium' : 'text-[#94A3B8]'
-            }`}
-          >
-            Your financial overview and insights.
-          </p>
-        </div>
-
-        <div className="relative shrink-0">
-          <select
-            value={periodFilter}
-            onChange={(e) => setPeriodFilter(e.target.value)}
-            className={`appearance-none py-2 pl-3.5 pr-9 rounded-2xl text-xs font-semibold border outline-none cursor-pointer transition-all shadow-sm ${
-              isLight
-                ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40] hover:border-[#343A40]'
-                : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] hover:border-[#F1F3F5]/40'
-            }`}
-          >
-            <option value="this_month">This Month</option>
-            <option value="this_week">This Week</option>
-            <option value="30_days">Last 30 Days</option>
-            <option value="this_year">This Year</option>
-            <option value="all">All Time</option>
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
-        </div>
+      <div className="pt-1">
+        <h2
+          className={`text-xl sm:text-2xl font-bold tracking-tight ${
+            isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
+          }`}
+        >
+          Reports
+        </h2>
+        <p
+          className={`text-xs mt-0.5 ${
+            isLight ? 'text-[#68707C] font-medium' : 'text-[#94A3B8]'
+          }`}
+        >
+          Your financial overview and insights.
+        </p>
       </div>
 
       <ScrollFadeIn delay={100}>
