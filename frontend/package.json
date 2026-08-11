@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
     "@tailwindcss/vite": "^4.3.3",
+    "lightweight-charts": "^4.2.0",
     "lucide-react": "^1.30.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

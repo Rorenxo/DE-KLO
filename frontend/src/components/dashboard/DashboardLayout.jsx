@@ -10,6 +10,7 @@ import BottomNavigation from './BottomNavigation'
 import TransactionModal from './TransactionModal'
 import TransactionHistoryPage from './TransactionHistoryPage'
 import SavingsGoalsPage from './SavingsGoalsPage'
+import ReportsPage from './ReportsPage'
 import { authService } from '../../services/authService'
 import { transactionService } from '../../services/transactionService'
 import { profileService } from '../../services/profileService'
@@ -357,37 +358,53 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
               />
             )}
 
-            {activeTab !== 'home' && activeTab !== 'history' && activeTab !== 'goals' && (
-              <div
-                className={`p-8 text-center rounded-2xl border animate-fade-in my-8 ${
-                  theme === 'light'
-                    ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
-                    : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-                }`}
-              >
-                <h3 className="text-lg font-bold uppercase tracking-wider">
-                  {activeTab} Space
-                </h3>
-                <p className={`text-xs mt-2 ${theme === 'light' ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
-                  Dedicated {activeTab} experience under construction.
-                </p>
-              </div>
+            {activeTab === 'reports' && (
+              <ReportsPage
+                theme={theme}
+                transactions={transactions}
+                onNavigateTab={setActiveTab}
+              />
             )}
+
+            {activeTab !== 'home' &&
+              activeTab !== 'history' &&
+              activeTab !== 'goals' &&
+              activeTab !== 'reports' && (
+                <div
+                  className={`p-8 text-center rounded-2xl border animate-fade-in my-8 ${
+                    theme === 'light'
+                      ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
+                      : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+                  }`}
+                >
+                  <h3 className="text-lg font-bold uppercase tracking-wider">
+                    {activeTab} Space
+                  </h3>
+                  <p className={`text-xs mt-2 ${theme === 'light' ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
+                    Dedicated {activeTab} experience under construction.
+                  </p>
+                </div>
+              )}
           </main>
 
-          <RightPanel
-            theme={theme}
-            userId={userId}
-            transactions={transactions}
-            savingsAmount={savings}
-            goals={goalsList}
-            onGoalCreated={async () => {
-              const updatedGoals = await savingsService.getGoals(userId)
-              setGoalsList(updatedGoals)
-              const totalCurrent = (updatedGoals || []).reduce((acc, g) => acc + (Number(g.current_amount) || 0), 0)
-              setSavings(totalCurrent)
-            }}
-          />
+          {activeTab !== 'reports' && (
+            <RightPanel
+              theme={theme}
+              userId={userId}
+              transactions={transactions}
+              savingsAmount={savings}
+              goals={goalsList}
+              onGoalCreated={async () => {
+                const updatedGoals = await savingsService.getGoals(userId)
+                setGoalsList(updatedGoals)
+                const totalCurrent = (updatedGoals || []).reduce(
+                  (acc, g) => acc + (Number(g.current_amount) || 0),
+                  0
+                )
+                setSavings(totalCurrent)
+              }}
+            />
+          )}
         </div>
       </div>
 
