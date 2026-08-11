@@ -244,7 +244,7 @@ export default function ReportsPage({
 
 
   return (
-    <div className="w-full space-y-5 select-none pb-12 animate-fade-in">
+    <div className="w-full max-w-full space-y-5 select-none pb-12 animate-fade-in">
       <div className="pt-1">
         <h2
           className={`text-xl sm:text-2xl font-bold tracking-tight ${

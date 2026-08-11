@@ -248,7 +248,7 @@ export default function SavingsGoalsPage({
   }
 
   return (
-    <div className="w-full space-y-6 select-none animate-fade-in pb-8">
+    <div className="w-full max-w-full space-y-6 select-none animate-fade-in pb-8">
       <header className="pt-1">
         <h2
           className={`text-xl sm:text-2xl font-bold font-sans tracking-tight ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
@@ -421,7 +421,7 @@ export default function SavingsGoalsPage({
             <Target className="w-7 h-7" />
           </div>
 
-          <div className="space-y-1.5 max-w-sm mx-auto">
+          <div className="space-y-1.5 max-w-md mx-auto sm:max-w-sm">
             <h3
               className={`text-base sm:text-lg font-bold tracking-tight ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
                 }`}
@@ -664,7 +664,7 @@ export default function SavingsGoalsPage({
           />
 
           <div
-            className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${isLight
+            className={`relative w-full max-w-md sm:max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${isLight
               ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
               : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
               }`}
@@ -838,7 +838,7 @@ export default function SavingsGoalsPage({
           />
 
           <div
-            className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${isLight
+            className={`relative w-full max-w-md sm:max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${isLight
               ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
               : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
               }`}
@@ -1002,7 +1002,7 @@ export default function SavingsGoalsPage({
           />
 
           <div
-            className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${isLight
+            className={`relative w-full max-w-md sm:max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${isLight
               ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
               : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
               }`}
@@ -1248,7 +1248,7 @@ export default function SavingsGoalsPage({
           />
 
           <div
-            className={`relative w-full max-w-sm rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all text-center space-y-4 ${
+            className={`relative w-full max-w-sm sm:max-w-sm rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all text-center space-y-4 ${
               isLight
                 ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
                 : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'

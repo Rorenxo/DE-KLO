@@ -57,7 +57,7 @@ export default function TransactionModal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 select-none animate-fade-in">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-4 select-none animate-fade-in">
       <div
         className={`fixed inset-0 backdrop-blur-sm transition-opacity ${
           isLight ? 'bg-black/40' : 'bg-black/80'
@@ -66,7 +66,7 @@ export default function TransactionModal({
       />
 
       <div
-        className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all duration-200 ${isLight
+        className={`relative w-full max-w-md sm:max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all duration-200 ${isLight
             ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
             : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
           }`}

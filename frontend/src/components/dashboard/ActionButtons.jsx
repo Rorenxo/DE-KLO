@@ -26,7 +26,7 @@ export default function ActionButtons({ onDeposit, onWithdraw, theme = 'dark' })
           }`}>
             Deposit
           </span>
-          <span className={`block text-[10px] sm:text-[11px] leading-tight mt-0.5 whitespace-nowrap ${
+          <span className={`block text-[10px] sm:text-[11px] leading-tight mt-0.5 ${
             isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'
           }`}>
             Add to savings
@@ -54,7 +54,7 @@ export default function ActionButtons({ onDeposit, onWithdraw, theme = 'dark' })
           }`}>
             Withdraw
           </span>
-          <span className={`block text-[10px] sm:text-[11px] leading-tight mt-0.5 whitespace-nowrap ${
+          <span className={`block text-[10px] sm:text-[11px] leading-tight mt-0.5 ${
             isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'
           }`}>
             Take from savings

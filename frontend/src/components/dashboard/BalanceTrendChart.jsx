@@ -569,7 +569,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
                 key={item}
                 type="button"
                 onClick={() => setMode(item)}
-                className={`px-2.5 py-1 text-[10px] font-bold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                className={`px-2.5 py-1 text-[10px] font-bold rounded-md transition-colors cursor-pointer ${
                   mode === item
                     ? 'bg-[#20D47B] text-[#07120D]'
                     : 'text-[#8FA0B5] hover:text-[#DCE6F2]'
@@ -583,13 +583,13 @@ export default function BalanceTrendChart({ transactions = [] }) {
       </div>
 
       <div className="overflow-x-auto no-scrollbar pb-2">
-        <div className="inline-flex items-center rounded-lg border border-[#293446] bg-[#111A2B] p-0.5 min-w-max">
+        <div className="inline-flex items-center rounded-lg border border-[#293446] bg-[#111A2B] p-0.5 w-full">
           {RANGES.map((item) => (
             <button
               key={item}
               type="button"
               onClick={() => setRange(item)}
-              className={`px-2.5 sm:px-3 py-1 text-[10px] font-bold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1 text-[10px] font-bold rounded-md transition-colors cursor-pointer ${
                 range === item
                   ? 'bg-[#20D47B] text-[#07120D]'
                   : 'text-[#8FA0B5] hover:text-[#DCE6F2]'

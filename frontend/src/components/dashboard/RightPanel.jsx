@@ -132,7 +132,7 @@ export default function RightPanel({
   }
 
   return (
-    <aside className="hidden xl:flex flex-col space-y-6 w-105 select-none shrink-0 self-start">
+    <aside className="hidden xl:flex flex-col space-y-6 w-full max-w-[420px] select-none shrink-0 self-start">
       <ScrollFadeIn delay={100}>
         <div className={`p-3.5 rounded-2xl border space-y-3 shadow-sm transition-colors ${
           isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'

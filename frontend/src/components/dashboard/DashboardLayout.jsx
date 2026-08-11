@@ -241,7 +241,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
 
   return (
     <div
-      className={`min-h-dvh lg:h-dvh lg:max-h-dvh w-full transition-colors duration-300 flex flex-col lg:flex-row select-none overflow-x-hidden lg:overflow-hidden ${theme === 'light' ? 'bg-[#F8F8FF] text-[#343A40]' : 'bg-[#000000] text-[#F1F3F5]'
+      className={`min-h-dvh lg:h-dvh lg:max-h-dvh w-full max-w-full transition-colors duration-300 flex flex-col lg:flex-row select-none overflow-x-hidden lg:overflow-hidden ${theme === 'light' ? 'bg-[#F8F8FF] text-[#343A40]' : 'bg-[#000000] text-[#F1F3F5]'
         }`}
     >
       <Sidebar
@@ -251,8 +251,8 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
         theme={theme}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 lg:h-full lg:overflow-y-auto">
-        <div className="px-4 sm:px-6 lg:px-6 pt-2 sm:pt-3">
+      <div className="flex-1 flex flex-col min-w-0 w-full lg:h-full lg:overflow-y-auto">
+        <div className="px-3 sm:px-4 md:px-6 lg:px-6 pt-2 sm:pt-3">
           <Header
             theme={theme}
             onToggleTheme={toggleTheme}
@@ -268,8 +268,8 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
           />
         </div>
 
-        <div className="flex-1 flex flex-col xl:flex-row p-4 sm:p-6 md:p-8 lg:p-6 gap-6 sm:gap-8 lg:gap-6 pb-20 md:pb-24 lg:pb-6 items-start">
-          <main className="flex-1 min-w-0 space-y-6 sm:space-y-8 lg:space-y-6">
+        <div className="flex-1 flex flex-col xl:flex-row px-3 sm:px-4 md:px-6 lg:px-6 pt-4 sm:pt-6 md:pt-8 lg:pt-6 gap-6 sm:gap-8 lg:gap-6 pb-20 md:pb-24 lg:pb-6 items-start">
+          <main className="flex-1 min-w-0 w-full space-y-6 sm:space-y-8 lg:space-y-6">
             {activeTab === 'home' && (
               <div className="space-y-6 sm:space-y-8 lg:space-y-6 animate-fade-in">
                 <div className="flex flex-col lg:flex-row items-center lg:items-stretch gap-6 sm:gap-8 lg:gap-6">

@@ -187,7 +187,7 @@ export default function TransactionHistoryPage({
   }
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6 select-none animate-fade-in">
+    <div className="w-full max-w-full space-y-4 sm:space-y-6 select-none animate-fade-in">
       {/* 1. Page Header */}
       <header className="flex items-center justify-between pt-1 pb-1">
         <div>
@@ -312,7 +312,7 @@ export default function TransactionHistoryPage({
       {/* 3. Segmented Control Pills + Search & Filter Bar (Desktop & Mobile) */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative z-30">
         {/* Filter Pills */}
-        <div className={`flex items-center p-1 rounded-2xl border w-full sm:w-auto min-w-[240px] shrink-0 ${
+        <div className={`flex items-center p-1 rounded-2xl border w-full sm:w-auto min-w-[200px] sm:min-w-[240px] shrink-0 ${
           isLight ? 'bg-[#F4F5FA] border-[#DEE2EA]' : 'bg-[#181b20] border-[#242830]'
         }`}>
           {['all', 'deposit', 'withdrawal'].map((t) => {
@@ -339,7 +339,7 @@ export default function TransactionHistoryPage({
         {/* Desktop Search Field & Filter Popover Button */}
         <div className="hidden sm:flex items-center gap-2.5 relative" ref={filterRef}>
           {/* Desktop Search Input */}
-          <div className={`relative flex items-center rounded-2xl border px-3 py-1.5 w-44 md:w-56 lg:w-64 transition-all ${
+          <div className={`relative flex items-center rounded-2xl border px-3 py-1.5 w-36 sm:w-44 md:w-56 lg:w-64 transition-all ${
             isLight ? 'bg-[#F1F3F8] border-[#DEE2EA]' : 'bg-[#121418] border-[#242830]'
           }`}>
             <Search className="w-3.5 h-3.5 text-[#8D95A1] mr-2 shrink-0" />
@@ -389,7 +389,7 @@ export default function TransactionHistoryPage({
 
           {/* Filter Card Container */}
           <div
-            className={`relative w-full max-w-md sm:w-80 rounded-t-3xl sm:rounded-3xl border p-5 sm:p-4 shadow-2xl z-10 transition-all ${
+            className={`relative w-full max-w-md sm:max-w-md sm:w-80 rounded-t-3xl sm:rounded-3xl border p-5 sm:p-4 shadow-2xl z-10 transition-all ${
               isLight
                 ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
                 : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
@@ -552,7 +552,7 @@ export default function TransactionHistoryPage({
             <Clock className="w-7 h-7" />
           </div>
 
-          <div className="space-y-1.5 max-w-xs mx-auto">
+          <div className="space-y-1.5 max-w-sm mx-auto sm:max-w-xs">
             <h3 className={`text-base font-bold tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>
               No transactions found
             </h3>

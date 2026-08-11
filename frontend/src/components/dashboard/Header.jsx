@@ -113,7 +113,7 @@ export default function Header({
   }
 
   return (
-    <header className={`w-full flex items-center justify-between py-3 border-b select-none relative z-40 ${
+    <header className={`w-full max-w-full flex items-center justify-between py-3 border-b select-none relative z-40 ${
       isLight ? 'border-[#DEE2EA]' : 'border-[#242830]'
     }`}>
       <div className={`flex items-center gap-2 text-xs font-Manrope font-semibold tracking-wide ${

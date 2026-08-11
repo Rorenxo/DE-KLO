@@ -19,7 +19,7 @@ export default function BottomNavigation({ activeTab = 'home', onTabChange, them
   ]
 
   return (
-    <div className="fixed bottom-3 sm:bottom-4 md:bottom-6 left-3 right-3 sm:left-4 sm:right-4 z-[100] xl:hidden max-w-md sm:max-w-lg md:max-w-xl mx-auto">
+    <div className="fixed bottom-3 sm:bottom-4 md:bottom-6 left-3 right-3 sm:left-4 sm:right-4 z-[100] xl:hidden w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto">
       {showMoreMenu && (
         <div className={`mb-2 p-3 md:p-4 backdrop-blur-xl border rounded-3xl shadow-2xl space-y-1 md:space-y-1.5 animate-fade-in ${
           isLight
