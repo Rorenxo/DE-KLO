@@ -141,7 +141,7 @@ export default function MoneyFlowChart({ theme = 'dark', customDatasets = null }
               </span>
             </div>
 
-            <div className="relative">
+            <div className="relative ml-14">
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-medium transition-all cursor-pointer ${isLight

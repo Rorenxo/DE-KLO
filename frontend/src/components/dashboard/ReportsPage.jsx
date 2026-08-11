@@ -1,23 +1,6 @@
 import React, { useState, useMemo } from 'react'
-import {
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
-import {
-  Wallet,
-  TrendingUp,
-  TrendingDown,
-  ArrowUpRight,
-  ArrowDownRight,
-  Info,
-} from 'lucide-react'
+import {PieChart,Pie,Cell,BarChart,Bar,XAxis,YAxis,Tooltip,ResponsiveContainer,} from 'recharts'
+import {Wallet,TrendingUp,TrendingDown,ArrowUpRight,ArrowDownRight,Info,} from 'lucide-react'
 import ScrollFadeIn from '../ui/ScrollFadeIn'
 import BalanceTrendChart from './BalanceTrendChart'
 
@@ -546,6 +529,8 @@ export default function ReportsPage({
                     <XAxis
                       dataKey="name"
                       stroke={isLight ? '#68707C' : '#94A3B8'}
+                      fontColor={isLight ? '#68707C' : '#94A3B8'}
+                      
                       fontSize={11}
                       tickLine={false}
                       axisLine={false}

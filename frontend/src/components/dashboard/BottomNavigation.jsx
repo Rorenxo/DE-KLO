@@ -1,117 +1,499 @@
-import React, { useState } from 'react'
-import { Home, Clock, Target, TrendingUp, MoreHorizontal, Repeat, Lightbulb, Settings } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import {
+  Home,
+  Clock,
+  Target,
+  TrendingUp,
+  MoreHorizontal,
+  Repeat,
+  Lightbulb,
+  Settings,
+} from 'lucide-react'
 
-export default function BottomNavigation({ activeTab = 'home', onTabChange, theme = 'dark' }) {
+export default function BottomNavigation({
+  activeTab = 'home',
+  onTabChange,
+  theme = 'dark',
+}) {
   const [showMoreMenu, setShowMoreMenu] = useState(false)
+  const moreRef = useRef(null)
+
   const isLight = theme === 'light'
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'history', label: 'History', icon: Clock },
-    { id: 'goals', label: 'Goals', icon: Target },
-    { id: 'reports', label: 'Reports', icon: TrendingUp },
+    {
+      id: 'home',
+      label: 'Home',
+      icon: Home,
+    },
+    {
+      id: 'history',
+      label: 'History',
+      icon: Clock,
+    },
+    {
+      id: 'goals',
+      label: 'Goals',
+      icon: Target,
+    },
+    {
+      id: 'reports',
+      label: 'Reports',
+      icon: TrendingUp,
+    },
   ]
 
   const moreItems = [
-    { id: 'recurring', label: 'Recurring', icon: Repeat },
-    { id: 'insights', label: 'Insights', icon: Lightbulb },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    {
+      id: 'recurring',
+      label: 'Recurring',
+      icon: Repeat,
+    },
+    {
+      id: 'insights',
+      label: 'Insights',
+      icon: Lightbulb,
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: Settings,
+    },
   ]
 
+  const isMoreActive = moreItems.some(
+    (item) => item.id === activeTab
+  )
+
+  /*
+   * IMPORTANT:
+   *
+   * If the More menu is OPEN,
+   * More becomes the ONLY visually selected item.
+   *
+   * This prevents situations like:
+   * Home = selected
+   * More = selected
+   *
+   * When More is closed, the actual active tab
+   * becomes selected again.
+   */
+  const isMoreSelected = showMoreMenu || isMoreActive
+
+  // Close More menu when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (
+        moreRef.current &&
+        !moreRef.current.contains(event.target)
+      ) {
+        setShowMoreMenu(false)
+      }
+    }
+
+    document.addEventListener(
+      'mousedown',
+      handleOutsideClick
+    )
+
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleOutsideClick
+      )
+    }
+  }, [])
+
+  // Close More menu with Escape
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setShowMoreMenu(false)
+      }
+    }
+
+    document.addEventListener(
+      'keydown',
+      handleEscape
+    )
+
+    return () => {
+      document.removeEventListener(
+        'keydown',
+        handleEscape
+      )
+    }
+  }, [])
+
+  const handleTabChange = (id) => {
+    onTabChange(id)
+    setShowMoreMenu(false)
+  }
+
+  const handleMoreClick = () => {
+    setShowMoreMenu((previous) => !previous)
+  }
+
   return (
-    <div className="fixed bottom-3 sm:bottom-4 md:bottom-6 left-3 right-3 sm:left-4 sm:right-4 z-[100] xl:hidden w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto">
-      {showMoreMenu && (
-        <div className={`mb-2 p-3 md:p-4 backdrop-blur-xl border rounded-3xl shadow-2xl space-y-1 md:space-y-1.5 animate-fade-in ${
-          isLight
-            ? 'bg-white/95 border-slate-200 shadow-slate-300/50'
-            : 'bg-[#24292e]/95 border-[#4a5156]/60 shadow-black/90'
-        }`}>
-          {moreItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  onTabChange(item.id)
-                  setShowMoreMenu(false)
-                }}
-                aria-label={item.label}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 md:py-3 rounded-2xl text-xs md:text-sm font-semibold active:scale-[0.985] transition-all cursor-pointer ${
-                  activeTab === item.id
-                    ? isLight ? 'bg-slate-900 text-white' : 'bg-[#bdc7ce] text-[#000000]'
-                    : isLight ? 'text-slate-600 hover:text-black hover:bg-slate-100' : 'text-[#808a92] hover:text-white hover:bg-[#4a5156]/30'
-                }`}
-              >
-                <Icon className="w-4 h-4 md:w-5 md:h-5" />
-                <span>{item.label}</span>
-              </button>
-            )
-          })}
-        </div>
-      )}
+    <>
+      {/* MOBILE BOTTOM NAVIGATION */}
+      <div
+        className="
+          fixed
+          z-50
 
-      <div className={`w-full backdrop-blur-xl border rounded-[26px] md:rounded-[32px] p-2 md:p-3 flex items-center justify-around shadow-2xl ${
-        isLight
-          ? 'bg-white/90 border-slate-200 shadow-slate-300/50'
-          : 'bg-[#24292e]/90 border-[#4a5156]/60 shadow-black/90'
-      }`}>
-        {navItems.map((item) => {
-          const Icon = item.icon
-          const isActive = activeTab === item.id
+          bottom-3
+          sm:bottom-4
 
-          return (
+          left-3
+          right-3
+
+          flex
+          justify-center
+
+          pointer-events-none
+
+          md:hidden
+        "
+      >
+        <div
+          ref={moreRef}
+          className="
+            relative
+            w-full
+            max-w-[600px]
+
+            pointer-events-auto
+          "
+        >
+          {/* MORE POPUP MENU */}
+          {showMoreMenu && (
+            <div
+              className={`
+                absolute
+
+                bottom-full
+                right-0
+
+                mb-2
+
+                z-[60]
+
+                w-fit
+                max-w-[calc(100vw-24px)]
+
+                p-1.5
+
+                backdrop-blur-xl
+                border
+                rounded-2xl
+
+                shadow-2xl
+
+                animate-fade-in
+
+                ${
+                  isLight
+                    ? 'bg-white/95 border-slate-200 shadow-slate-300/50'
+                    : 'bg-[#24292e]/95 border-[#4a5156]/60 shadow-black/90'
+                }
+              `}
+            >
+              {moreItems.map((item) => {
+                const Icon = item.icon
+                const isActive = activeTab === item.id
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() =>
+                      handleTabChange(item.id)
+                    }
+                    aria-label={item.label}
+                    className={`
+                      w-max
+
+                      flex
+                      items-center
+
+                      gap-2
+
+                      px-2.5
+                      py-2.5
+
+                      rounded-xl
+
+                      text-xs
+                      font-semibold
+
+                      whitespace-nowrap
+
+                      transition-all
+                      duration-150
+
+                      active:scale-[0.97]
+
+                      ${
+                        isActive
+                          ? isLight
+                            ? 'bg-slate-900 text-white'
+                            : 'bg-[#bdc7ce] text-black'
+                          : isLight
+                            ? 'text-slate-600 hover:text-black hover:bg-slate-100'
+                            : 'text-[#9aa3aa] hover:text-white hover:bg-[#4a5156]/30'
+                      }
+                    `}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+
+                    <span>
+                      {item.label}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* BOTTOM NAV */}
+          <nav
+            className={`
+              w-full
+
+              backdrop-blur-xl
+              border
+
+              rounded-[20px]
+
+              p-1.5
+              sm:p-2
+
+              flex
+              items-center
+
+              shadow-3xl
+
+              ${
+                isLight
+                  ? 'bg-white/90 border-slate-200 shadow-slate-300/90'
+                  : 'bg-[#24292e]/90 border-[#4a5156]/60 shadow-black'
+              }
+            `}
+          >
+            {/* MAIN NAV ITEMS */}
+            {navItems.map((item) => {
+              const Icon = item.icon
+
+              /*
+               * IMPORTANT:
+               *
+               * When More is open, NO main nav item
+               * should remain visually selected.
+               *
+               * This guarantees only ONE selected state.
+               */
+              const isActive =
+                !showMoreMenu &&
+                activeTab === item.id
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() =>
+                    handleTabChange(item.id)
+                  }
+                  aria-label={item.label}
+                  aria-current={
+                    isActive ? 'page' : undefined
+                  }
+                  className={`
+                    flex-1
+                    min-w-0
+
+                    flex
+                    flex-col
+                    items-center
+                    justify-center
+
+                    py-1
+                    sm:py-1.5
+
+                    px-0.5
+                    sm:px-1
+
+                    rounded-2xl
+
+                    active:scale-95
+
+                    transition-all
+                    duration-150
+
+                    cursor-pointer
+
+                    ${
+                      isActive
+                        ? isLight
+                          ? 'text-slate-900'
+                          : 'text-white'
+                        : isLight
+                          ? 'text-slate-500 hover:text-black'
+                          : 'text-[#808a92] hover:text-[#bdc7ce]'
+                    }
+                  `}
+                >
+                  <div
+                    className={`
+                      p-1.5
+                      sm:p-2
+
+                      rounded-xl
+
+                      transition-all
+                      duration-150
+
+                      ${
+                        isActive
+                          ? isLight
+                            ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20'
+                            : 'bg-[#bdc7ce] text-black shadow-md shadow-[#bdc7ce]/20'
+                          : ''
+                      }
+                    `}
+                  >
+                    <Icon
+                      className="
+                        w-4
+                        h-4
+
+                        sm:w-[18px]
+                        sm:h-[18px]
+                      "
+                    />
+                  </div>
+
+                  <span
+                    className="
+                      max-w-full
+                      truncate
+
+                      text-[9px]
+                      sm:text-[10px]
+
+                      font-semibold
+
+                      mt-1
+
+                      leading-none
+                    "
+                  >
+                    {item.label}
+                  </span>
+                </button>
+              )
+            })}
+
+            {/* MORE BUTTON */}
             <button
-              key={item.id}
-              onClick={() => {
-                onTabChange(item.id)
-                setShowMoreMenu(false)
-              }}
-              aria-label={item.label}
-              className={`flex flex-col items-center justify-center py-1 md:py-1.5 px-3 md:px-4 rounded-2xl active:scale-95 transition-all cursor-pointer ${
-                isActive
-                  ? isLight ? 'text-slate-900' : 'text-white'
-                  : isLight ? 'text-slate-500 hover:text-black' : 'text-[#808a92] hover:text-[#bdc7ce]'
-              }`}
+              onClick={handleMoreClick}
+              aria-label="More navigation options"
+              aria-expanded={showMoreMenu}
+              className={`
+                flex-1
+                min-w-0
+
+                flex
+                flex-col
+                items-center
+                justify-center
+
+                py-1
+                sm:py-1.5
+
+                px-0.5
+                sm:px-1
+
+                rounded-2xl
+
+                active:scale-95
+
+                transition-all
+                duration-150
+
+                cursor-pointer
+
+                ${
+                  isMoreSelected
+                    ? isLight
+                      ? 'text-slate-900'
+                      : 'text-white'
+                    : isLight
+                      ? 'text-slate-500 hover:text-black'
+                      : 'text-[#808a92] hover:text-[#bdc7ce]'
+                }
+              `}
             >
               <div
-                className={`p-1.5 md:p-2.5 rounded-xl md:rounded-2xl transition-all ${
-                  isActive
-                    ? isLight ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20' : 'bg-[#bdc7ce] text-[#000000] shadow-md shadow-[#bdc7ce]/20'
-                    : ''
-                }`}
+                className={`
+                  p-1.5
+                  sm:p-2
+
+                  rounded-xl
+
+                  transition-all
+                  duration-150
+
+                  ${
+                    isMoreSelected
+                      ? isLight
+                        ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20'
+                        : 'bg-[#bdc7ce] text-black shadow-md shadow-[#bdc7ce]/20'
+                      : ''
+                  }
+                `}
               >
-                <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                <MoreHorizontal
+                  className="
+                    w-4
+                    h-4
+
+                    sm:w-[18px]
+                    sm:h-[18px]
+                  "
+                />
               </div>
-              <span className="text-[10px] sm:text-[11px] md:text-xs font-semibold mt-1 leading-none">
-                {item.label}
+
+              <span
+                className="
+                  max-w-full
+                  truncate
+
+                  text-[9px]
+                  sm:text-[10px]
+
+                  font-semibold
+
+                  mt-1
+
+                  leading-none
+                "
+              >
+                More
               </span>
             </button>
-          )
-        })}
-
-        <button
-          onClick={() => setShowMoreMenu(!showMoreMenu)}
-          aria-label="More navigation options"
-          className={`flex flex-col items-center justify-center py-1 md:py-1.5 px-3 md:px-4 rounded-2xl active:scale-95 transition-all cursor-pointer ${
-            showMoreMenu || moreItems.some((i) => i.id === activeTab)
-              ? isLight ? 'text-slate-900' : 'text-white'
-              : isLight ? 'text-slate-500 hover:text-black' : 'text-[#808a92] hover:text-[#bdc7ce]'
-          }`}
-        >
-          <div
-            className={`p-1.5 md:p-2.5 rounded-xl md:rounded-2xl transition-all ${
-              showMoreMenu || moreItems.some((i) => i.id === activeTab)
-                ? isLight ? 'bg-slate-900 text-white' : 'bg-[#bdc7ce] text-[#000000]'
-                : ''
-            }`}
-          >
-            <MoreHorizontal className="w-4 h-4 md:w-5 md:h-5" />
-          </div>
-          <span className="text-[10px] sm:text-[11px] md:text-xs font-semibold mt-1 leading-none">
-            More
-          </span>
-        </button>
+          </nav>
+        </div>
       </div>
-    </div>
+
+      {/* MOBILE CONTENT SPACING ONLY */}
+      <div
+        className="
+          h-[76px]
+          sm:h-[84px]
+
+          md:hidden
+        "
+        aria-hidden="true"
+      />
+    </>
   )
 }

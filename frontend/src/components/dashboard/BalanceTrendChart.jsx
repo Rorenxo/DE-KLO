@@ -20,16 +20,9 @@ const COLORS = {
 const MODES = ['Candle', 'Line']
 const RANGES = ['10', '7D', '1M', '3M', '1Y', 'All']
 
-// Fixed, compact bar spacing so candles stay thin and packed to the left
-// instead of stretching to fill the container when there isn't much data
-// yet. More transactions over time will naturally fill the space and the
-// chart becomes horizontally scrollable.
 const BAR_SPACING = 14
 const MIN_BAR_SPACING = 6
 
-// Below this container width we switch to a smaller chart height and a
-// more compact right-axis label so the chart fits comfortably on a phone
-// screen instead of overflowing it — this app is mobile-first.
 const MOBILE_BREAKPOINT = 420
 const CHART_HEIGHT_MOBILE = 240
 const CHART_HEIGHT_DESKTOP = 320
@@ -41,9 +34,6 @@ function formatPeso(value, decimals = 2) {
   })}`
 }
 
-// Right-axis tick labels don't need cents — dropping them keeps the axis
-// column narrow so more of the chart width goes to the candles themselves,
-// which matters most on narrow mobile screens.
 function formatAxisPeso(value) {
   return formatPeso(value, 0)
 }
@@ -60,6 +50,7 @@ function getSignedAmount(tx) {
 
   if (type === 'deposit' || type === 'income') return amount
   if (type === 'withdrawal' || type === 'expense') return -amount
+
   return 0
 }
 
@@ -67,7 +58,9 @@ function normalizeTransactions(transactions) {
   return (transactions || [])
     .map((tx) => {
       const timestamp = toTimestampMs(tx)
+
       if (!timestamp) return null
+
       return {
         id: tx.id,
         timestamp,
@@ -99,9 +92,6 @@ function buildEvents(sortedTx) {
   return events
 }
 
-// Range controls filter the underlying transaction history — they never
-// bucket/aggregate multiple transactions into one candle. Every real
-// balance movement gets its own candle, per the product spec.
 function rangeCutoffMs(range) {
   const now = Date.now()
 
@@ -110,8 +100,6 @@ function rangeCutoffMs(range) {
   if (range === '3M') return now - 90 * 24 * 60 * 60 * 1000
   if (range === '1Y') return now - 365 * 24 * 60 * 60 * 1000
 
-  // '10' and 'All' are not date-bounded — '10' is count-bounded (handled
-  // separately below) and 'All' means the entire history.
   return null
 }
 
@@ -124,19 +112,14 @@ function toCandles(events, range) {
     usableEvents = events.slice(-10)
   } else {
     const cutoff = rangeCutoffMs(range)
-    if (cutoff) usableEvents = events.filter((e) => e.timestamp >= cutoff)
+
+    if (cutoff) {
+      usableEvents = events.filter((e) => e.timestamp >= cutoff)
+    }
   }
 
   if (!usableEvents.length) return []
 
-  // Each candle is exactly one real balance movement:
-  // OPEN = balance right before the transaction, CLOSE = balance right
-  // after it, HIGH/LOW are simply the max/min of those two — never a
-  // fabricated ₱0 floor or invented range. `time` is a synthetic,
-  // strictly-increasing sequence index (not a real timestamp) since the
-  // chart intentionally shows chronological progression with no visible
-  // dates, and this also guarantees unique ascending x-values even when
-  // multiple transactions land in the same second.
   return usableEvents.map((event, index) => {
     const open = event.openBalance
     const close = event.closeBalance
@@ -155,12 +138,6 @@ function toCandles(events, range) {
   })
 }
 
-// Computes a tight, sensible Y-axis range from the actual candle data.
-// - Never fabricates a ₱0 floor or a large empty ceiling.
-// - Adds proportional padding so candles aren't jammed against the edges.
-// - Only clamps the floor at ₱0 if the padded range would dip below zero
-//   AND the user's real balance history never went negative — it never
-//   extends further negative than that.
 function computeAutoscaleRange(candles) {
   if (!candles.length) return null
 
@@ -175,10 +152,13 @@ function computeAutoscaleRange(candles) {
   if (!Number.isFinite(min) || !Number.isFinite(max)) return null
 
   if (min === max) {
-    // Flat / single value history — pad symmetrically around it.
     const base = Math.abs(min) || 100
     const pad = Math.max(base * 0.1, 10)
-    return { minValue: min - pad, maxValue: max + pad }
+
+    return {
+      minValue: min - pad,
+      maxValue: max + pad,
+    }
   }
 
   const range = max - min
@@ -187,28 +167,32 @@ function computeAutoscaleRange(candles) {
   let minValue = min - pad
   const maxValue = max + pad
 
-  if (min >= 0 && minValue < 0) minValue = 0
+  if (min >= 0 && minValue < 0) {
+    minValue = 0
+  }
 
-  return { minValue, maxValue }
+  return {
+    minValue,
+    maxValue,
+  }
 }
 
-// Adds a small cosmetic wick above and below every candle body so each one
-// gets a visible thin line, even when the real high/low exactly equal the
-// body edges (which is normal here — a balance movement has no in-between
-// excursion the way a market price does). This never changes the real
-// open/close/high/low reported in the tooltip or used for scaling logic —
-// it only affects what gets drawn on the candlestick series.
 function buildDisplayCandles(candles, autoscaleRange) {
   if (!candles.length) return candles
 
-  const overallRange = autoscaleRange ? autoscaleRange.maxValue - autoscaleRange.minValue : 0
+  const overallRange = autoscaleRange
+    ? autoscaleRange.maxValue - autoscaleRange.minValue
+    : 0
+
   const wickPad = overallRange > 0 ? overallRange * 0.015 : 0
+
   if (wickPad <= 0) return candles
 
   const everNegative = candles.some((c) => c.low < 0)
 
   return candles.map((c) => {
     const paddedLow = c.low - wickPad
+
     return {
       ...c,
       high: c.high + wickPad,
@@ -222,39 +206,57 @@ function buildMA(candles, period) {
 
   for (let i = period - 1; i < candles.length; i += 1) {
     const slice = candles.slice(i - period + 1, i + 1)
-    const value = slice.reduce((acc, c) => acc + c.close, 0) / period
-    result.push({ time: candles[i].time, value })
+
+    const value =
+      slice.reduce((acc, c) => acc + c.close, 0) / period
+
+    result.push({
+      time: candles[i].time,
+      value,
+    })
   }
 
   return result
 }
 
-// Splits the running-balance line into green ("up") and red ("down")
-// segments, like the reference chart. Each series covers the full time
-// domain: at indices where a color doesn't apply it gets a whitespace
-// entry (time only, no value) so the line simply doesn't draw there
-// instead of jumping across the gap. Shared boundary points get a value
-// in both series so the color transitions at a clean, connected vertex.
 function buildBiColorLine(candles) {
   const green = candles.map((c) => ({ time: c.time }))
   const red = candles.map((c) => ({ time: c.time }))
 
   if (candles.length === 1) {
-    green[0] = { time: candles[0].time, value: candles[0].close }
-    return { green, red }
+    green[0] = {
+      time: candles[0].time,
+      value: candles[0].close,
+    }
+
+    return {
+      green,
+      red,
+    }
   }
 
   for (let i = 1; i < candles.length; i += 1) {
     const prev = candles[i - 1]
     const curr = candles[i]
+
     const isUp = curr.close >= prev.close
     const target = isUp ? green : red
 
-    target[i - 1] = { time: prev.time, value: prev.close }
-    target[i] = { time: curr.time, value: curr.close }
+    target[i - 1] = {
+      time: prev.time,
+      value: prev.close,
+    }
+
+    target[i] = {
+      time: curr.time,
+      value: curr.close,
+    }
   }
 
-  return { green, red }
+  return {
+    green,
+    red,
+  }
 }
 
 export default function BalanceTrendChart({ transactions = [] }) {
@@ -264,52 +266,97 @@ export default function BalanceTrendChart({ transactions = [] }) {
 
   const chartContainerRef = useRef(null)
 
-  const normalizedTransactions = useMemo(() => normalizeTransactions(transactions), [transactions])
-  const events = useMemo(() => buildEvents(normalizedTransactions), [normalizedTransactions])
+  const normalizedTransactions = useMemo(
+    () => normalizeTransactions(transactions),
+    [transactions]
+  )
 
-  const candles = useMemo(() => toCandles(events, range), [events, range])
-  const autoscaleRange = useMemo(() => computeAutoscaleRange(candles), [candles])
+  const events = useMemo(
+    () => buildEvents(normalizedTransactions),
+    [normalizedTransactions]
+  )
+
+  const candles = useMemo(
+    () => toCandles(events, range),
+    [events, range]
+  )
+
+  const autoscaleRange = useMemo(
+    () => computeAutoscaleRange(candles),
+    [candles]
+  )
+
   const displayCandles = useMemo(
     () => buildDisplayCandles(candles, autoscaleRange),
     [candles, autoscaleRange]
   )
-  const biColorLine = useMemo(() => buildBiColorLine(candles), [candles])
-  const ma7Data = useMemo(() => buildMA(candles, 7), [candles])
-  const ma14Data = useMemo(() => buildMA(candles, 14), [candles])
-  const ma28Data = useMemo(() => buildMA(candles, 28), [candles])
+
+  const biColorLine = useMemo(
+    () => buildBiColorLine(candles),
+    [candles]
+  )
+
+  const ma7Data = useMemo(
+    () => buildMA(candles, 7),
+    [candles]
+  )
+
+  const ma14Data = useMemo(
+    () => buildMA(candles, 14),
+    [candles]
+  )
+
+  const ma28Data = useMemo(
+    () => buildMA(candles, 28),
+    [candles]
+  )
 
   const latest = candles[candles.length - 1] || null
   const previous = candles[candles.length - 2] || null
 
   useEffect(() => {
     const container = chartContainerRef.current
-    if (!container || candles.length === 0) return undefined
+
+    if (!container || candles.length === 0) {
+      return undefined
+    }
 
     const width = Math.max(260, container.clientWidth)
     const isMobile = width < MOBILE_BREAKPOINT
-    const height = isMobile ? CHART_HEIGHT_MOBILE : CHART_HEIGHT_DESKTOP
+    const height = isMobile
+      ? CHART_HEIGHT_MOBILE
+      : CHART_HEIGHT_DESKTOP
 
     const chart = createChart(container, {
       width,
       height,
       layout: {
-        background: { color: COLORS.bgDark },
+        background: {
+          color: COLORS.bgDark,
+        },
         textColor: COLORS.textMuted,
-        // Hides the "powered by" attribution logo/watermark.
         attributionLogo: false,
         fontSize: isMobile ? 10 : 12,
       },
       grid: {
-        vertLines: { color: COLORS.grid, style: LineStyle.Solid, visible: true },
-        horzLines: { color: COLORS.grid, style: LineStyle.Solid, visible: true },
+        vertLines: {
+          color: COLORS.grid,
+          style: LineStyle.Solid,
+          visible: true,
+        },
+        horzLines: {
+          color: COLORS.grid,
+          style: LineStyle.Solid,
+          visible: true,
+        },
       },
       rightPriceScale: {
         visible: true,
         borderColor: COLORS.border,
-        // Slightly less reserved bottom space on mobile since the overall
-        // chart is already shorter — keeps the candles from looking overly
-        // squeezed on small screens.
-        scaleMargins: { top: 0.08, bottom: isMobile ? 0.22 : 0.27 },
+        scaleMargins: {
+          top: 0.08,
+          bottom: isMobile ? 0.22 : 0.27,
+        },
       },
       timeScale: {
         visible: false,
@@ -351,12 +398,12 @@ export default function BalanceTrendChart({ transactions = [] }) {
       },
     })
 
-    // A custom autoscale provider gives us full control over the Y-axis
-    // range instead of trusting default library behavior — it never pins
-    // the floor to ₱0 and never leaves large empty space above/below the
-    // user's actual balance history (see computeAutoscaleRange above).
     const autoscaleInfoProvider = () =>
-      autoscaleRange ? { priceRange: autoscaleRange } : null
+      autoscaleRange
+        ? {
+            priceRange: autoscaleRange,
+          }
+        : null
 
     const candleSeries = chart.addCandlestickSeries({
       upColor: COLORS.bull,
@@ -367,16 +414,10 @@ export default function BalanceTrendChart({ transactions = [] }) {
       borderUpColor: COLORS.bull,
       borderDownColor: COLORS.bear,
       priceLineVisible: false,
-      // The current-balance price line below already renders the single
-      // balance label at the right edge — leaving this on would draw a
-      // second, duplicate label at the same spot.
       lastValueVisible: false,
       autoscaleInfoProvider,
     })
 
-    // Line mode is split into a green ("up") series and a red ("down")
-    // series so both colors are visible along the running-balance line,
-    // instead of a single flat-colored line.
     const greenLineSeries = chart.addLineSeries({
       color: COLORS.bull,
       lineWidth: 2,
@@ -397,7 +438,9 @@ export default function BalanceTrendChart({ transactions = [] }) {
 
     const activitySeries = chart.addHistogramSeries({
       priceScaleId: 'activity',
-      priceFormat: { type: 'volume' },
+      priceFormat: {
+        type: 'volume',
+      },
       base: 0,
       lastValueVisible: false,
       priceLineVisible: false,
@@ -405,7 +448,10 @@ export default function BalanceTrendChart({ transactions = [] }) {
 
     chart.priceScale('activity').applyOptions({
       visible: false,
-      scaleMargins: { top: 0.78, bottom: 0 },
+      scaleMargins: {
+        top: 0.78,
+        bottom: 0,
+      },
     })
 
     const ma7Series = chart.addLineSeries({
@@ -442,8 +488,14 @@ export default function BalanceTrendChart({ transactions = [] }) {
     activitySeries.setData(
       candles.map((c) => {
         let color = 'rgba(139, 148, 158, 0.24)'
-        if (c.isBullish) color = 'rgba(32, 212, 123, 0.24)'
-        if (c.isBearish) color = 'rgba(255, 77, 94, 0.24)'
+
+        if (c.isBullish) {
+          color = 'rgba(32, 212, 123, 0.24)'
+        }
+
+        if (c.isBearish) {
+          color = 'rgba(255, 77, 94, 0.24)'
+        }
 
         return {
           time: c.time,
@@ -453,18 +505,34 @@ export default function BalanceTrendChart({ transactions = [] }) {
       })
     )
 
-    candleSeries.applyOptions({ visible: mode === 'Candle' })
-    greenLineSeries.applyOptions({ visible: mode === 'Line' })
-    redLineSeries.applyOptions({ visible: mode === 'Line' })
-    ma7Series.applyOptions({ visible: mode === 'Candle' && ma7Data.length > 0 })
-    ma14Series.applyOptions({ visible: mode === 'Candle' && ma14Data.length > 0 })
-    ma28Series.applyOptions({ visible: mode === 'Candle' && ma28Data.length > 0 })
+    candleSeries.applyOptions({
+      visible: mode === 'Candle',
+    })
 
-    // Re-assert the fixed, compact bar spacing after setData — otherwise
-    // the chart's default "fit all bars to the container" behavior would
-    // stretch a handful of candles across the full width, making them look
-    // fat instead of thin and packed to the left.
-    chart.timeScale().applyOptions({ barSpacing: BAR_SPACING, minBarSpacing: MIN_BAR_SPACING })
+    greenLineSeries.applyOptions({
+      visible: mode === 'Line',
+    })
+
+    redLineSeries.applyOptions({
+      visible: mode === 'Line',
+    })
+
+    ma7Series.applyOptions({
+      visible: mode === 'Candle' && ma7Data.length > 0,
+    })
+
+    ma14Series.applyOptions({
+      visible: mode === 'Candle' && ma14Data.length > 0,
+    })
+
+    ma28Series.applyOptions({
+      visible: mode === 'Candle' && ma28Data.length > 0,
+    })
+
+    chart.timeScale().applyOptions({
+      barSpacing: BAR_SPACING,
+      minBarSpacing: MIN_BAR_SPACING,
+    })
 
     let priceLine = null
     let handleMove = null
@@ -474,11 +542,15 @@ export default function BalanceTrendChart({ transactions = [] }) {
       const isUp = latest.close >= latest.open
       const labelColor = isUp ? COLORS.bull : COLORS.bear
 
-      // In Line mode, attach the label to whichever colored series actually
-      // carries the latest point's value.
-      const lastIsUp = !previous || latest.close >= previous.close
+      const lastIsUp =
+        !previous || latest.close >= previous.close
+
       const anchorSeries =
-        mode === 'Candle' ? candleSeries : lastIsUp ? greenLineSeries : redLineSeries
+        mode === 'Candle'
+          ? candleSeries
+          : lastIsUp
+            ? greenLineSeries
+            : redLineSeries
 
       priceLine = anchorSeries.createPriceLine({
         price: latest.close,
@@ -489,7 +561,9 @@ export default function BalanceTrendChart({ transactions = [] }) {
         title: formatPeso(latest.close, 2),
       })
 
-      const candleByTime = new Map(candles.map((c) => [Number(c.time), c]))
+      const candleByTime = new Map(
+        candles.map((c) => [Number(c.time), c])
+      )
 
       handleMove = (param) => {
         if (!param?.time) {
@@ -498,6 +572,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
         }
 
         const target = candleByTime.get(Number(param.time))
+
         if (!target) {
           setHoveredCandle(null)
           return
@@ -509,57 +584,120 @@ export default function BalanceTrendChart({ transactions = [] }) {
       chart.subscribeCrosshairMove(handleMove)
 
       resizeObserver = new ResizeObserver(() => {
-        const newWidth = Math.max(260, container.clientWidth)
-        const newIsMobile = newWidth < MOBILE_BREAKPOINT
+        const newWidth = Math.max(
+          260,
+          container.clientWidth
+        )
+
+        const newIsMobile =
+          newWidth < MOBILE_BREAKPOINT
+
         chart.applyOptions({
           width: newWidth,
-          height: newIsMobile ? CHART_HEIGHT_MOBILE : CHART_HEIGHT_DESKTOP,
-          layout: { fontSize: newIsMobile ? 10 : 12 },
+          height: newIsMobile
+            ? CHART_HEIGHT_MOBILE
+            : CHART_HEIGHT_DESKTOP,
+          layout: {
+            fontSize: newIsMobile ? 10 : 12,
+          },
         })
+
         chart.priceScale('right').applyOptions({
-          scaleMargins: { top: 0.08, bottom: newIsMobile ? 0.22 : 0.27 },
+          scaleMargins: {
+            top: 0.08,
+            bottom: newIsMobile ? 0.22 : 0.27,
+          },
         })
-        chart.timeScale().applyOptions({ barSpacing: BAR_SPACING, minBarSpacing: MIN_BAR_SPACING })
+
+        chart.timeScale().applyOptions({
+          barSpacing: BAR_SPACING,
+          minBarSpacing: MIN_BAR_SPACING,
+        })
       })
 
       resizeObserver.observe(container)
     }
 
     return () => {
-      if (handleMove) chart.unsubscribeCrosshairMove(handleMove)
+      if (handleMove) {
+        chart.unsubscribeCrosshairMove(handleMove)
+      }
+
       if (priceLine) {
         const anchor =
-          mode === 'Candle' ? candleSeries : latest && (!previous || latest.close >= previous.close) ? greenLineSeries : redLineSeries
+          mode === 'Candle'
+            ? candleSeries
+            : latest &&
+                (!previous ||
+                  latest.close >= previous.close)
+              ? greenLineSeries
+              : redLineSeries
+
         anchor.removePriceLine(priceLine)
       }
-      if (resizeObserver) resizeObserver.disconnect()
+
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+      }
+
       chart.remove()
     }
-  }, [candles, displayCandles, biColorLine, autoscaleRange, latest, previous, ma7Data, ma14Data, ma28Data, mode])
+  }, [
+    candles,
+    displayCandles,
+    biColorLine,
+    autoscaleRange,
+    latest,
+    previous,
+    ma7Data,
+    ma14Data,
+    ma28Data,
+    mode,
+  ])
 
-  const hasTransactions = normalizedTransactions.length > 0
+  const hasTransactions =
+    normalizedTransactions.length > 0
 
-  const latestBalance = latest ? latest.close : 0
-  const diff = latest && previous ? latest.close - previous.close : 0
-  const diffPct = previous && previous.close !== 0 ? (diff / previous.close) * 100 : 0
+  const latestBalance = latest
+    ? latest.close
+    : 0
+
+  const diff =
+    latest && previous
+      ? latest.close - previous.close
+      : 0
+
+  const diffPct =
+    previous && previous.close !== 0
+      ? (diff / previous.close) * 100
+      : 0
 
   const latestMa = {
-    ma7: ma7Data.length > 0 ? ma7Data[ma7Data.length - 1].value : null,
-    ma14: ma14Data.length > 0 ? ma14Data[ma14Data.length - 1].value : null,
-    ma28: ma28Data.length > 0 ? ma28Data[ma28Data.length - 1].value : null,
+    ma7:
+      ma7Data.length > 0
+        ? ma7Data[ma7Data.length - 1].value
+        : null,
+
+    ma14:
+      ma14Data.length > 0
+        ? ma14Data[ma14Data.length - 1].value
+        : null,
+
+    ma28:
+      ma28Data.length > 0
+        ? ma28Data[ma28Data.length - 1].value
+        : null,
   }
 
   return (
     <div className="rounded-2xl border border-[#1E2937] bg-[#0E1420] p-3.5 sm:p-4 shadow-sm overflow-hidden">
       <div className="flex items-start justify-between gap-2 pb-2">
         <div className="min-w-0 flex items-center gap-2">
-          <span className="text-sm font-bold tracking-tight text-[#D1D7E0]">Chart</span>
+          <span className="text-sm font-bold tracking-tight text-[#D1D7E0]">
+            Chart
+          </span>
+
           <Info className="w-3 h-3 text-[#7F8A9A]" />
-          <div className="hidden sm:flex items-center gap-1.5">
-            <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#121A2A] border border-[#1E2937] text-[#7F8A9A] uppercase tracking-wider">
-              Activity
-            </span>
-          </div>
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -583,7 +721,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
       </div>
 
       <div className="overflow-x-auto no-scrollbar pb-2">
-        <div className="inline-flex items-center rounded-lg border border-[#293446] bg-[#111A2B] p-0.5 w-full">
+        <div className="inline-flex items-center rounded-lg border border-[#293446] bg-[#111A2B] p-0.5 lg:w-56">
           {RANGES.map((item) => (
             <button
               key={item}
@@ -604,56 +742,123 @@ export default function BalanceTrendChart({ transactions = [] }) {
       {hasTransactions ? (
         <>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pb-2.5">
-            <span className="text-lg sm:text-xl font-bold font-mono text-[#E5ECF5]">{formatPeso(latestBalance, 2)}</span>
+            <span className="text-lg sm:text-xl font-bold font-mono text-[#E5ECF5]">
+              {formatPeso(latestBalance, 2)}
+            </span>
+
             {latest && previous ? (
-              <span className={`text-[10px] font-mono font-bold ${diff >= 0 ? 'text-[#20D47B]' : 'text-[#FF4D5E]'}`}>
+              <span
+                className={`text-[10px] font-mono font-bold ${
+                  diff >= 0
+                    ? 'text-[#20D47B]'
+                    : 'text-[#FF4D5E]'
+                }`}
+              >
                 {diff >= 0 ? '+' : ''}
-                {formatPeso(diff, 2)} ({diff >= 0 ? '+' : ''}
+                {formatPeso(diff, 2)} (
+                {diff >= 0 ? '+' : ''}
                 {diffPct.toFixed(2)}%)
               </span>
             ) : null}
 
             {mode === 'Candle' ? (
               <div className="hidden sm:flex items-center gap-2.5 text-[10px] font-mono font-semibold ml-auto">
-                {latestMa.ma7 !== null ? <span className="text-[#F6B93B]">MA7: {Math.round(latestMa.ma7).toLocaleString()}</span> : null}
-                {latestMa.ma14 !== null ? <span className="text-[#59C3FF]">MA14: {Math.round(latestMa.ma14).toLocaleString()}</span> : null}
-                {latestMa.ma28 !== null ? <span className="text-[#CE8BFF]">MA28: {Math.round(latestMa.ma28).toLocaleString()}</span> : null}
+                {latestMa.ma7 !== null ? (
+                  <span className="text-[#F6B93B]">
+                    MA7: {Math.round(latestMa.ma7).toLocaleString()}
+                  </span>
+                ) : null}
+
+                {latestMa.ma14 !== null ? (
+                  <span className="text-[#59C3FF]">
+                    MA14: {Math.round(latestMa.ma14).toLocaleString()}
+                  </span>
+                ) : null}
+
+                {latestMa.ma28 !== null ? (
+                  <span className="text-[#CE8BFF]">
+                    MA28: {Math.round(latestMa.ma28).toLocaleString()}
+                  </span>
+                ) : null}
               </div>
             ) : null}
           </div>
 
           <div className="relative rounded-xl border border-[#1E2937] bg-[#0B1018] overflow-hidden">
-            <div ref={chartContainerRef} className="w-full" />
+            <div
+              ref={chartContainerRef}
+              className="w-full"
+            />
 
             {hoveredCandle ? (
-              <div className="absolute left-2 top-2 z-20 rounded-lg border border-[#2B3648] bg-[#0D1524]/95 px-2.5 py-2 text-[10px] font-mono text-[#D7E1EE] shadow-lg backdrop-blur-sm">
+              <div className="absolute left-2 top-2 z-20 rounded-lg border border-[#2B3648] bg-[#0D1524]/95 px-2.5 py-2 text-[10px] font-mono text-[#FFFFFF] shadow-lg backdrop-blur-sm">
                 <div className="pb-1.5 mb-1.5 border-b border-[#2B3648]">
-                  <div className="text-[9px] uppercase tracking-wider text-[#8FA0B5]">Balance</div>
-                  <div className={`text-sm font-bold ${hoveredCandle.close >= hoveredCandle.open ? 'text-[#20D47B]' : 'text-[#FF4D5E]'}`}>
+                  <div className="text-[9px] uppercase tracking-wider text-[#8FA0B5]">
+                    Balance
+                  </div>
+
+                  <div
+                    className={`text-sm font-bold ${
+                      hoveredCandle.close >=
+                      hoveredCandle.open
+                        ? 'text-[#20D47B]'
+                        : 'text-[#FF4D5E]'
+                    }`}
+                  >
                     {formatPeso(hoveredCandle.close, 2)}
                   </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                   <div>
-                    <div className="text-[8px] uppercase tracking-wider text-[#8FA0B5]">Open</div>
-                    <div>{formatPeso(hoveredCandle.open, 2)}</div>
+                    <div className="text-[8px] uppercase tracking-wider text-[#8FA0B5]">
+                      Open
+                    </div>
+
+                    <div className="text-[#FFFFFF]">
+                      {formatPeso(hoveredCandle.open, 2)}
+                    </div>
                   </div>
+
                   <div>
-                    <div className="text-[8px] uppercase tracking-wider text-[#8FA0B5]">Close</div>
-                    <div>{formatPeso(hoveredCandle.close, 2)}</div>
+                    <div className="text-[8px] uppercase tracking-wider text-[#8FA0B5]">
+                      Close
+                    </div>
+
+                    <div className="text-[#FFFFFF]">
+                      {formatPeso(hoveredCandle.close, 2)}
+                    </div>
                   </div>
+
                   <div>
-                    <div className="text-[8px] uppercase tracking-wider text-[#20D47B]">High</div>
-                    <div>{formatPeso(hoveredCandle.high, 2)}</div>
+                    <div className="text-[8px] uppercase tracking-wider text-[#20D47B]">
+                      High
+                    </div>
+
+                    <div className="text-[#FFFFFF]">
+                      {formatPeso(hoveredCandle.high, 2)}
+                    </div>
                   </div>
+
                   <div>
-                    <div className="text-[8px] uppercase tracking-wider text-[#FF4D5E]">Low</div>
-                    <div>{formatPeso(hoveredCandle.low, 2)}</div>
+                    <div className="text-[8px] uppercase tracking-wider text-[#FF4D5E]">
+                      Low
+                    </div>
+
+                    <div className="text-[#FFFFFF]">
+                      {formatPeso(hoveredCandle.low, 2)}
+                    </div>
                   </div>
                 </div>
+
                 <div className="pt-1.5 mt-1.5 border-t border-[#2B3648]">
-                  <span className="text-[8px] uppercase tracking-wider text-[#8FA0B5]">Activity </span>
-                  <span>{formatPeso(hoveredCandle.activity, 2)}</span>
+                  <span className="text-[8px] uppercase tracking-wider text-[#8FA0B5]">
+                    Activity{' '}
+                  </span>
+
+                  <span className="text-[#FFFFFF]">
+                    {formatPeso(hoveredCandle.activity, 2)}
+                  </span>
                 </div>
               </div>
             ) : null}
@@ -664,9 +869,14 @@ export default function BalanceTrendChart({ transactions = [] }) {
           <div className="mx-auto mb-2 w-10 h-10 rounded-xl bg-[#121A2A] border border-[#1E2937] flex items-center justify-center">
             <Info className="w-5 h-5 text-[#7F8A9A]" />
           </div>
-          <p className="text-sm font-bold text-[#D1D7E0]">No balance history yet</p>
+
+          <p className="text-sm font-bold text-[#D1D7E0]">
+            No balance history yet
+          </p>
+
           <p className="mt-1 text-xs text-[#7F8A9A]">
-            Add your first transaction to start building your balance trend.
+            Add your first transaction to start building
+            your balance trend.
           </p>
         </div>
       )}
