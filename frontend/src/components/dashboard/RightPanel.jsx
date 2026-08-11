@@ -133,8 +133,8 @@ export default function RightPanel({
   return (
     <aside className="hidden xl:flex flex-col space-y-6 w-105 select-none shrink-0 self-start">
       <ScrollFadeIn delay={100}>
-        <div className={`p-3.5 rounded-2xl border space-y-3 shadow-lg transition-colors ${
-          isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-[#24292e]/70 border-[#4a5156]/40 text-white'
+        <div className={`p-3.5 rounded-2xl border space-y-3 shadow-sm transition-colors ${
+          isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
         }`}>
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold tracking-wide uppercase">
@@ -146,7 +146,7 @@ export default function RightPanel({
                 onClick={() => setShowDropdown(!showDropdown)}
                 aria-label="Select timeframe"
                 className={`flex items-center gap-1 px-2.5 py-1 border rounded-xl text-[10px] sm:text-[11px] transition-all cursor-pointer ${
-                  isLight ? 'bg-slate-100 border-slate-300 text-slate-700 hover:text-black' : 'bg-[#000000]/60 border-[#4a5156]/50 text-[#bdc7ce] hover:text-white'
+                  isLight ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40]' : 'bg-[#181b20] border-[#242830] text-[#F1F3F5]'
                 }`}
               >
                 <span>{period}</span>
@@ -155,7 +155,7 @@ export default function RightPanel({
 
               {showDropdown && (
                 <div className={`absolute right-0 mt-1 w-32 border rounded-xl shadow-2xl z-30 overflow-hidden py-1 ${
-                  isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-[#24292e] border-[#4a5156] text-white'
+                  isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
                 }`}>
                   {['This Week', 'This Month'].map((p) => (
                     <button
@@ -166,8 +166,8 @@ export default function RightPanel({
                       }}
                       className={`w-full text-left px-3 py-1.5 text-xs transition-colors cursor-pointer ${
                         period === p
-                          ? isLight ? 'bg-slate-100 font-semibold text-slate-900' : 'bg-[#bdc7ce]/15 text-[#bdc7ce] font-semibold'
-                          : isLight ? 'text-slate-600 hover:text-black' : 'text-[#808a92] hover:text-white'
+                          ? isLight ? 'bg-[#343A40] text-[#F8F8FF] font-bold' : 'bg-[#F1F3F5] text-[#000000] font-bold'
+                          : isLight ? 'text-[#68707C] hover:bg-[#ECEEF4]' : 'text-[#94A3B8] hover:bg-[#1E222A]'
                       }`}
                     >
                       {p}
@@ -180,54 +180,54 @@ export default function RightPanel({
 
           <div className="grid grid-cols-2 gap-2.5">
             <div className={`p-3 rounded-xl border space-y-1 ${
-              isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/50 border-[#4a5156]/30'
+              isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
             }`}>
-              <div className="flex items-center justify-between text-[#808a92]">
-                <span className="text-[10px] sm:text-[11px] font-medium tracking-wide">Total Balance</span>
-                <Wallet className="w-3.5 h-3.5 text-[#bdc7ce]" />
+              <div className="flex items-center justify-between">
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>Total Balance</span>
+                <Wallet className={`w-3.5 h-3.5 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
               </div>
-              <div className="text-base font-bold font-mono">
+              <div className={`text-base font-bold font-mono ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
                 {displayData.balance}
               </div>
             </div>
 
             <div className={`p-3 rounded-xl border space-y-1 ${
-              isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/50 border-[#4a5156]/30'
+              isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
             }`}>
-              <div className="flex items-center justify-between text-[#808a92]">
-                <span className="text-[10px] sm:text-[11px] font-medium tracking-wide">Income</span>
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+              <div className="flex items-center justify-between">
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>Income</span>
+                <TrendingUp className={`w-3.5 h-3.5 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
               </div>
               <div>
-                <div className="text-base font-bold font-mono text-emerald-500">
+                <div className={`text-base font-bold font-mono ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
                   {displayData.income}
                 </div>
               </div>
             </div>
 
             <div className={`p-3 rounded-xl border space-y-1 ${
-              isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/50 border-[#4a5156]/30'
+              isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
             }`}>
-              <div className="flex items-center justify-between text-[#808a92]">
-                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>Savings</span>
-                <PiggyBank className={`w-3.5 h-3.5 ${isLight ? 'text-slate-800' : 'text-[#bdc7ce]'}`} />
+              <div className="flex items-center justify-between">
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>Savings</span>
+                <PiggyBank className={`w-3.5 h-3.5 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
               </div>
               <div>
-                <div className={`text-base font-bold font-mono ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                <div className={`text-base font-bold font-mono ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
                   {displayData.savings}
                 </div>
               </div>
             </div>
 
             <div className={`p-3 rounded-xl border space-y-1 ${
-              isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/50 border-[#4a5156]/30'
+              isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
             }`}>
-              <div className="flex items-center justify-between text-[#808a92]">
-                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>Expenses</span>
-                <ArrowDownRight className="w-3.5 h-3.5 text-rose-500" />
+              <div className="flex items-center justify-between">
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>Expenses</span>
+                <ArrowDownRight className={`w-3.5 h-3.5 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
               </div>
               <div>
-                <div className="text-base font-bold font-mono text-rose-500">
+                <div className={`text-base font-bold font-mono ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
                   {displayData.expenses}
                 </div>
               </div>
@@ -237,13 +237,13 @@ export default function RightPanel({
       </ScrollFadeIn>
 
       <ScrollFadeIn delay={200}>
-        <div className={`p-4 sm:p-5 rounded-2xl border space-y-4 shadow-lg transition-colors flex flex-col justify-between ${
-          isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-[#24292e]/80 border-[#4a5156]/40 text-white'
+        <div className={`p-4 sm:p-5 rounded-2xl border space-y-4 shadow-sm transition-colors flex flex-col justify-between ${
+          isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
         }`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Target className={`w-4 h-4 ${isLight ? 'text-slate-900' : 'text-[#bdc7ce]'}`} />
-              <h4 className={`text-xs font-bold tracking-wide uppercase ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              <Target className={`w-4 h-4 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
+              <h4 className={`text-xs font-bold tracking-wide uppercase ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
                 Savings Goals
               </h4>
             </div>
@@ -252,15 +252,15 @@ export default function RightPanel({
           {goals.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-4 px-3 space-y-2.5 min-h-[224px] my-auto">
               <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
-                isLight ? 'bg-slate-100 text-slate-800 border border-slate-300' : 'bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30'
+                isLight ? 'bg-[#F4F5FA] text-[#4B535E] border border-[#DEE2EA]' : 'bg-[#181b20] text-[#D1D5DB] border border-[#242830]'
               }`}>
                 <Target className="w-5.5 h-5.5" />
               </div>
               <div className="space-y-1">
-                <h5 className={`text-xs font-bold tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                <h5 className={`text-xs font-bold tracking-wide ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
                   No Savings Goals Set Yet
                 </h5>
-                <p className="text-[11px] text-[#808a92] leading-relaxed max-w-[220px] mx-auto">
+                <p className={`text-[11px] leading-relaxed max-w-[220px] mx-auto ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                   Start building your dream future! Set your first savings goal today and track your progress.
                 </p>
               </div>
@@ -279,9 +279,8 @@ export default function RightPanel({
                       <span className="text-[#d4af37] font-mono font-bold">{progressPct}%</span>
                     </div>
 
-                    <div className={`w-full h-2 rounded-full overflow-hidden ${
-                      isLight ? 'bg-slate-200' : 'bg-black/60'
-                    }`}>
+                    <div className={`w-full h-2 rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-black/60'
+                      }`}>
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-[#d4af37] to-[#bdc7ce] transition-all duration-500"
                         style={{ width: `${progressPct}%` }}
@@ -301,11 +300,10 @@ export default function RightPanel({
           <button
             onClick={() => setIsGoalModalOpen(true)}
             aria-label="Create new savings goal"
-            className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-dashed rounded-xl text-xs font-semibold transition-colors cursor-pointer active:scale-[0.985] ${
-              isLight
+            className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-dashed rounded-xl text-xs font-semibold transition-colors cursor-pointer active:scale-[0.985] ${isLight
                 ? 'border-slate-300 text-slate-700 hover:bg-slate-100'
                 : 'border-[#4a5156]/60 text-[#bdc7ce] hover:text-white hover:border-white/40 hover:bg-white/5'
-            }`}
+              }`}
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{goals.length === 0 ? 'Create Your First Goal' : 'Create New Goal'}</span>
@@ -321,9 +319,8 @@ export default function RightPanel({
             onClick={() => setIsGoalModalOpen(false)}
           />
 
-          <div className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${
-            isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50' : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
-          }`}>
+          <div className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50' : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
+            }`}>
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2.5">
                 <Target className="w-5 h-5 text-[#d4af37]" />
@@ -355,9 +352,8 @@ export default function RightPanel({
                   value={goalName}
                   onChange={(e) => setGoalName(e.target.value)}
                   autoFocus
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-semibold outline-none border transition-all ${
-                    isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                  }`}
+                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-semibold outline-none border transition-all ${isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
+                    }`}
                 />
               </div>
 
@@ -372,9 +368,8 @@ export default function RightPanel({
                   placeholder="50000"
                   value={targetAmount}
                   onChange={(e) => setTargetAmount(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold outline-none border transition-all ${
-                    isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                  }`}
+                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold outline-none border transition-all ${isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
+                    }`}
                 />
               </div>
 
@@ -389,9 +384,8 @@ export default function RightPanel({
                   placeholder="0"
                   value={initialAmount}
                   onChange={(e) => setInitialAmount(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold outline-none border transition-all ${
-                    isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                  }`}
+                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold outline-none border transition-all ${isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
+                    }`}
                 />
               </div>
 

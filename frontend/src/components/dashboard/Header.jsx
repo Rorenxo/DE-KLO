@@ -113,38 +113,53 @@ export default function Header({
   }
 
   return (
-    <header className={`w-full flex items-center justify-between py-3 border-b select-none relative z-40 ${isLight ? 'border-slate-200' : 'border-[#4a5156]/30'
+    <header className={`w-full flex items-center justify-between py-3 border-b select-none relative z-40 ${
+      isLight ? 'border-[#DEE2EA]' : 'border-[#242830]'
+    }`}>
+      <div className={`flex items-center gap-2 text-xs font-Manrope font-semibold tracking-wide ${
+        isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
       }`}>
-      <div className={`flex items-center gap-2 text-xs font-Manrope font-semibold tracking-wide ${isLight ? 'text-slate-800' : 'text-[#bdc7ce]'
-        }`}>
         <span>{dateTimeStr}</span>
       </div>
 
       <div className="flex items-center gap-2.5">
-
         <button
           onClick={onToggleTheme}
           aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          className="w-9 h-9 rounded-full bg-[#24292e]/10 dark:bg-[#24292e]/80 border border-[#4a5156]/30 dark:border-[#4a5156]/50 flex items-center justify-center text-[#4a5156] dark:text-[#bdc7ce] hover:text-[#000000] dark:hover:text-white transition-all cursor-pointer active:scale-95 shadow-sm"
+          className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-sm ${
+            isLight
+              ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#4B535E] hover:text-[#343A40]'
+              : 'bg-[#121418] border-[#242830] text-[#D1D5DB] hover:text-white'
+          }`}
         >
-          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-white" />}
+          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-[#343A40]" />}
         </button>
 
         <button
           onClick={onNotificationClick}
-          className="w-9 h-9 rounded-full bg-[#24292e]/10 dark:bg-[#24292e]/80 border border-[#4a5156]/30 dark:border-[#4a5156]/50 flex items-center justify-center text-[#ffffffff] hover:text-[#000000] dark:hover:text-[#bdc7ce] transition-colors cursor-pointer relative shadow-sm"
+          className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors cursor-pointer relative shadow-sm ${
+            isLight
+              ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#4B535E] hover:text-[#343A40]'
+              : 'bg-[#121418] border-[#242830] text-[#D1D5DB] hover:text-white'
+          }`}
           aria-label="Notifications"
         >
           <Bell className="w-4 h-4" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#bdc7ce]" />
+          <span className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
+            isLight ? 'bg-[#343A40]' : 'bg-[#F1F3F5]'
+          }`} />
         </button>
 
         {/* Profile Avatar Button & Dropdown */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="w-9 h-9 rounded-full bg-[#24292e]/10 dark:bg-[#24292e] border border-[#4a5156]/30 dark:border-[#4a5156]/60 flex items-center justify-center text-[#4a5156] dark:text-[#bdc7ce] font-semibold shadow-md overflow-hidden cursor-pointer hover:border-white/50 transition-all active:scale-95"
+            className={`w-9 h-9 rounded-full border flex items-center justify-center font-semibold shadow-md overflow-hidden cursor-pointer transition-all active:scale-95 ${
+              isLight
+                ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
+                : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+            }`}
             aria-label="User Account Menu"
           >
             {avatarUrl ? (
@@ -157,10 +172,11 @@ export default function Header({
           {/* Profile Dropdown Popover */}
           {showProfileMenu && (
             <div
-              className={`absolute right-0 mt-2 w-64 rounded-2xl border shadow-2xl p-3 space-y-3 z-50 animate-fade-in ${isLight
-                ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
-                : 'bg-[#1a1e22]/95 border-[#4a5156]/60 text-white backdrop-blur-xl shadow-black/90'
-                }`}
+              className={`absolute right-0 mt-2 w-64 rounded-2xl border shadow-2xl p-3 space-y-3 z-50 animate-fade-in ${
+                isLight
+                  ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40] shadow-slate-300/50'
+                  : 'bg-[#121418] border-[#242830] text-[#F1F3F5] shadow-black/90'
+              }`}
             >
               {/* User Header Info */}
               <div className="flex items-center gap-3 pb-2.5 border-b border-white/10">

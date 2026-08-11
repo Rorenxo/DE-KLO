@@ -65,17 +65,15 @@ export default function TransactionModal({
       <div
         className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all duration-200 ${
           isLight
-            ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
-            : 'bg-[#1a1e22] border-[#4a5156]/60 text-white shadow-black/90'
+            ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
+            : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
         }`}
       >
-        <div className="flex items-center justify-between pb-4 border-b border-white/10">
+        <div className="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
           <div className="flex items-center gap-3">
             <div
               className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-                isDeposit
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                isLight ? 'bg-[#F4F5FA] border border-[#DEE2EA] text-[#4B535E]' : 'bg-[#181b20] border border-[#242830] text-[#D1D5DB]'
               }`}
             >
               {isDeposit ? (
@@ -88,7 +86,7 @@ export default function TransactionModal({
               <h3 className="text-base font-bold tracking-tight">
                 {isDeposit ? 'Deposit Money' : 'Withdraw Money'}
               </h3>
-              <p className="text-xs text-[#808a92]">
+              <p className={`text-xs ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                 {isDeposit
                   ? 'Add funds to your account balance'
                   : 'Withdraw funds from your balance'}
@@ -98,7 +96,9 @@ export default function TransactionModal({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-[#808a92] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
+              isLight ? 'text-[#68707C] hover:text-[#343A40] hover:bg-[#ECEEF4]' : 'text-[#94A3B8] hover:text-white hover:bg-[#1E222A]'
+            }`}
           >
             <X className="w-5 h-5" />
           </button>
@@ -106,31 +106,35 @@ export default function TransactionModal({
 
         {isSuccess ? (
           <div className="py-10 flex flex-col items-center justify-center text-center space-y-3 animate-fade-in">
-            <div className="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center">
+            <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+              isLight ? 'bg-[#F4F5FA] border border-[#DEE2EA] text-[#343A40]' : 'bg-[#181b20] border border-[#242830] text-[#F1F3F5]'
+            }`}>
               <CheckCircle2 className="w-8 h-8 animate-bounce" />
             </div>
-            <h4 className="text-lg font-bold text-white">
+            <h4 className={`text-lg font-bold ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
               {isDeposit ? 'Deposit Confirmed!' : 'Withdrawal Confirmed!'}
             </h4>
-            <p className="text-xs text-[#808a92]">
+            <p className={`text-xs ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
               ₱{parseFloat(amount).toLocaleString()} has been {isDeposit ? 'added to' : 'deducted from'} your balance.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 pt-4">
             {error && (
-              <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+              <div className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
+                isLight ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-rose-500/15 border-rose-500/30 text-rose-400'
+              }`}>
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#808a92]">
+              <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                 Amount (₱)
               </label>
               <div className="relative flex items-center">
-                <span className="absolute left-4 text-lg font-bold font-mono text-[#bdc7ce]">
+                <span className={`absolute left-4 text-lg font-bold font-mono ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`}>
                   ₱
                 </span>
                 <input
@@ -154,15 +158,15 @@ export default function TransactionModal({
                   autoFocus
                   className={`w-full py-3 pl-10 pr-4 rounded-2xl text-xl font-mono font-bold outline-none border transition-all ${
                     isLight
-                      ? 'bg-slate-100 border-slate-300 text-slate-900 focus:border-slate-900'
-                      : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
+                      ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
+                      : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
                   }`}
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <span className="block text-[11px] text-[#808a92] font-medium">
+              <span className={`block text-[11px] font-medium ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                 Quick Select
               </span>
               <div className="grid grid-cols-4 gap-2">
@@ -174,11 +178,11 @@ export default function TransactionModal({
                     className={`py-2 px-1 rounded-xl text-xs font-mono font-semibold border transition-all cursor-pointer ${
                       amount === String(val)
                         ? isLight
-                          ? 'bg-slate-900 text-white border-slate-900'
-                          : 'bg-[#bdc7ce] text-[#000000] border-[#bdc7ce]'
+                          ? 'bg-[#343A40] text-[#F8F8FF] border-[#343A40]'
+                          : 'bg-[#F1F3F5] text-[#000000] border-[#F1F3F5]'
                         : isLight
-                        ? 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200'
-                        : 'bg-[#000000]/40 border-[#4a5156]/50 text-[#bdc7ce] hover:text-white hover:border-white/30'
+                        ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#4B535E] hover:bg-[#ECEEF4]'
+                        : 'bg-[#181b20] border-[#242830] text-[#D1D5DB] hover:bg-[#1E222A]'
                     }`}
                   >
                     +₱{val.toLocaleString()}
@@ -188,7 +192,7 @@ export default function TransactionModal({
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#808a92]">
+              <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                 Note / Category (Optional)
               </label>
               <input
@@ -198,15 +202,15 @@ export default function TransactionModal({
                 onChange={(e) => setNote(e.target.value)}
                 className={`w-full py-2.5 px-4 rounded-2xl text-xs font-medium outline-none border transition-all ${
                   isLight
-                    ? 'bg-slate-100 border-slate-300 text-slate-900 focus:border-slate-900'
-                    : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
+                    ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
+                    : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
                 }`}
               />
             </div>
 
-            <div className="flex items-center justify-between text-xs text-[#808a92] pt-1">
+            <div className={`flex items-center justify-between text-xs pt-1 ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
               <span>Current Balance:</span>
-              <span className="font-mono font-bold text-white">
+              <span className={`font-mono font-bold ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
                 ₱{currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
@@ -215,17 +219,21 @@ export default function TransactionModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-3 px-4 rounded-2xl border border-[#4a5156]/60 text-xs font-semibold text-[#bdc7ce] hover:text-white hover:border-white/40 transition-colors cursor-pointer"
+                className={`flex-1 py-3 px-4 rounded-2xl border text-xs font-semibold transition-colors cursor-pointer ${
+                  isLight
+                    ? 'border-[#DEE2EA] text-[#68707C] hover:text-[#343A40] hover:bg-[#ECEEF4]'
+                    : 'border-[#242830] text-[#94A3B8] hover:text-white hover:bg-[#1E222A]'
+                }`}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSaving}
-                className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs shadow-lg transition-all active:scale-[0.985] cursor-pointer ${
-                  isDeposit
-                    ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/20'
-                    : 'bg-rose-500 hover:bg-rose-400 text-white shadow-rose-500/20'
+                className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs shadow-md transition-all active:scale-[0.985] cursor-pointer ${
+                  isLight
+                    ? 'bg-[#343A40] hover:bg-[#212529] text-[#F8F8FF]'
+                    : 'bg-[#F1F3F5] hover:bg-white text-[#000000]'
                 }`}
               >
                 {isSaving ? 'Saving...' : isDeposit ? 'Confirm Deposit' : 'Confirm Withdraw'}

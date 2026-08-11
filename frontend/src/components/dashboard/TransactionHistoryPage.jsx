@@ -191,13 +191,13 @@ export default function TransactionHistoryPage({
       {/* 1. Page Header */}
       <header className="flex items-center justify-between pt-1 pb-1">
         <div>
-          <h2 className={`text-xl sm:text-2xl font-bold font-brand tracking-tight ${
-            isLight ? 'text-slate-900' : 'text-white'
+          <h2 className={`text-xl sm:text-2xl font-bold font-sans tracking-tight ${
+            isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
           }`}>
             Transactions
           </h2>
           <p className={`text-xs mt-0.5 ${
-            isLight ? 'text-slate-600 font-medium' : 'text-[#808a92]'
+            isLight ? 'text-[#68707C] font-medium' : 'text-[#B8C0C8]'
           }`}>
             Track where your money goes.
           </p>
@@ -210,8 +210,8 @@ export default function TransactionHistoryPage({
             aria-label="Search transactions"
             className={`w-9 h-9 rounded-2xl border flex items-center justify-center transition-all cursor-pointer ${
               isMobileSearchOpen || searchQuery
-                ? isLight ? 'bg-slate-900 text-white border-slate-900' : 'bg-[#bdc7ce] text-black border-[#bdc7ce]'
-                : isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-[#24292e]/80 border-[#4a5156]/50 text-[#bdc7ce]'
+                ? isLight ? 'bg-[#343A40] text-[#F8F8FF] border-[#343A40]' : 'bg-[#F1F3F5] text-[#212529] border-[#F1F3F5]'
+                : isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#4B535E]' : 'bg-[#292E33] border-[#3A4148] text-[#C4CBD3]'
             }`}
           >
             <Search className="w-4 h-4" />
@@ -222,14 +222,11 @@ export default function TransactionHistoryPage({
             aria-label="Filter transactions"
             className={`w-9 h-9 rounded-2xl border flex items-center justify-center transition-all cursor-pointer relative ${
               selectedCategory !== 'all' || dateRange !== 'all'
-                ? isLight ? 'bg-slate-900 text-white border-slate-900' : 'bg-[#bdc7ce] text-black border-[#bdc7ce]'
-                : isLight ? 'bg-white border-slate-200 text-slate-700' : 'bg-[#24292e]/80 border-[#4a5156]/50 text-[#bdc7ce]'
+                ? isLight ? 'bg-[#343A40] text-[#F8F8FF] border-[#343A40]' : 'bg-[#F1F3F5] text-[#212529] border-[#F1F3F5]'
+                : isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#4B535E]' : 'bg-[#292E33] border-[#3A4148] text-[#C4CBD3]'
             }`}
           >
             <SlidersHorizontal className="w-4 h-4" />
-            {(selectedCategory !== 'all' || dateRange !== 'all') && (
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400" />
-            )}
           </button>
         </div>
       </header>
@@ -238,9 +235,9 @@ export default function TransactionHistoryPage({
       {isMobileSearchOpen && (
         <div className="sm:hidden animate-fade-in">
           <div className={`relative flex items-center rounded-2xl border p-1 ${
-            isLight ? 'bg-white border-slate-300' : 'bg-[#24292e] border-[#4a5156]/60'
+            isLight ? 'bg-[#F1F3F8] border-[#DEE2EA]' : 'bg-[#292E33] border-[#3A4148]'
           }`}>
-            <Search className="w-4 h-4 text-[#808a92] ml-3 shrink-0" />
+            <Search className="w-4 h-4 text-[#8D95A1] ml-3 shrink-0" />
             <input
               type="text"
               placeholder="Search description, category, amount..."
@@ -248,11 +245,11 @@ export default function TransactionHistoryPage({
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus
               className={`w-full py-2 px-3 text-xs outline-none bg-transparent ${
-                isLight ? 'text-slate-900 placeholder:text-slate-400' : 'text-white placeholder:text-[#808a92]'
+                isLight ? 'text-[#343A40] placeholder:text-[#8D95A1]' : 'text-[#F1F3F5] placeholder:text-[#858E98]'
               }`}
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="p-1 mr-1 text-[#808a92] hover:text-white">
+              <button onClick={() => setSearchQuery('')} className="p-1 mr-1 text-[#858E98] hover:text-white">
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -262,46 +259,50 @@ export default function TransactionHistoryPage({
 
       {/* 2. Compact Financial Summary Bar */}
       <ScrollFadeIn delay={100}>
-        <div className={`p-3.5 sm:p-4 rounded-2xl border shadow-lg transition-colors ${
-          isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50' : 'bg-[#24292e]/70 border-[#4a5156]/40 text-white'
+        <div className={`p-3.5 sm:p-4 rounded-2xl border shadow-sm transition-colors ${
+          isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
         }`}>
           <div className={`flex items-center justify-between pb-2 border-b text-[10px] sm:text-xs font-bold uppercase tracking-wider ${
-            isLight ? 'border-slate-200 text-slate-700' : 'border-white/10 text-[#808a92]'
+            isLight ? 'border-[#DEE2EA] text-[#68707C]' : 'border-[#242830] text-[#94A3B8]'
           }`}>
             <span>Activity Overview</span>
-            <span className={`font-mono ${isLight ? 'text-slate-900 font-bold' : 'text-[#bdc7ce]'}`}>{transactions.length} Total</span>
+            <span className={`font-mono ${isLight ? 'text-[#343A40] font-bold' : 'text-[#F1F3F5]'}`}>{transactions.length} Total</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2 pt-3 text-center sm:text-left">
             {/* Income */}
             <div className="space-y-0.5">
-              <span className={`text-[10px] sm:text-[11px] font-semibold block ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
+              <span className={`text-[10px] sm:text-[11px] font-semibold block ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                 Income
               </span>
-              <span className="text-xs sm:text-sm md:text-base font-bold font-mono text-emerald-500 block truncate">
+              <span className={`text-xs sm:text-sm md:text-base font-bold font-mono block truncate ${
+                isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
+              }`}>
                 +₱{summaryMetrics.totalIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
             </div>
 
             {/* Expenses */}
-            <div className={`space-y-0.5 border-x px-2 sm:px-3 ${isLight ? 'border-slate-200' : 'border-white/10'}`}>
-              <span className={`text-[10px] sm:text-[11px] font-semibold block ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
+            <div className={`space-y-0.5 border-x px-2 sm:px-3 ${isLight ? 'border-[#DEE2EA]' : 'border-[#242830]'}`}>
+              <span className={`text-[10px] sm:text-[11px] font-semibold block ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                 Expenses
               </span>
-              <span className="text-xs sm:text-sm md:text-base font-bold font-mono text-rose-500 block truncate">
+              <span className={`text-xs sm:text-sm md:text-base font-bold font-mono block truncate ${
+                isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
+              }`}>
                 -₱{summaryMetrics.totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
             </div>
 
             {/* Net Flow */}
             <div className="space-y-0.5 pl-1">
-              <span className={`text-[10px] sm:text-[11px] font-semibold block ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
+              <span className={`text-[10px] sm:text-[11px] font-semibold block ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                 Net Flow
               </span>
               <span className={`text-xs sm:text-sm md:text-base font-bold font-mono block truncate ${
-                summaryMetrics.net >= 0 ? (isLight ? 'text-slate-900' : 'text-white') : 'text-rose-500'
+                isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
               }`}>
-                {summaryMetrics.net >= 0 ? '+' : ''}₱{summaryMetrics.net.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                {summaryMetrics.net >= 0 ? '+' : '-'}₱{Math.abs(summaryMetrics.net).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -311,8 +312,8 @@ export default function TransactionHistoryPage({
       {/* 3. Segmented Control Pills + Search & Filter Bar (Desktop & Mobile) */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative z-30">
         {/* Filter Pills */}
-        <div className={`flex items-center p-1 rounded-2xl border w-full sm:w-auto min-w-[240px] ${
-          isLight ? 'bg-slate-100 border-slate-200' : 'bg-[#24292e]/90 border-[#4a5156]/50'
+        <div className={`flex items-center p-1 rounded-2xl border w-full sm:w-auto min-w-[240px] shrink-0 ${
+          isLight ? 'bg-[#F4F5FA] border-[#DEE2EA]' : 'bg-[#181b20] border-[#242830]'
         }`}>
           {['all', 'deposit', 'withdrawal'].map((t) => {
             const isActive = filterType === t
@@ -323,10 +324,10 @@ export default function TransactionHistoryPage({
                 key={t}
                 onClick={() => setFilterType(t)}
                 aria-label={`Filter by ${label}`}
-                className={`flex-1 py-1.5 px-3.5 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center active:scale-[0.98] ${
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center active:scale-[0.98] ${
                   isActive
-                    ? isLight ? 'bg-white text-slate-900 shadow-sm' : 'bg-[#bdc7ce] text-black font-bold shadow-md'
-                    : isLight ? 'text-slate-600 hover:text-black' : 'text-[#808a92] hover:text-white'
+                    ? isLight ? 'bg-[#343A40] text-[#F8F8FF] shadow-sm' : 'bg-[#F1F3F5] text-[#000000] shadow-sm'
+                    : isLight ? 'text-[#68707C] hover:text-[#343A40]' : 'text-[#94A3B8] hover:text-[#F1F3F5]'
                 }`}
               >
                 {label}
@@ -335,24 +336,24 @@ export default function TransactionHistoryPage({
           })}
         </div>
 
-        {/* Desktop Search Field & Filter Popover Button (NO + Add button on desktop) */}
+        {/* Desktop Search Field & Filter Popover Button */}
         <div className="hidden sm:flex items-center gap-2.5 relative" ref={filterRef}>
           {/* Desktop Search Input */}
           <div className={`relative flex items-center rounded-2xl border px-3 py-1.5 w-44 md:w-56 lg:w-64 transition-all ${
-            isLight ? 'bg-white border-slate-300' : 'bg-[#24292e] border-[#4a5156]/60 focus-within:border-[#bdc7ce]'
+            isLight ? 'bg-[#F1F3F8] border-[#DEE2EA]' : 'bg-[#121418] border-[#242830]'
           }`}>
-            <Search className="w-3.5 h-3.5 text-[#808a92] mr-2 shrink-0" />
+            <Search className="w-3.5 h-3.5 text-[#8D95A1] mr-2 shrink-0" />
             <input
               type="text"
               placeholder="Search transactions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={`w-full text-xs outline-none bg-transparent ${
-                isLight ? 'text-slate-900 placeholder:text-slate-400' : 'text-white placeholder:text-[#808a92]'
+                isLight ? 'text-[#343A40] placeholder:text-[#8D95A1]' : 'text-[#F1F3F5] placeholder:text-[#64748B]'
               }`}
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="p-0.5 text-[#808a92] hover:text-white">
+              <button onClick={() => setSearchQuery('')} className="p-0.5 text-[#64748B] hover:text-white">
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
@@ -365,120 +366,141 @@ export default function TransactionHistoryPage({
               aria-label="Filter options"
               className={`flex items-center gap-2 py-2 px-3.5 rounded-2xl border text-xs font-semibold cursor-pointer transition-all ${
                 isFilterOpen || selectedCategory !== 'all' || dateRange !== 'all'
-                  ? isLight ? 'bg-slate-900 text-white border-slate-900' : 'bg-[#bdc7ce] text-black border-[#bdc7ce] font-bold'
-                  : isLight ? 'bg-white border-slate-200 text-slate-700 hover:text-black' : 'bg-[#24292e] border-[#4a5156]/60 text-[#bdc7ce] hover:text-white'
+                  ? isLight ? 'bg-[#343A40] text-[#F8F8FF] border-[#343A40]' : 'bg-[#F1F3F5] text-[#000000] border-[#F1F3F5]'
+                  : isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40] hover:bg-[#ECEEF4]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5] hover:bg-[#1E222A]'
               }`}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>Filter</span>
               <ChevronDown className={`w-3 h-3 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
             </button>
-
-            {/* Filter Floating Popover directly underneath Filter Button with High z-index z-[200] */}
-            {isFilterOpen && (
-              <div
-                className={`absolute right-0 mt-2 w-72 sm:w-80 rounded-3xl border p-4 shadow-2xl z-[200] animate-fade-in ${
-                  isLight
-                    ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
-                    : 'bg-[#1a1e22] border-[#4a5156]/70 text-white backdrop-blur-2xl shadow-black/90'
-                }`}
-              >
-                <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#808a92]">
-                    Filter Transactions
-                  </span>
-                  <button
-                    onClick={() => setIsFilterOpen(false)}
-                    className="p-1 text-[#808a92] hover:text-white rounded-lg transition-colors cursor-pointer"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="space-y-4 pt-3">
-                  {/* Date Range Selection */}
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-semibold uppercase text-[#808a92]">
-                      Date Range
-                    </label>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {[
-                        { id: 'all', label: 'All Time' },
-                        { id: '7days', label: '7 Days' },
-                        { id: 'month', label: 'This Month' },
-                      ].map((d) => (
-                        <button
-                          key={d.id}
-                          onClick={() => setDateRange(d.id)}
-                          className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
-                            dateRange === d.id
-                              ? isLight ? 'bg-slate-900 text-white border-slate-900' : 'bg-[#bdc7ce] text-black border-[#bdc7ce] font-bold'
-                              : isLight ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-[#000000]/60 border-[#4a5156]/50 text-[#808a92]'
-                          }`}
-                        >
-                          {d.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Category Selection */}
-                  {categoriesList.length > 0 && (
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-semibold uppercase text-[#808a92]">
-                        Category
-                      </label>
-                      <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1">
-                        <button
-                          onClick={() => setSelectedCategory('all')}
-                          className={`py-1.5 px-2.5 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
-                            selectedCategory === 'all'
-                              ? isLight ? 'bg-slate-900 text-white border-slate-900' : 'bg-[#bdc7ce] text-black border-[#bdc7ce] font-bold'
-                              : isLight ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-[#000000]/60 border-[#4a5156]/50 text-[#808a92]'
-                          }`}
-                        >
-                          All Categories
-                        </button>
-                        {categoriesList.map((cat) => (
-                          <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`py-1.5 px-2.5 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
-                              selectedCategory === cat
-                                ? isLight ? 'bg-slate-900 text-white border-slate-900' : 'bg-[#bdc7ce] text-black border-[#bdc7ce] font-bold'
-                                : isLight ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-[#000000]/60 border-[#4a5156]/50 text-[#808a92]'
-                            }`}
-                          >
-                            {cat}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Bottom Buttons */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-white/10">
-                    <button
-                      type="button"
-                      onClick={resetFilters}
-                      className="flex-1 py-2 px-3 rounded-xl border border-[#4a5156]/60 text-xs font-semibold text-[#bdc7ce] hover:text-white"
-                    >
-                      Reset
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsFilterOpen(false)}
-                      className="flex-1 py-2 px-3 rounded-xl bg-white text-black font-bold text-xs shadow-lg hover:bg-[#bdc7ce] transition-colors"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
+
+      {/* FILTER MODAL / POPOVER (Renders for BOTH Mobile Bottom-Sheet & Desktop Dropdown) */}
+      {isFilterOpen && (
+        <div className="fixed inset-0 z-[300] sm:absolute sm:inset-auto sm:right-6 sm:top-[220px] flex items-end sm:items-start justify-center sm:justify-end animate-fade-in">
+          {/* Mobile Overlay Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs sm:hidden"
+            onClick={() => setIsFilterOpen(false)}
+          />
+
+          {/* Filter Card Container */}
+          <div
+            className={`relative w-full max-w-md sm:w-80 rounded-t-3xl sm:rounded-3xl border p-5 sm:p-4 shadow-2xl z-10 transition-all ${
+              isLight
+                ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
+                : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+            }`}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
+              <span className={`text-xs font-bold uppercase tracking-wider ${
+                isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'
+              }`}>
+                Filter Transactions
+              </span>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className={`p-1 rounded-lg transition-colors cursor-pointer ${
+                  isLight ? 'text-[#68707C] hover:text-[#343A40]' : 'text-[#94A3B8] hover:text-white'
+                }`}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4 pt-3">
+              {/* Date Range Selection */}
+              <div className="space-y-1.5">
+                <label className={`block text-[10px] font-semibold uppercase ${
+                  isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'
+                }`}>
+                  Date Range
+                </label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { id: 'all', label: 'All Time' },
+                    { id: '7days', label: '7 Days' },
+                    { id: 'month', label: 'This Month' },
+                  ].map((d) => (
+                    <button
+                      key={d.id}
+                      onClick={() => setDateRange(d.id)}
+                      className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
+                        dateRange === d.id
+                          ? isLight ? 'bg-[#343A40] text-[#F8F8FF] border-[#343A40]' : 'bg-[#F1F3F5] text-[#000000] border-[#F1F3F5]'
+                          : isLight ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#68707C]' : 'bg-[#181b20] border-[#242830] text-[#94A3B8]'
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category Selection */}
+              {categoriesList.length > 0 && (
+                <div className="space-y-1.5">
+                  <label className={`block text-[10px] font-semibold uppercase ${
+                    isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'
+                  }`}>
+                    Category
+                  </label>
+                  <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+                    <button
+                      onClick={() => setSelectedCategory('all')}
+                      className={`py-1.5 px-2.5 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
+                        selectedCategory === 'all'
+                          ? isLight ? 'bg-[#343A40] text-[#F8F8FF] border-[#343A40]' : 'bg-[#F1F3F5] text-[#000000] border-[#F1F3F5]'
+                          : isLight ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#68707C]' : 'bg-[#181b20] border-[#242830] text-[#94A3B8]'
+                      }`}
+                    >
+                      All Categories
+                    </button>
+                    {categoriesList.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`py-1.5 px-2.5 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
+                          selectedCategory === cat
+                            ? isLight ? 'bg-[#343A40] text-[#F8F8FF] border-[#343A40]' : 'bg-[#F1F3F5] text-[#000000] border-[#F1F3F5]'
+                            : isLight ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#68707C]' : 'bg-[#181b20] border-[#242830] text-[#94A3B8]'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Bottom Action Buttons */}
+              <div className="flex items-center gap-2 pt-2 border-t border-black/10 dark:border-white/10">
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className={`flex-1 py-2 px-3 rounded-xl border text-xs font-semibold transition-colors cursor-pointer ${
+                    isLight ? 'border-[#DEE2EA] text-[#68707C] hover:text-[#343A40]' : 'border-[#242830] text-[#94A3B8] hover:text-white'
+                  }`}
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsFilterOpen(false)}
+                  className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer ${
+                    isLight ? 'bg-[#343A40] text-[#F8F8FF]' : 'bg-[#F1F3F5] text-[#000000]'
+                  }`}
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4. Error Banner (If fetch failed) */}
       {error && (
@@ -505,9 +527,8 @@ export default function TransactionHistoryPage({
           {[1, 2, 3, 4, 5].map((idx) => (
             <div
               key={idx}
-              className={`p-4 rounded-2xl border animate-pulse flex items-center justify-between ${
-                isLight ? 'bg-slate-100 border-slate-200' : 'bg-[#24292e]/40 border-[#4a5156]/30'
-              }`}
+              className={`p-4 rounded-2xl border animate-pulse flex items-center justify-between ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-[#24292e]/40 border-[#4a5156]/30'
+                }`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-2xl bg-white/10" />
@@ -524,12 +545,10 @@ export default function TransactionHistoryPage({
 
       {/* 6. Empty State */}
       {!loading && !error && filteredTransactions.length === 0 && (
-        <div className={`p-10 text-center rounded-3xl border space-y-4 my-4 animate-fade-in ${
-          isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#24292e]/40 border-[#4a5156]/30'
-        }`}>
-          <div className={`w-14 h-14 rounded-3xl mx-auto flex items-center justify-center ${
-            isLight ? 'bg-slate-100 text-slate-500' : 'bg-[#000000]/60 text-[#bdc7ce] border border-[#4a5156]/40'
+        <div className={`p-10 text-center rounded-3xl border space-y-4 my-4 animate-fade-in ${isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#24292e]/40 border-[#4a5156]/30'
           }`}>
+          <div className={`w-14 h-14 rounded-3xl mx-auto flex items-center justify-center ${isLight ? 'bg-slate-100 text-slate-500' : 'bg-[#000000]/60 text-[#bdc7ce] border border-[#4a5156]/40'
+            }`}>
             <Clock className="w-7 h-7" />
           </div>
 
@@ -574,9 +593,8 @@ export default function TransactionHistoryPage({
             return (
               <div key={dateGroupKey} className="space-y-2.5">
                 {/* Date Header */}
-                <div className={`text-[11px] font-bold uppercase tracking-wider px-1 flex items-center gap-2 ${
-                  isLight ? 'text-slate-700' : 'text-[#808a92]'
-                }`}>
+                <div className={`text-[11px] font-bold uppercase tracking-wider px-1 flex items-center gap-2 ${isLight ? 'text-slate-700' : 'text-[#808a92]'
+                  }`}>
                   <span>{dateGroupKey}</span>
                   <div className={`flex-1 h-[1px] ${isLight ? 'bg-slate-200' : 'bg-white/10'}`} />
                 </div>
@@ -607,19 +625,19 @@ export default function TransactionHistoryPage({
                         onClick={() => setSelectedTx(tx)}
                         className={`p-3.5 sm:p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer active:scale-[0.985] ${
                           isLight
-                            ? 'bg-white border-slate-200 hover:border-slate-300'
-                            : 'bg-[#181b1e] border-[#4a5156]/30 hover:border-[#4a5156]/60'
+                            ? 'bg-[#F1F3F8] border-[#DEE2EA] hover:bg-[#ECEEF4]'
+                            : 'bg-[#121418] border-[#242830] hover:bg-[#1E222A]'
                         }`}
                       >
                         {/* LEFT SIDE: Heading & Metadata */}
                         <div className="flex flex-col min-w-0 flex-1 pr-3 space-y-0.5">
                           <h4 className={`text-sm sm:text-base font-semibold truncate leading-tight ${
-                            isLight ? 'text-slate-900' : 'text-white'
+                            isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
                           }`}>
                             {headingText}
                           </h4>
                           <span className={`text-xs truncate ${
-                            isLight ? 'text-slate-500' : 'text-[#808a92]'
+                            isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'
                           }`}>
                             {metaType} · {formattedDate}
                           </span>
@@ -628,9 +646,9 @@ export default function TransactionHistoryPage({
                         {/* RIGHT SIDE: Amount */}
                         <div className="text-right shrink-0">
                           <span className={`text-sm sm:text-base font-bold font-mono ${
-                            isLight ? 'text-slate-900' : 'text-white'
+                            isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
                           }`}>
-                            ₱{displayAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {isDeposit ? '+' : '-'}₱{displayAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
                       </div>
@@ -651,9 +669,8 @@ export default function TransactionHistoryPage({
             onClick={() => setSelectedTx(null)}
           />
 
-          <div className={`relative w-full max-w-md rounded-t-[32px] sm:rounded-3xl border p-6 shadow-2xl z-10 transition-all ${
-            isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50' : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
-          }`}>
+          <div className={`relative w-full max-w-md rounded-t-[32px] sm:rounded-3xl border p-6 shadow-2xl z-10 transition-all ${isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50' : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
+            }`}>
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <span className="text-xs font-bold uppercase tracking-wider text-[#808a92]">
                 Transaction Detail
@@ -669,17 +686,15 @@ export default function TransactionHistoryPage({
             <div className="space-y-5 pt-4">
               {/* Type Badge & Amount Header */}
               <div className="text-center space-y-1 py-2">
-                <span className={`inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-xl border ${
-                  selectedTx.type === 'deposit' || selectedTx.type === 'income'
+                <span className={`inline-block text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-xl border ${selectedTx.type === 'deposit' || selectedTx.type === 'income'
                     ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                     : 'bg-rose-500/20 text-rose-400 border-rose-500/30'
-                }`}>
+                  }`}>
                   {selectedTx.type}
                 </span>
 
-                <div className={`text-2xl sm:text-3xl font-bold font-mono ${
-                  selectedTx.type === 'deposit' || selectedTx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'
-                }`}>
+                <div className={`text-2xl sm:text-3xl font-bold font-mono ${selectedTx.type === 'deposit' || selectedTx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'
+                  }`}>
                   {selectedTx.type === 'deposit' || selectedTx.type === 'income' ? '+' : '-'}₱{Number(selectedTx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </div>
 
@@ -689,9 +704,8 @@ export default function TransactionHistoryPage({
               </div>
 
               {/* Details List */}
-              <div className={`p-4 rounded-2xl border space-y-3 ${
-                isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/60 border-[#4a5156]/40'
-              }`}>
+              <div className={`p-4 rounded-2xl border space-y-3 ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/60 border-[#4a5156]/40'
+                }`}>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-[#808a92] flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5" /> Date & Time

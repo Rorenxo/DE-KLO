@@ -19,9 +19,9 @@ export default function AtmCard({
   }
 
   return (
-    <div className="relative w-full max-w-[460px] aspect-[1.8/1] rounded-[22px] p-4 sm:p-5 text-white shadow-2xl shadow-black/95 overflow-hidden flex flex-col justify-between select-none border border-[#4a5156]/50 transition-all duration-200 active:scale-[0.99] hover:shadow-black bg-gradient-to-br from-[#1a1e22] via-[#0d0f12] to-[#000000]">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#bdc7ce]/15 via-transparent to-transparent pointer-events-none" />
-      <div className="absolute -bottom-16 -right-16 w-44 h-44 bg-[#bdc7ce]/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative w-full max-w-[460px] aspect-[1.8/1] rounded-[22px] p-4 sm:p-5 text-white shadow-lg shadow-slate-900/20 dark:shadow-black/50 overflow-hidden flex flex-col justify-between select-none border border-white/20 dark:border-[#4a5156]/50 transition-all duration-200 active:scale-[0.99] bg-gradient-to-br from-[#1e2328] via-[#121518] to-[#0a0c0e] ring-1 ring-white/10">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/20 via-white/5 to-transparent pointer-events-none" />
+      <div className="absolute -bottom-16 -right-16 w-44 h-44 bg-white/5 rounded-full blur-3xl pointer-events-none" />
       
       <div className="relative z-10 flex items-center justify-between">
         <img

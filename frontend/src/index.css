@@ -14,15 +14,40 @@
 
 @layer base {
   :root {
-    --black-metal: #000000;
-    --cinder: #24292e;
-    --chimney: #4a5156;
-    --sea-lion: #808a92;
-    --blue-dolphin: #bdc7ce;
-    --white: #ffffff;
+    --bg-page: #000000;
+    --bg-surface: #121418;
+    --bg-elevated: #181b20;
+    --text-primary: #F1F3F5;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --border-main: #242830;
+    --border-subtle: #1A1D24;
+    --icon-primary: #D1D5DB;
+    --icon-secondary: #808A93;
+    --bg-hover: #1E222A;
+    --bg-active: #F1F3F5;
+    --text-active: #000000;
   }
 
-  html, body {
+  html.light,
+  body.light {
+    --bg-page: #F8F8FF;
+    --bg-surface: #F1F3F8;
+    --bg-elevated: #F4F5FA;
+    --text-primary: #343A40;
+    --text-secondary: #68707C;
+    --text-muted: #8D95A1;
+    --border-main: #DEE2EA;
+    --border-subtle: #E8EAF0;
+    --icon-primary: #4B535E;
+    --icon-secondary: #7D8590;
+    --bg-hover: #ECEEF4;
+    --bg-active: #343A40;
+    --text-active: #F8F8FF;
+  }
+
+  html,
+  body {
     min-height: 100%;
     margin: 0;
     padding: 0;
@@ -30,6 +55,32 @@
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
     transition: background-color 0.25s ease, color 0.25s ease;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+  }
+
+  /* Minimal Theme-Aware Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-main);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-main) transparent;
   }
 }
 
@@ -42,7 +93,7 @@
 }
 
 .bg-layer-overlay {
-  background: 
+  background:
     radial-gradient(circle at 50% 35%, rgba(36, 41, 46, 0.4) 0%, rgba(0, 0, 0, 0.88) 75%),
     linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.95) 100%);
 }
@@ -71,6 +122,7 @@
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

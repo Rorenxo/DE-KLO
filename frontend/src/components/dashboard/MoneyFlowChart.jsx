@@ -110,19 +110,21 @@ export default function MoneyFlowChart({ theme = 'dark', customDatasets = null }
 
   return (
     <ScrollFadeIn delay={150}>
-      <div className={`w-full p-4 sm:p-5 rounded-2xl border space-y-4 shadow-2xl transition-all ${
+      <div className={`w-full p-4 sm:p-5 rounded-2xl border space-y-4 shadow-sm transition-all ${
         isLight
-          ? 'bg-white border-slate-200 text-slate-900 shadow-slate-200/60'
-          : 'bg-[#121417]/90 border-[#4a5156]/40 text-white backdrop-blur-xl'
+          ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
+          : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
       }`}>
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-1 border-b border-white/5">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-1 border-b border-black/5 dark:border-white/5">
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-2">
-                <span>Cash Flow</span>
-              </h3>
-            </div>
-            <p className="text-[11px] text-[#808a92] mt-0.5">
+            <h3 className={`text-sm sm:text-base font-bold font-sans tracking-tight ${
+              isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
+            }`}>
+              Cash Flow
+            </h3>
+            <p className={`text-xs mt-0.5 ${
+              isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'
+            }`}>
               Real-time income and expense flow metrics
             </p>
           </div>
@@ -142,20 +144,18 @@ export default function MoneyFlowChart({ theme = 'dark', customDatasets = null }
             <div className="relative">
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-medium transition-all cursor-pointer ${
-                  isLight
+                className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-medium transition-all cursor-pointer ${isLight
                     ? 'bg-slate-100 border-slate-300 text-slate-700 hover:text-black'
                     : 'bg-[#000000]/70 border-[#4a5156]/60 text-[#bdc7ce] hover:text-white hover:border-[#808a92]'
-                }`}
+                  }`}
               >
                 <span>{period}</span>
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
 
               {showDropdown && (
-                <div className={`absolute right-0 mt-1 w-36 border rounded-xl shadow-2xl z-30 overflow-hidden py-1 ${
-                  isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-[#1c1f24] border-[#4a5156] text-white'
-                }`}>
+                <div className={`absolute right-0 mt-1 w-36 border rounded-xl shadow-2xl z-30 overflow-hidden py-1 ${isLight ? 'bg-white border-slate-200 text-slate-900' : 'bg-[#1c1f24] border-[#4a5156] text-white'
+                  }`}>
                   {Object.keys(datasets).map((p) => (
                     <button
                       key={p}
@@ -163,11 +163,10 @@ export default function MoneyFlowChart({ theme = 'dark', customDatasets = null }
                         setPeriod(p)
                         setShowDropdown(false)
                       }}
-                      className={`w-full text-left px-3 py-1.5 text-xs transition-colors cursor-pointer ${
-                        period === p
+                      className={`w-full text-left px-3 py-1.5 text-xs transition-colors cursor-pointer ${period === p
                           ? isLight ? 'bg-slate-100 font-semibold text-slate-900' : 'bg-white/10 text-white font-semibold'
                           : isLight ? 'text-slate-600 hover:text-black' : 'text-[#808a92] hover:text-white'
-                      }`}
+                        }`}
                     >
                       {p}
                     </button>
@@ -351,20 +350,19 @@ export default function MoneyFlowChart({ theme = 'dark', customDatasets = null }
 
           {activePoint && (
             <div
-              className={`absolute top-2 z-20 pointer-events-none bg-[#000000]/95 border border-white/25 p-2.5 rounded-xl shadow-2xl backdrop-blur-md text-xs space-y-1 animate-fade-in ${
-                hoveredIdx === 0
+              className={`absolute top-2 z-20 pointer-events-none bg-[#000000]/95 border border-white/25 p-2.5 rounded-xl shadow-2xl backdrop-blur-md text-xs space-y-1 animate-fade-in ${hoveredIdx === 0
                   ? 'translate-x-0'
                   : hoveredIdx >= points.length - 2
-                  ? 'transform -translate-x-full'
-                  : 'transform -translate-x-1/2'
-              }`}
+                    ? 'transform -translate-x-full'
+                    : 'transform -translate-x-1/2'
+                }`}
               style={{
                 left:
                   hoveredIdx === 0
                     ? '52px'
                     : hoveredIdx >= points.length - 2
-                    ? `${((activePoint.x - 12) / svgWidth) * 100}%`
-                    : `${((activePoint.x) / svgWidth) * 100}%`,
+                      ? `${((activePoint.x - 12) / svgWidth) * 100}%`
+                      : `${((activePoint.x) / svgWidth) * 100}%`,
               }}
             >
               <div className="font-bold text-white text-[11px] border-b border-white/10 pb-1 flex justify-between gap-3">

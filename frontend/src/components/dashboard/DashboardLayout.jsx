@@ -239,7 +239,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
 
   return (
     <div
-      className={`min-h-dvh lg:h-dvh lg:max-h-dvh w-full transition-colors duration-300 flex flex-col lg:flex-row select-none overflow-x-hidden lg:overflow-hidden ${theme === 'light' ? 'bg-[#f4f6f8] text-slate-900' : 'bg-[#000000] text-white'
+      className={`min-h-dvh lg:h-dvh lg:max-h-dvh w-full transition-colors duration-300 flex flex-col lg:flex-row select-none overflow-x-hidden lg:overflow-hidden ${theme === 'light' ? 'bg-[#F8F8FF] text-[#343A40]' : 'bg-[#000000] text-[#F1F3F5]'
         }`}
     >
       <Sidebar
@@ -342,8 +342,8 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
             {activeTab !== 'home' && activeTab !== 'history' && (
               <div
                 className={`p-8 text-center rounded-2xl border animate-fade-in my-8 ${theme === 'light'
-                    ? 'bg-white border-slate-200 shadow-sm'
-                    : 'bg-[#24292e]/40 border-[#4a5156]/30'
+                  ? 'bg-white border-slate-200 shadow-sm'
+                  : 'bg-[#24292e]/40 border-[#4a5156]/30'
                   }`}
               >
                 <h3 className="text-lg font-bold uppercase tracking-wider">
