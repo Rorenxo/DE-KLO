@@ -110,15 +110,10 @@ export default function TransactionModal({
               <CheckCircle2 className="w-8 h-8 animate-bounce" />
             </div>
             <h4 className="text-lg font-bold text-white">
-              {isSuccess === 'synced'
-                ? (isDeposit ? 'Deposit Synced!' : 'Withdrawal Synced!')
-                : (isDeposit ? 'Deposit Saved!' : 'Withdrawal Saved!')}
+              {isDeposit ? 'Deposit Confirmed!' : 'Withdrawal Confirmed!'}
             </h4>
             <p className="text-xs text-[#808a92]">
               ₱{parseFloat(amount).toLocaleString()} has been {isDeposit ? 'added to' : 'deducted from'} your balance.
-            </p>
-            <p className="text-xs text-[#808a92]">
-              {isSuccess === 'offline' ? 'Saved offline; sync will retry automatically.' : 'Saved locally; waiting for sync.'}
             </p>
           </div>
         ) : (

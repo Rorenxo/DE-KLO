@@ -13,7 +13,6 @@ import { authService } from '../../services/authService'
 import { profileService } from '../../services/profileService'
 import { transactionService } from '../../services/transactionService'
 import { savingsService } from '../../services/savingsService'
-import { syncService } from '../../services/syncService'
 
 export default function DashboardLayout({ user, onLockApp, onLogout }) {
   const [activeTab, setActiveTab] = useState('home')
@@ -77,26 +76,14 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
     ],
   })
 
-  // 1. Load local-first profile, transactions, and goals on mount.
+  // 1. Load online profile, transactions, and goals on mount.
   useEffect(() => {
     if (!userId || userId === 'guest') return
 
-    // Ensure the profile exists locally, then sync when online.
     if (user && user.id) {
       profileService.ensureProfile(user).then((prof) => {
         if (prof) setUserProfile(prof)
       }).catch((err) => console.error('Profile load error:', err))
-    }
-
-    const refreshSyncState = async () => {
-      const [syncState, connectionState] = await Promise.all([
-        syncService.getSyncState(userId),
-        syncService.getConnectionState(),
-      ])
-      setPendingSyncCount(syncState.pendingCount)
-      setIsSyncing(syncState.syncing)
-      setHasSyncError(syncState.hasError)
-      setIsOnline(connectionState.isOnline)
     }
 
     const refreshTransactions = async () => {
@@ -107,9 +94,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
       setBalance(metrics.balance)
       setIncome(metrics.totalIncome)
       setExpenses(metrics.totalExpenses)
-      await refreshSyncState()
 
-      // Calculate chart week node if transactions exist
       if (txList && txList.length > 0) {
         let weeklyInc = 0
         let weeklyExp = 0
@@ -138,41 +123,13 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
       setIsTxLoading(false)
     })
 
-    const unsubscribeSync = transactionService.subscribeSync(() => {
-      refreshTransactions().catch(() => {})
-    })
-    const updateOnlineState = (forceProbe = false) => {
-      syncService.getConnectionState({ refresh: forceProbe }).then((connectionState) => {
-        setIsOnline(connectionState.isOnline)
-      }).catch((err) => console.error('Connectivity check error:', err))
-      refreshSyncState().catch((err) => console.error('Sync state refresh error:', err))
-    }
-    const handleOnline = () => updateOnlineState(true)
-    const handleOffline = () => updateOnlineState(true)
-    updateOnlineState(true)
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-    const connectivityProbe = window.setInterval(() => updateOnlineState(true), 30000)
-
     const refreshGoals = async () => {
       const gList = await savingsService.getGoals(userId)
       setGoalsList(gList || [])
       const totalGoalCurrent = (gList || []).reduce((acc, g) => acc + (Number(g.current_amount) || 0), 0)
       setSavings(totalGoalCurrent)
-      await refreshSyncState()
     }
     refreshGoals().catch((err) => console.error('Goals load error:', err))
-    const unsubscribeGoalSync = savingsService.subscribeSync(() => {
-      refreshGoals().catch(() => {})
-    })
-
-    return () => {
-      unsubscribeSync()
-      unsubscribeGoalSync()
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-      window.clearInterval(connectivityProbe)
-    }
   }, [userId, user])
 
   useEffect(() => {
@@ -214,12 +171,10 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
     setIsModalOpen(true)
   }
 
-  // 2. Persist locally, then let the sync service upload when possible.
   const handleConfirmTransaction = async (amount, note) => {
     const txType = modalType === 'deposit' ? 'deposit' : 'withdrawal'
 
     try {
-      // Persist locally first; the sync service uploads it when possible.
       const createdRecord = await transactionService.createTransaction({
         userId,
         type: txType,
@@ -229,7 +184,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
       })
 
       if (createdRecord) {
-        const updatedList = await transactionService.getLocalTransactions(userId)
+        const updatedList = await transactionService.getTransactions(userId)
         setTransactions(updatedList)
 
         const metrics = transactionService.calculateMetrics(updatedList)
@@ -237,7 +192,6 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
         setIncome(metrics.totalIncome)
         setExpenses(metrics.totalExpenses)
 
-        // Update chart week node
         setChartData((prev) => {
           const updatedWeek = [...prev['Per Week']]
           const lastIdx = updatedWeek.length - 1
@@ -249,12 +203,6 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
           return { ...prev, 'Per Week': updatedWeek }
         })
 
-        const syncState = await syncService.getSyncState(userId)
-        setPendingSyncCount(syncState.pendingCount)
-        setIsSyncing(syncState.syncing)
-        setHasSyncError(syncState.hasError)
-
-        // Keep the existing cached summary for fast dashboard startup.
         authService.updateUserData(userId, {
           balance: metrics.balance,
           income: metrics.totalIncome,
@@ -263,11 +211,10 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
         })
       }
     } catch (err) {
-      console.error('Local transaction save failed:', err)
+      console.error('Transaction creation failed:', err)
       throw err
     }
-    const connectionState = await syncService.getConnectionState({ refresh: true })
-    return connectionState.isOnline ? 'pending' : 'offline'
+    return 'online'
   }
 
   const overviewData = {
@@ -361,25 +308,17 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
                   setBalance(metrics.balance)
                   setIncome(metrics.totalIncome)
                   setExpenses(metrics.totalExpenses)
-                  const syncState = await syncService.getSyncState(userId)
-                  setPendingSyncCount(syncState.pendingCount)
-                  setIsSyncing(syncState.syncing)
-                  setHasSyncError(syncState.hasError)
                   setIsTxLoading(false)
                 }}
                 onAddTransaction={handleOpenDeposit}
                 onDeleteTransaction={async (txId) => {
                   await transactionService.deleteTransaction(txId, userId)
-                  const updated = await transactionService.getLocalTransactions(userId)
+                  const updated = await transactionService.getTransactions(userId)
                   setTransactions(updated)
                   const metrics = transactionService.calculateMetrics(updated)
                   setBalance(metrics.balance)
                   setIncome(metrics.totalIncome)
                   setExpenses(metrics.totalExpenses)
-                  const syncState = await syncService.getSyncState(userId)
-                  setPendingSyncCount(syncState.pendingCount)
-                  setIsSyncing(syncState.syncing)
-                  setHasSyncError(syncState.hasError)
                 }}
               />
             )}

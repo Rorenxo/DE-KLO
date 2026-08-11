@@ -1,5 +1,6 @@
-import { syncService } from './syncService'
-import { offlineDatabase } from './offlineDatabase'
+import { supabase } from './supabaseClient'
+
+const isUuid = (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
 
 export function generateCardNumber() {
   return `DK-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`
@@ -23,38 +24,68 @@ function profilePayload(user) {
 
 export const profileService = {
   async getProfile(userId) {
-    if (!userId) return null
-    return offlineDatabase.profiles.get(userId)
+    if (!isUuid(userId)) return null
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (error) {
+      console.warn('Supabase fetch profile warning:', error.message || error)
+      return null
+    }
+
+    return data
   },
 
   async ensureProfile(user) {
-    if (!user?.id) return null
-    const existing = await offlineDatabase.profiles.get(user.id)
-    const profile = existing || {
+    if (!isUuid(user?.id)) return null
+
+    const existing = await this.getProfile(user.id)
+    if (existing) return existing
+
+    const payload = {
       ...profilePayload(user),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      sync_status: 'pending',
-      last_sync_attempt: null,
-      sync_error: null,
     }
-    await offlineDatabase.profiles.put(profile)
-    syncService.syncProfile(user.id).catch(() => {})
-    return profile
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert(payload, { onConflict: 'user_id' })
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('Supabase ensure profile warning:', error.message || error)
+      return payload
+    }
+
+    return data || payload
   },
 
   async updateProfile(userId, updates) {
-    if (!userId) return null
-    const existing = await offlineDatabase.profiles.get(userId)
-    const updated = {
-      ...(existing || { user_id: userId, created_at: new Date().toISOString(), currency: 'PHP' }),
+    if (!isUuid(userId)) return null
+
+    const payload = {
       ...updates,
       updated_at: new Date().toISOString(),
-      sync_status: 'pending',
-      sync_error: null,
     }
-    await offlineDatabase.profiles.put(updated)
-    syncService.syncProfile(userId).catch(() => {})
-    return updated
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(payload)
+      .eq('user_id', userId)
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.warn('Supabase update profile warning:', error.message || error)
+      throw error
+    }
+
+    return data
   },
 }

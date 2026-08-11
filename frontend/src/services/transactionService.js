@@ -1,84 +1,65 @@
 import { supabase } from './supabaseClient'
-import { createLocalId, enqueueOperation, offlineDatabase } from './offlineDatabase'
-import { syncService } from './syncService'
 
 const VALID_TYPES = ['income', 'expense', 'deposit', 'withdrawal']
-const syncListeners = new Set()
 
-function notifySync() {
-  syncListeners.forEach((listener) => listener())
-}
-
-function visibleTransactions(records) {
-  return records
-    .filter((record) => record.sync_status !== 'pending-delete')
-    .sort((a, b) => new Date(b.transaction_date || b.created_at) - new Date(a.transaction_date || a.created_at))
-}
-
-async function activeUserId(fallback) {
+async function getAuthenticatedUserId(fallbackId) {
   try {
     const { data } = await supabase.auth.getSession()
-    return data?.session?.user?.id || fallback
-  } catch {
-    return fallback
-  }
+    const sessionUserId = data?.session?.user?.id
+    if (sessionUserId) return sessionUserId
+  } catch {}
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(fallbackId)
+  return isUuid ? fallbackId : null
 }
 
 export const transactionService = {
-  subscribeSync(listener) {
-    syncListeners.add(listener)
-    return () => syncListeners.delete(listener)
+  subscribeSync() {
+    return () => {}
   },
 
   async getLocalTransactions(userId) {
-    if (!userId) return []
-    const all = await offlineDatabase.transactions.toArray()
-    const records = all.filter(
-      (record) => record.user_id === userId || record.user_id === 'device_user' || record.user_id === 'active_user'
-    )
-    return visibleTransactions(records)
+    return this.getTransactions(userId)
   },
 
-  async getPendingCount(userId) {
-    if (!userId) return 0
-    const records = await this.getLocalTransactions(userId)
-    return records.filter((record) => record.sync_status !== 'synced').length
+  async getPendingCount() {
+    return 0
   },
 
-  async getSyncState(userId) {
-    const records = await this.getLocalTransactions(userId)
-    const pending = records.filter((record) => record.sync_status !== 'synced')
-    return {
-      pendingCount: pending.length,
-      syncing: pending.some((record) => record.sync_status === 'syncing'),
-      hasError: pending.some((record) => record.sync_status === 'failed' || Boolean(record.sync_error)),
-    }
+  async getSyncState() {
+    return { pendingCount: 0, syncing: false, hasError: false }
   },
 
   async getTransactions(userId) {
-    const activeId = await activeUserId(userId)
-    if (!activeId || activeId === 'guest') return []
+    const activeId = await getAuthenticatedUserId(userId)
+    if (!activeId) return []
 
-    // IndexedDB is the source of truth for the UI. The network refresh only fills it.
-    const local = await this.getLocalTransactions(activeId)
-    if (activeId !== 'device_user') {
-      this.syncTransactions(activeId).catch(() => {})
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', activeId)
+      .order('transaction_date', { ascending: false })
+
+    if (error) {
+      console.warn('Supabase fetch transactions warning:', error.message || error)
+      return []
     }
-    return local
+
+    return data || []
   },
 
   async createTransaction({ userId, type, amount, category, description }) {
     if (typeof amount !== 'number' || amount <= 0) throw new Error('Transaction amount must be a positive number')
     if (!VALID_TYPES.includes(type)) throw new Error(`Invalid transaction type: ${type}`)
 
-    // A persisted Supabase session is authoritative when available. The fallback
-    // is only used for device-local data and can never be uploaded to another user.
-    const ownerId = await activeUserId(userId)
-    if (!ownerId || ownerId === 'guest') throw new Error('A local user identity is required')
+    const activeId = await getAuthenticatedUserId(userId)
+    if (!activeId) {
+      throw new Error('Please sign in with a valid account to perform transactions.')
+    }
+
     const timestamp = new Date().toISOString()
-    const record = {
-      id: createLocalId(),
-      user_id: ownerId,
+    const payload = {
+      user_id: activeId,
       type,
       amount,
       category: category || (type === 'deposit' ? 'Deposit' : 'Withdrawal'),
@@ -86,49 +67,39 @@ export const transactionService = {
       transaction_date: timestamp,
       created_at: timestamp,
       updated_at: timestamp,
-      sync_status: 'pending',
-      last_sync_attempt: null,
-      sync_error: null,
     }
 
-    // Commit locally before attempting any network work. This promise is the durability boundary.
-    await offlineDatabase.transactions.put(record)
-    await enqueueOperation({ user_id: ownerId, entity: 'transactions', entity_id: record.id, operation: 'upsert' })
-    notifySync()
-    if (ownerId !== 'device_user') {
-      this.syncTransactions(ownerId).catch(() => {})
+    const { data, error } = await supabase
+      .from('transactions')
+      .insert(payload)
+      .select()
+      .maybeSingle()
+
+    if (error) {
+      console.error('Error creating transaction:', error.message || error)
+      throw new Error(error.message || 'Failed to create transaction')
     }
-    return record
+
+    return data || payload
   },
 
   async deleteTransaction(transactionId, userId) {
     if (!transactionId || !userId) return false
-    const record = await offlineDatabase.transactions.get(transactionId)
-    if (!record) return false
-    const ownerId = await activeUserId(userId)
-    if (record.user_id !== ownerId) return false
+    const activeId = await getAuthenticatedUserId(userId)
+    if (!activeId) return false
 
-    if (record.sync_status === 'pending') {
-      await offlineDatabase.transactions.delete(transactionId)
-      await offlineDatabase.sync_operations.where({ entity: 'transactions', entity_id: transactionId, status: 'pending' }).modify({ status: 'completed' })
-    } else {
-      await offlineDatabase.transactions.update(transactionId, {
-        sync_status: 'pending-delete',
-        updated_at: new Date().toISOString(),
-      })
+    const { error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('id', transactionId)
+      .eq('user_id', activeId)
+
+    if (error) {
+      console.error('Error deleting transaction:', error.message || error)
+      throw error
     }
-    await enqueueOperation({ user_id: ownerId, entity: 'transactions', entity_id: transactionId, operation: 'delete' })
-    notifySync()
-    if (ownerId !== 'device_user') this.syncTransactions(ownerId).catch(() => {})
+
     return true
-  },
-
-  async syncTransactions(userId) {
-    try {
-      return await syncService.syncPendingTransactions(userId)
-    } finally {
-      notifySync()
-    }
   },
 
   calculateMetrics(transactionsList = []) {
@@ -142,5 +113,3 @@ export const transactionService = {
     return { balance: totalIncome - totalExpenses, totalIncome, totalExpenses }
   },
 }
-
-window.addEventListener('deklo:sync-complete', notifySync)

@@ -4,7 +4,6 @@ import PinScreen from './components/auth/PinScreen'
 import TestSuccessPage from './components/auth/TestSuccessPage'
 import { authService } from './services/authService'
 import { profileService } from './services/profileService'
-import { syncService } from './services/syncService'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -22,7 +21,6 @@ export default function App() {
       setUser(sess?.user || null)
       if (sess?.user) {
         profileService.ensureProfile(sess.user).catch(() => {})
-        syncService.syncAll(sess.user.id).catch(() => {})
       }
       setLoading(false)
     }).catch(() => {
@@ -35,25 +33,11 @@ export default function App() {
         setUser(sess.user)
         setHasDeviceAccount(true)
         profileService.ensureProfile(sess.user).catch(() => {})
-        syncService.syncAll(sess.user.id).catch(() => {})
       } else {
         setSession(null)
         setUser(null)
-        syncService.getConnectionState({ refresh: true }).then(({ isOnline }) => {
-          if (!isOnline) {
-            const lastUserId = authService.getLastUserId()
-            if (lastUserId && authService.isDeviceConfigured(lastUserId)) {
-              setHasDeviceAccount(true)
-            }
-          } else {
-            setHasDeviceAccount(false)
-          }
-          setLoading(false)
-        }).catch(() => {
-          setSession(null)
-          setUser(null)
-          setLoading(false)
-        })
+        setHasDeviceAccount(false)
+        setLoading(false)
         return
       }
       setLoading(false)
