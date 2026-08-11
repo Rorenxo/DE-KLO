@@ -121,10 +121,6 @@ export default function Header({
       </div>
 
       <div className="flex items-center gap-2.5">
-        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#808a92]" title={isOnline ? (hasSyncError ? 'Sync issue; retrying automatically' : 'All local changes synced') : 'Offline; local changes are safe'}>
-          <span className={`w-1.5 h-1.5 rounded-full ${!isOnline ? 'bg-slate-400' : hasSyncError ? 'bg-rose-400' : pendingSyncCount || isSyncing ? 'bg-amber-400' : 'bg-emerald-400'}`} />
-          <span className="hidden sm:inline">{!isOnline ? `Offline${pendingSyncCount ? ` · ${pendingSyncCount} pending` : ''}` : hasSyncError ? 'Sync issue' : isSyncing ? 'Syncing...' : pendingSyncCount ? `${pendingSyncCount} pending` : 'Synced'}</span>
-        </div>
 
         <button
           onClick={onToggleTheme}

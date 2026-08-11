@@ -584,12 +584,22 @@ export default function TransactionHistoryPage({
                 {/* Rows in Date Group */}
                 <div className="space-y-2">
                   {txGroup.map((tx) => {
-                    const isIncomeType = tx.type === 'deposit' || tx.type === 'income'
+                    const isDeposit = tx.type === 'deposit' || tx.type === 'income'
                     const displayAmt = Number(tx.amount) || 0
-                    const formattedTime = new Date(tx.transaction_date || tx.created_at).toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
+
+                    const dateObj = new Date(tx.transaction_date || tx.created_at)
+                    const formattedDate = dateObj.toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
                     })
+
+                    const headingText =
+                      tx.category && tx.category !== 'Deposit' && tx.category !== 'Withdrawal'
+                        ? tx.category
+                        : (tx.description || (isDeposit ? 'Deposit' : 'Withdraw'))
+
+                    const metaType = isDeposit ? 'Deposit' : 'Withdraw'
 
                     return (
                       <div
@@ -597,50 +607,30 @@ export default function TransactionHistoryPage({
                         onClick={() => setSelectedTx(tx)}
                         className={`p-3.5 sm:p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer active:scale-[0.985] ${
                           isLight
-                            ? 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
-                            : 'bg-[#24292e]/60 border-[#4a5156]/30 hover:bg-[#24292e] hover:border-[#4a5156]/60 shadow-lg'
+                            ? 'bg-white border-slate-200 hover:border-slate-300'
+                            : 'bg-[#181b1e] border-[#4a5156]/30 hover:border-[#4a5156]/60'
                         }`}
                       >
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          {/* Icon Badge */}
-                          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
-                            isIncomeType
-                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                              : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                        {/* LEFT SIDE: Heading & Metadata */}
+                        <div className="flex flex-col min-w-0 flex-1 pr-3 space-y-0.5">
+                          <h4 className={`text-sm sm:text-base font-semibold truncate leading-tight ${
+                            isLight ? 'text-slate-900' : 'text-white'
                           }`}>
-                            {isIncomeType ? (
-                              <ArrowDownLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                            ) : (
-                              <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                            )}
-                          </div>
-
-                          <div className="space-y-0.5 min-w-0">
-                            <h4 className={`text-xs sm:text-sm font-bold truncate leading-tight ${
-                              isLight ? 'text-slate-900' : 'text-white'
-                            }`}>
-                              {tx.category || (isIncomeType ? 'Deposit' : 'Withdrawal')}
-                            </h4>
-                            <div className="flex items-center gap-2 text-[10px] text-[#808a92] truncate">
-                              <span className="capitalize">{tx.type}</span>
-                              <span>•</span>
-                              <span>{formattedTime}</span>
-                              {tx.description && (
-                                <>
-                                  <span>•</span>
-                                  <span className="truncate max-w-[120px]">{tx.description}</span>
-                                </>
-                              )}
-                            </div>
-                          </div>
+                            {headingText}
+                          </h4>
+                          <span className={`text-xs truncate ${
+                            isLight ? 'text-slate-500' : 'text-[#808a92]'
+                          }`}>
+                            {metaType} · {formattedDate}
+                          </span>
                         </div>
 
-                        {/* Amount */}
-                        <div className="text-right shrink-0 ml-3">
-                          <span className={`block text-xs sm:text-sm font-bold font-mono ${
-                            isIncomeType ? 'text-emerald-400' : 'text-rose-400'
+                        {/* RIGHT SIDE: Amount */}
+                        <div className="text-right shrink-0">
+                          <span className={`text-sm sm:text-base font-bold font-mono ${
+                            isLight ? 'text-slate-900' : 'text-white'
                           }`}>
-                            {isIncomeType ? '+' : '-'}₱{displayAmt.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            ₱{displayAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
                       </div>

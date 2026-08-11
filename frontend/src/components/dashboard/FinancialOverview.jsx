@@ -1,22 +1,64 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Wallet, TrendingUp, PiggyBank, ArrowDownRight, ChevronDown } from 'lucide-react'
 
 export default function FinancialOverview({
   theme = 'dark',
-  overviewData = {
-    balance: '₱0',
-    income: '₱0',
-    incomeGrowth: '0%',
-    savings: '₱0',
-    savingsGrowth: '0%',
-    expenses: '₱0',
-    expensesGrowth: '0%',
-  },
+  transactions = [],
+  savingsAmount = 0,
+  overviewData = null,
 }) {
   const [period, setPeriod] = useState('This Month')
   const [showDropdown, setShowDropdown] = useState(false)
 
   const isLight = theme === 'light'
+
+  const computedMetrics = useMemo(() => {
+    let inc = 0
+    let exp = 0
+    const now = new Date()
+
+    transactions.forEach((tx) => {
+      const txDate = new Date(tx.transaction_date || tx.created_at)
+      if (isNaN(txDate.getTime())) return
+
+      let inPeriod = true
+      if (period === 'This Week') {
+        const startOfWeek = new Date(now)
+        const day = now.getDay()
+        const diff = now.getDate() - day + (day === 0 ? -6 : 1)
+        startOfWeek.setDate(diff)
+        startOfWeek.setHours(0, 0, 0, 0)
+        inPeriod = txDate >= startOfWeek
+      } else if (period === 'This Month') {
+        inPeriod = txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear()
+      }
+
+      if (inPeriod) {
+        const amt = Number(tx.amount) || 0
+        if (tx.type === 'deposit' || tx.type === 'income') inc += amt
+        if (tx.type === 'withdrawal' || tx.type === 'expense') exp += amt
+      }
+    })
+
+    const totalBalance = transactions.reduce((acc, t) => {
+      const amt = Number(t.amount) || 0
+      return (t.type === 'deposit' || t.type === 'income') ? acc + amt : acc - amt
+    }, 0)
+
+    return {
+      balance: `₱${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      income: `₱${inc.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      savings: `₱${savingsAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      expenses: `₱${exp.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    }
+  }, [transactions, savingsAmount, period])
+
+  const displayData = {
+    balance: computedMetrics.balance || overviewData?.balance || '₱0.00',
+    income: computedMetrics.income || overviewData?.income || '₱0.00',
+    savings: computedMetrics.savings || overviewData?.savings || '₱0.00',
+    expenses: computedMetrics.expenses || overviewData?.expenses || '₱0.00',
+  }
 
   return (
     <div className="w-full space-y-3">
@@ -77,7 +119,7 @@ export default function FinancialOverview({
           <div className={`text-lg sm:text-xl font-bold font-mono ${
             isLight ? 'text-slate-900' : 'text-white'
           }`}>
-            {overviewData.balance}
+            {displayData.balance}
           </div>
         </div>
 
@@ -93,11 +135,8 @@ export default function FinancialOverview({
           </div>
           <div>
             <div className="text-lg sm:text-xl font-bold font-mono text-emerald-500">
-              {overviewData.income}
+              {displayData.income}
             </div>
-            <span className="text-[10px] text-emerald-500/90 font-medium">
-              {overviewData.incomeGrowth} vs last month
-            </span>
           </div>
         </div>
 
@@ -115,11 +154,8 @@ export default function FinancialOverview({
             <div className={`text-lg sm:text-xl font-bold font-mono ${
               isLight ? 'text-slate-900' : 'text-white'
             }`}>
-              {overviewData.savings}
+              {displayData.savings}
             </div>
-            <span className={`text-[10px] font-medium ${isLight ? 'text-slate-600' : 'text-[#808a92]'}`}>
-              {overviewData.savingsGrowth} vs last month
-            </span>
           </div>
         </div>
 
@@ -135,11 +171,8 @@ export default function FinancialOverview({
           </div>
           <div>
             <div className="text-lg sm:text-xl font-bold font-mono text-rose-500">
-              {overviewData.expenses}
+              {displayData.expenses}
             </div>
-            <span className="text-[10px] text-rose-500/90 font-medium">
-              {overviewData.expensesGrowth} vs last month
-            </span>
           </div>
         </div>
       </div>

@@ -40,8 +40,8 @@ export default function TransactionModal({
     setIsSaving(true)
     try {
       const saveResult = await onConfirm(numAmount, note || (isDeposit ? 'Deposit' : 'Withdrawal'))
-      setIsSuccess(saveResult || 'offline')
-      setTimeout(() => onClose(), 900)
+      setIsSuccess(saveResult || 'online')
+      setTimeout(() => onClose(), 3000)
     } catch (err) {
       console.error('Transaction save failed:', err)
       setError(err?.message || 'Unable to save this transaction locally. Please try again.')

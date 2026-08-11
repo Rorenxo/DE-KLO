@@ -1,35 +1,89 @@
 import { useState, useEffect } from 'react'
+import Sidebar from './Sidebar'
 import Header from './Header'
 import AtmCard from './AtmCard'
 import ActionButtons from './ActionButtons'
 import FinancialOverview from './FinancialOverview'
 import MoneyFlowChart from './MoneyFlowChart'
-import Sidebar from './Sidebar'
 import RightPanel from './RightPanel'
 import BottomNavigation from './BottomNavigation'
 import TransactionModal from './TransactionModal'
 import TransactionHistoryPage from './TransactionHistoryPage'
 import { authService } from '../../services/authService'
-import { profileService } from '../../services/profileService'
 import { transactionService } from '../../services/transactionService'
+import { profileService } from '../../services/profileService'
 import { savingsService } from '../../services/savingsService'
+
+function computeChartDatasets(txList = []) {
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const weekOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const weekMap = {}
+  weekOrder.forEach((day) => {
+    weekMap[day] = { label: day, income: 0, expense: 0 }
+  })
+
+  const monthsOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const monthMap = {}
+  monthsOrder.forEach((m) => {
+    monthMap[m] = { label: m, income: 0, expense: 0 }
+  })
+
+  const currentYear = new Date().getFullYear()
+  const yearsOrder = Array.from({ length: 5 }, (_, i) => String(currentYear + i))
+  const yearMap = {}
+  yearsOrder.forEach((y) => {
+    yearMap[y] = { label: y, income: 0, expense: 0 }
+  })
+
+  txList.forEach((tx) => {
+    const amt = Number(tx.amount) || 0
+    const txDate = new Date(tx.transaction_date || tx.created_at)
+    if (isNaN(txDate.getTime())) return
+
+    const dayName = weekDays[txDate.getDay()]
+    const monthName = monthsOrder[txDate.getMonth()]
+    const yearStr = String(txDate.getFullYear())
+
+    const isIncome = tx.type === 'deposit' || tx.type === 'income'
+
+    if (weekMap[dayName]) {
+      if (isIncome) weekMap[dayName].income += amt
+      else weekMap[dayName].expense += amt
+    }
+
+    if (monthMap[monthName]) {
+      if (isIncome) monthMap[monthName].income += amt
+      else monthMap[monthName].expense += amt
+    }
+
+    if (yearMap[yearStr]) {
+      if (isIncome) yearMap[yearStr].income += amt
+      else yearMap[yearStr].expense += amt
+    }
+  })
+
+  return {
+    'Per Week': weekOrder.map((day) => weekMap[day]),
+    'Per Month': monthsOrder.map((m) => monthMap[m]),
+    'Per Year': yearsOrder.map((y) => yearMap[y]),
+  }
+}
 
 export default function DashboardLayout({ user, onLockApp, onLogout }) {
   const [activeTab, setActiveTab] = useState('home')
   const [theme, setTheme] = useState(() => {
     try {
       return localStorage.getItem('deklo_theme') || 'dark'
-    } catch (err) {
-      console.warn('Theme preference unavailable:', err)
+    } catch {
       return 'dark'
     }
   })
 
-  const userId = user?.id || user?.email || 'guest'
   const [userProfile, setUserProfile] = useState(null)
+  const userId = user?.id || 'guest'
   const cardInfo = authService.getUserCardInfo(user)
 
-  // Local-first transactions state
+  // Online transactions state
   const [transactions, setTransactions] = useState([])
   const [isTxLoading, setIsTxLoading] = useState(false)
   const [pendingSyncCount, setPendingSyncCount] = useState(0)
@@ -38,7 +92,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
   const [hasSyncError, setHasSyncError] = useState(false)
   const [goalsList, setGoalsList] = useState([])
 
-  // Dynamic Financial Metrics (Derived from local transactions)
+  // Dynamic Financial Metrics
   const [balance, setBalance] = useState(0)
   const [income, setIncome] = useState(0)
   const [expenses, setExpenses] = useState(0)
@@ -49,32 +103,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
   const [modalType, setModalType] = useState('deposit')
 
   // Dynamic Cash Flow Chart Datasets State
-  const [chartData, setChartData] = useState({
-    'Per Week': [
-      { label: 'Mon', income: 0, expense: 0 },
-      { label: 'Tue', income: 0, expense: 0 },
-      { label: 'Wed', income: 0, expense: 0 },
-      { label: 'Thu', income: 0, expense: 0 },
-      { label: 'Fri', income: 0, expense: 0 },
-      { label: 'Sat', income: 0, expense: 0 },
-      { label: 'Sun', income: 0, expense: 0 },
-    ],
-    'Per Month': [
-      { label: 'Jan', income: 0, expense: 0 },
-      { label: 'Feb', income: 0, expense: 0 },
-      { label: 'Mar', income: 0, expense: 0 },
-      { label: 'Apr', income: 0, expense: 0 },
-      { label: 'May', income: 0, expense: 0 },
-      { label: 'Jun', income: 0, expense: 0 },
-    ],
-    'Per Year': [
-      { label: '2021', income: 0, expense: 0 },
-      { label: '2022', income: 0, expense: 0 },
-      { label: '2023', income: 0, expense: 0 },
-      { label: '2024', income: 0, expense: 0 },
-      { label: '2025', income: 0, expense: 0 },
-    ],
-  })
+  const [chartData, setChartData] = useState(() => computeChartDatasets([]))
 
   // 1. Load online profile, transactions, and goals on mount.
   useEffect(() => {
@@ -95,26 +124,9 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
       setIncome(metrics.totalIncome)
       setExpenses(metrics.totalExpenses)
 
-      if (txList && txList.length > 0) {
-        let weeklyInc = 0
-        let weeklyExp = 0
-        txList.forEach((t) => {
-          const amt = Number(t.amount) || 0
-          if (t.type === 'deposit' || t.type === 'income') weeklyInc += amt
-          else if (t.type === 'withdrawal' || t.type === 'expense') weeklyExp += amt
-        })
+      const dynamicChart = computeChartDatasets(txList || [])
+      setChartData(dynamicChart)
 
-        setChartData((prev) => {
-          const updatedWeek = [...prev['Per Week']]
-          const lastIdx = updatedWeek.length - 1
-          updatedWeek[lastIdx] = {
-            ...updatedWeek[lastIdx],
-            income: weeklyInc,
-            expense: weeklyExp,
-          }
-          return { ...prev, 'Per Week': updatedWeek }
-        })
-      }
       setIsTxLoading(false)
     }
 
@@ -158,6 +170,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
   const cardMasked = userProfile?.card_number
     ? `•••• •••• •••• ${userProfile.card_number.slice(-4)}`
     : fallbackCardInfo.cardMasked
+
   const ctdDate = userProfile?.ctd_date || fallbackCardInfo.ctdDate
   const userName = userProfile?.nickname || user?.user_metadata?.nickname || user?.email?.split('@')[0] || 'Lorenxo'
 
@@ -192,16 +205,8 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
         setIncome(metrics.totalIncome)
         setExpenses(metrics.totalExpenses)
 
-        setChartData((prev) => {
-          const updatedWeek = [...prev['Per Week']]
-          const lastIdx = updatedWeek.length - 1
-          updatedWeek[lastIdx] = {
-            ...updatedWeek[lastIdx],
-            income: txType === 'deposit' ? updatedWeek[lastIdx].income + amount : updatedWeek[lastIdx].income,
-            expense: txType === 'withdrawal' ? updatedWeek[lastIdx].expense + amount : updatedWeek[lastIdx].expense,
-          }
-          return { ...prev, 'Per Week': updatedWeek }
-        })
+        const dynamicChart = computeChartDatasets(updatedList)
+        setChartData(dynamicChart)
 
         authService.updateUserData(userId, {
           balance: metrics.balance,
@@ -218,12 +223,12 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
   }
 
   const overviewData = {
-    balance: `₱${balance.toLocaleString()}`,
-    income: `₱${income.toLocaleString()}`,
+    balance: `₱${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    income: `₱${income.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     incomeGrowth: '0%',
-    savings: `₱${savings.toLocaleString()}`,
+    savings: `₱${savings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     savingsGrowth: '0%',
-    expenses: `₱${expenses.toLocaleString()}`,
+    expenses: `₱${expenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     expensesGrowth: '0%',
   }
 
@@ -286,7 +291,11 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
                 </div>
 
                 <div className="xl:hidden pt-1">
-                  <FinancialOverview theme={theme} overviewData={overviewData} />
+                  <FinancialOverview
+                    theme={theme}
+                    transactions={transactions}
+                    savingsAmount={savings}
+                  />
                 </div>
 
                 <div className="pt-1">
@@ -308,6 +317,10 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
                   setBalance(metrics.balance)
                   setIncome(metrics.totalIncome)
                   setExpenses(metrics.totalExpenses)
+
+                  const dynamicChart = computeChartDatasets(updated)
+                  setChartData(dynamicChart)
+
                   setIsTxLoading(false)
                 }}
                 onAddTransaction={handleOpenDeposit}
@@ -319,6 +332,9 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
                   setBalance(metrics.balance)
                   setIncome(metrics.totalIncome)
                   setExpenses(metrics.totalExpenses)
+
+                  const dynamicChart = computeChartDatasets(updated)
+                  setChartData(dynamicChart)
                 }}
               />
             )}
@@ -343,11 +359,14 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
           <RightPanel
             theme={theme}
             userId={userId}
-            overviewData={overviewData}
+            transactions={transactions}
+            savingsAmount={savings}
             goals={goalsList}
             onGoalCreated={async () => {
               const updatedGoals = await savingsService.getGoals(userId)
               setGoalsList(updatedGoals)
+              const totalCurrent = (updatedGoals || []).reduce((acc, g) => acc + (Number(g.current_amount) || 0), 0)
+              setSavings(totalCurrent)
             }}
           />
         </div>

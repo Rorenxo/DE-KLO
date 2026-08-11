@@ -28,21 +28,30 @@ export default function MoneyFlowChart({ theme = 'dark', customDatasets = null }
       { label: 'Jun', income: 0, expense: 0 },
     ],
     'Per Year': [
-      { label: '2021', income: 0, expense: 0 },
-      { label: '2022', income: 0, expense: 0 },
-      { label: '2023', income: 0, expense: 0 },
-      { label: '2024', income: 0, expense: 0 },
-      { label: '2025', income: 0, expense: 0 },
+      { label: '2026', income: 0, expense: 0 },
+      { label: '2027', income: 0, expense: 0 },
+      { label: '2028', income: 0, expense: 0 },
+      { label: '2029', income: 0, expense: 0 },
+      { label: '2030', income: 0, expense: 0 },
     ],
   }
 
   const datasets = customDatasets || defaultDatasets
   const data = datasets[period] || datasets['Per Month']
-  const maxDataVal = Math.max(
-    ...data.flatMap((d) => [d.income || 0, d.expense || 0]),
-    1000
+
+  const rawMax = Math.max(
+    ...data.flatMap((d) => [Number(d.income) || 0, Number(d.expense) || 0]),
+    0
   )
-  const MAX_VAL = maxDataVal
+
+  let MAX_VAL = 1000
+  if (period === 'Per Month') {
+    MAX_VAL = Math.max(20000, Math.ceil(rawMax / 5000) * 5000)
+  } else if (period === 'Per Year') {
+    MAX_VAL = Math.max(50000, Math.ceil(rawMax / 10000) * 10000)
+  } else {
+    MAX_VAL = rawMax > 1000 ? Math.ceil(rawMax / 1000) * 1000 : 1000
+  }
 
   const formatVal = (v) => {
     if (v >= 1000) return `₱${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)}k`
