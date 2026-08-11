@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import AuthPage from './components/auth/AuthPage'
 import PinScreen from './components/auth/PinScreen'
-import TestSuccessPage from './components/auth/TestSuccessPage'
+import DashboardLayout from './components/dashboard/DashboardLayout'
 import { authService } from './services/authService'
 import { profileService } from './services/profileService'
 
@@ -67,7 +67,7 @@ export default function App() {
     }
 
     return (
-      <TestSuccessPage
+      <DashboardLayout
         user={user}
         onLockApp={() => setIsPinVerified(false)}
         onLogout={handleLogout}

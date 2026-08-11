@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { ArrowDownLeft, ArrowUpRight, X, CheckCircle2, AlertCircle } from 'lucide-react'
 
 export default function TransactionModal({
@@ -55,26 +56,26 @@ export default function TransactionModal({
     setError('')
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-fade-in">
+  return createPortal(
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 select-none animate-fade-in">
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+        className={`fixed inset-0 backdrop-blur-sm transition-opacity ${
+          isLight ? 'bg-black/40' : 'bg-black/80'
+        }`}
         onClick={onClose}
       />
 
       <div
-        className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all duration-200 ${
-          isLight
+        className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all duration-200 ${isLight
             ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
             : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-        }`}
+          }`}
       >
         <div className="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
           <div className="flex items-center gap-3">
             <div
-              className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-                isLight ? 'bg-[#F4F5FA] border border-[#DEE2EA] text-[#4B535E]' : 'bg-[#181b20] border border-[#242830] text-[#D1D5DB]'
-              }`}
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center ${isLight ? 'bg-[#F4F5FA] border border-[#DEE2EA] text-[#4B535E]' : 'bg-[#181b20] border border-[#242830] text-[#D1D5DB]'
+                }`}
             >
               {isDeposit ? (
                 <ArrowDownLeft className="w-5 h-5" />
@@ -96,9 +97,8 @@ export default function TransactionModal({
 
           <button
             onClick={onClose}
-            className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
-              isLight ? 'text-[#68707C] hover:text-[#343A40] hover:bg-[#ECEEF4]' : 'text-[#94A3B8] hover:text-white hover:bg-[#1E222A]'
-            }`}
+            className={`p-1.5 rounded-xl transition-colors cursor-pointer ${isLight ? 'text-[#68707C] hover:text-[#343A40] hover:bg-[#ECEEF4]' : 'text-[#94A3B8] hover:text-white hover:bg-[#1E222A]'
+              }`}
           >
             <X className="w-5 h-5" />
           </button>
@@ -106,9 +106,8 @@ export default function TransactionModal({
 
         {isSuccess ? (
           <div className="py-10 flex flex-col items-center justify-center text-center space-y-3 animate-fade-in">
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-              isLight ? 'bg-[#F4F5FA] border border-[#DEE2EA] text-[#343A40]' : 'bg-[#181b20] border border-[#242830] text-[#F1F3F5]'
-            }`}>
+            <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isLight ? 'bg-[#F4F5FA] border border-[#DEE2EA] text-[#343A40]' : 'bg-[#181b20] border border-[#242830] text-[#F1F3F5]'
+              }`}>
               <CheckCircle2 className="w-8 h-8 animate-bounce" />
             </div>
             <h4 className={`text-lg font-bold ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
@@ -121,9 +120,8 @@ export default function TransactionModal({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 pt-4">
             {error && (
-              <div className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
-                isLight ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-rose-500/15 border-rose-500/30 text-rose-400'
-              }`}>
+              <div className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${isLight ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-rose-500/15 border-rose-500/30 text-rose-400'
+                }`}>
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -156,11 +154,10 @@ export default function TransactionModal({
                     }
                   }}
                   autoFocus
-                  className={`w-full py-3 pl-10 pr-4 rounded-2xl text-xl font-mono font-bold outline-none border transition-all ${
-                    isLight
+                  className={`w-full py-3 pl-10 pr-4 rounded-2xl text-xl font-mono font-bold outline-none border transition-all ${isLight
                       ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
                       : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
-                  }`}
+                    }`}
                 />
               </div>
             </div>
@@ -175,15 +172,14 @@ export default function TransactionModal({
                     key={val}
                     type="button"
                     onClick={() => handlePresetClick(val)}
-                    className={`py-2 px-1 rounded-xl text-xs font-mono font-semibold border transition-all cursor-pointer ${
-                      amount === String(val)
+                    className={`py-2 px-1 rounded-xl text-xs font-mono font-semibold border transition-all cursor-pointer ${amount === String(val)
                         ? isLight
                           ? 'bg-[#343A40] text-[#F8F8FF] border-[#343A40]'
                           : 'bg-[#F1F3F5] text-[#000000] border-[#F1F3F5]'
                         : isLight
-                        ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#4B535E] hover:bg-[#ECEEF4]'
-                        : 'bg-[#181b20] border-[#242830] text-[#D1D5DB] hover:bg-[#1E222A]'
-                    }`}
+                          ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#4B535E] hover:bg-[#ECEEF4]'
+                          : 'bg-[#181b20] border-[#242830] text-[#D1D5DB] hover:bg-[#1E222A]'
+                      }`}
                   >
                     +₱{val.toLocaleString()}
                   </button>
@@ -200,11 +196,10 @@ export default function TransactionModal({
                 placeholder={isDeposit ? 'e.g. Salary, Allowance' : 'e.g. Shopping, Bills'}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className={`w-full py-2.5 px-4 rounded-2xl text-xs font-medium outline-none border transition-all ${
-                  isLight
+                className={`w-full py-2.5 px-4 rounded-2xl text-xs font-medium outline-none border transition-all ${isLight
                     ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
                     : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
-                }`}
+                  }`}
               />
             </div>
 
@@ -219,22 +214,20 @@ export default function TransactionModal({
               <button
                 type="button"
                 onClick={onClose}
-                className={`flex-1 py-3 px-4 rounded-2xl border text-xs font-semibold transition-colors cursor-pointer ${
-                  isLight
+                className={`flex-1 py-3 px-4 rounded-2xl border text-xs font-semibold transition-colors cursor-pointer ${isLight
                     ? 'border-[#DEE2EA] text-[#68707C] hover:text-[#343A40] hover:bg-[#ECEEF4]'
                     : 'border-[#242830] text-[#94A3B8] hover:text-white hover:bg-[#1E222A]'
-                }`}
+                  }`}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSaving}
-                className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs shadow-md transition-all active:scale-[0.985] cursor-pointer ${
-                  isLight
+                className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs shadow-md transition-all active:scale-[0.985] cursor-pointer ${isLight
                     ? 'bg-[#343A40] hover:bg-[#212529] text-[#F8F8FF]'
                     : 'bg-[#F1F3F5] hover:bg-white text-[#000000]'
-                }`}
+                  }`}
               >
                 {isSaving ? 'Saving...' : isDeposit ? 'Confirm Deposit' : 'Confirm Withdraw'}
               </button>
@@ -242,6 +235,7 @@ export default function TransactionModal({
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Wallet,
   TrendingUp,
@@ -312,23 +313,32 @@ export default function RightPanel({
       </ScrollFadeIn>
 
       {/* Goal Creation Modal */}
-      {isGoalModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-fade-in">
+      {isGoalModalOpen && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 select-none animate-fade-in">
           <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+            className={`fixed inset-0 backdrop-blur-sm transition-opacity ${
+              isLight ? 'bg-black/40' : 'bg-black/80'
+            }`}
             onClick={() => setIsGoalModalOpen(false)}
           />
 
-          <div className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${isLight ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50' : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
-            }`}>
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+          <div className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${
+            isLight
+              ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
+              : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+          }`}>
+            <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
               <div className="flex items-center gap-2.5">
-                <Target className="w-5 h-5 text-[#d4af37]" />
+                <Target className={`w-5 h-5 ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`} />
                 <h3 className="text-base font-bold">Set Savings Goal</h3>
               </div>
               <button
                 onClick={() => setIsGoalModalOpen(false)}
-                className="p-1.5 text-[#808a92] hover:text-white rounded-xl transition-colors cursor-pointer"
+                className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
+                  isLight
+                    ? 'text-[#68707C] hover:text-[#343A40] hover:bg-[#ECEEF4]'
+                    : 'text-[#94A3B8] hover:text-white hover:bg-[#1E222A]'
+                }`}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -336,14 +346,18 @@ export default function RightPanel({
 
             <form onSubmit={handleCreateGoalSubmit} className="space-y-4 pt-4">
               {goalError && (
-                <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+                <div className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
+                  isLight
+                    ? 'bg-rose-50 border-rose-200 text-rose-700'
+                    : 'bg-rose-500/15 border-rose-500/30 text-rose-400'
+                }`}>
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{goalError}</span>
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase text-[#808a92]">
+                <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                   Goal Name
                 </label>
                 <input
@@ -352,13 +366,16 @@ export default function RightPanel({
                   value={goalName}
                   onChange={(e) => setGoalName(e.target.value)}
                   autoFocus
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-semibold outline-none border transition-all ${isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                    }`}
+                  className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-semibold outline-none border transition-all ${
+                    isLight
+                      ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
+                      : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
+                  }`}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase text-[#808a92]">
+                <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                   Target Amount (₱)
                 </label>
                 <input
@@ -368,13 +385,16 @@ export default function RightPanel({
                   placeholder="50000"
                   value={targetAmount}
                   onChange={(e) => setTargetAmount(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold outline-none border transition-all ${isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                    }`}
+                  className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${
+                    isLight
+                      ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
+                      : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
+                  }`}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase text-[#808a92]">
+                <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                   Initial Saved Amount (Optional ₱)
                 </label>
                 <input
@@ -384,8 +404,11 @@ export default function RightPanel({
                   placeholder="0"
                   value={initialAmount}
                   onChange={(e) => setInitialAmount(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold outline-none border transition-all ${isLight ? 'bg-slate-100 border-slate-300 text-slate-900' : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                    }`}
+                  className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${
+                    isLight
+                      ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
+                      : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
+                  }`}
                 />
               </div>
 
@@ -393,21 +416,30 @@ export default function RightPanel({
                 <button
                   type="button"
                   onClick={() => setIsGoalModalOpen(false)}
-                  className="flex-1 py-2.5 px-3 rounded-xl border border-[#4a5156]/60 text-xs font-semibold text-[#bdc7ce] hover:text-white"
+                  className={`flex-1 py-2.5 px-3 rounded-2xl border text-xs font-semibold transition-colors cursor-pointer ${
+                    isLight
+                      ? 'border-[#DEE2EA] text-[#68707C] hover:text-[#343A40]'
+                      : 'border-[#242830] text-[#94A3B8] hover:text-white'
+                  }`}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingGoal}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#bdc7ce] text-black font-bold text-xs shadow-lg hover:opacity-90 transition-opacity"
+                  className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs shadow-md transition-all active:scale-[0.985] cursor-pointer ${
+                    isLight
+                      ? 'bg-[#343A40] text-[#F8F8FF] hover:bg-[#212529]'
+                      : 'bg-[#F1F3F5] text-[#000000] hover:bg-white'
+                  }`}
                 >
                   {isSubmittingGoal ? 'Saving...' : 'Save Goal'}
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </aside>
   )

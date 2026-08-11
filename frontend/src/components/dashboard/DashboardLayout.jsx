@@ -9,6 +9,7 @@ import RightPanel from './RightPanel'
 import BottomNavigation from './BottomNavigation'
 import TransactionModal from './TransactionModal'
 import TransactionHistoryPage from './TransactionHistoryPage'
+import SavingsGoalsPage from './SavingsGoalsPage'
 import { authService } from '../../services/authService'
 import { transactionService } from '../../services/transactionService'
 import { profileService } from '../../services/profileService'
@@ -339,17 +340,35 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
               />
             )}
 
-            {activeTab !== 'home' && activeTab !== 'history' && (
+            {activeTab === 'goals' && (
+              <SavingsGoalsPage
+                theme={theme}
+                userId={userId}
+                goals={goalsList}
+                onGoalChange={async () => {
+                  const updatedGoals = await savingsService.getGoals(userId)
+                  setGoalsList(updatedGoals || [])
+                  const totalCurrent = (updatedGoals || []).reduce(
+                    (acc, g) => acc + (Number(g.current_amount) || 0),
+                    0
+                  )
+                  setSavings(totalCurrent)
+                }}
+              />
+            )}
+
+            {activeTab !== 'home' && activeTab !== 'history' && activeTab !== 'goals' && (
               <div
-                className={`p-8 text-center rounded-2xl border animate-fade-in my-8 ${theme === 'light'
-                  ? 'bg-white border-slate-200 shadow-sm'
-                  : 'bg-[#24292e]/40 border-[#4a5156]/30'
-                  }`}
+                className={`p-8 text-center rounded-2xl border animate-fade-in my-8 ${
+                  theme === 'light'
+                    ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
+                    : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+                }`}
               >
                 <h3 className="text-lg font-bold uppercase tracking-wider">
                   {activeTab} Space
                 </h3>
-                <p className="text-xs text-[#808a92] mt-2">
+                <p className={`text-xs mt-2 ${theme === 'light' ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
                   Dedicated {activeTab} experience under construction.
                 </p>
               </div>
