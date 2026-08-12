@@ -140,16 +140,16 @@ export default function InsightsPage({
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6 pb-12 animate-fade-in px-0 sm:px-2 select-none">
       <ScrollFadeIn>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-dashed border-slate-700/30">
+        <header className="flex items-center justify-between pt-1 pb-1">
           <div>
-            <h1 className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${textPrimary}`}>
+            <h2 className={`text-xl sm:text-2xl font-bold font-sans tracking-tight ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
               Insights
-            </h1>
-            <p className={`text-xs sm:text-sm mt-0.5 ${textSecondary}`}>
-              Unbiased, data-driven analysis of your real financial habits.
+            </h2>
+            <p className={`text-xs mt-0.5 ${isLight ? 'text-[#68707C] font-medium' : 'text-[#B8C0C8]'}`}>
+              Data-driven analysis of your real financial habits.
             </p>
           </div>
-        </div>
+        </header>
       </ScrollFadeIn>
 
       <ScrollFadeIn>

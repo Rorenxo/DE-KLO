@@ -10,6 +10,7 @@ import BottomNavigation from './BottomNavigation'
 import TransactionModal from './TransactionModal'
 import TransactionHistoryPage from './TransactionHistoryPage'
 import SavingsGoalsPage from './SavingsGoalsPage'
+import SubscriptionsPage from './SubscriptionsPage'
 import ReportsPage from './ReportsPage'
 import InsightsPage from './InsightsPage'
 import { authService } from '../../services/authService'
@@ -252,8 +253,14 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
           />
         </div>
 
-        <div className="flex-1 flex flex-col xl:flex-row px-3 sm:px-4 md:px-6 lg:px-6 pt-4 sm:pt-6 md:pt-8 lg:pt-6 gap-6 sm:gap-8 lg:gap-6 pb-20 md:pb-24 lg:pb-6 items-start">
-          <main className="flex-1 min-w-0 w-full space-y-6 sm:space-y-8 lg:space-y-6">
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-6 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto items-start">
+          <main
+            className={`space-y-6 ${
+              activeTab === 'reports' || activeTab === 'insights'
+                ? 'xl:col-span-12'
+                : 'xl:col-span-8'
+            }`}
+          >
             {activeTab === 'home' && (
               <div className="space-y-6 sm:space-y-8 lg:space-y-6 animate-fade-in">
                 <div className="flex flex-col lg:flex-row items-center lg:items-stretch gap-6 sm:gap-8 lg:gap-6">
@@ -341,6 +348,62 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
               />
             )}
 
+            {activeTab === 'subscriptions' && (
+              <SubscriptionsPage
+                theme={theme}
+                onSubscriptionAdded={async (sub) => {
+                  try {
+                    const amt = Number(sub.amount) || 0
+                    if (amt <= 0) return
+
+                    const categoryName = `${sub.name} Subscription (${sub.billingCycle})`
+                    const descriptionText = `${sub.name} Subscription (${sub.billingCycle}) via ${sub.source || 'Website'}`
+
+                    if (userId && userId !== 'guest') {
+                      await transactionService.createTransaction({
+                        userId,
+                        type: 'withdrawal',
+                        amount: amt,
+                        category: categoryName,
+                        description: descriptionText,
+                      })
+                      const updatedList = await transactionService.getTransactions(userId)
+                      setTransactions(updatedList)
+
+                      const metrics = transactionService.calculateMetrics(updatedList)
+                      setBalance(metrics.balance)
+                      setIncome(metrics.totalIncome)
+                      setExpenses(metrics.totalExpenses)
+
+                      const dynamicChart = computeChartDatasets(updatedList)
+                      setChartData(dynamicChart)
+                    } else {
+                      const guestTx = {
+                        id: `tx_${Date.now()}`,
+                        type: 'withdrawal',
+                        amount: amt,
+                        category: categoryName,
+                        description: descriptionText,
+                        transaction_date: new Date().toISOString(),
+                      }
+                      const updatedList = [guestTx, ...transactions]
+                      setTransactions(updatedList)
+
+                      const metrics = transactionService.calculateMetrics(updatedList)
+                      setBalance(metrics.balance)
+                      setIncome(metrics.totalIncome)
+                      setExpenses(metrics.totalExpenses)
+
+                      const dynamicChart = computeChartDatasets(updatedList)
+                      setChartData(dynamicChart)
+                    }
+                  } catch (err) {
+                    console.error('Subscription auto transaction failed:', err)
+                  }
+                }}
+              />
+            )}
+
             {activeTab === 'reports' && (
               <ReportsPage
                 theme={theme}
@@ -360,6 +423,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
             {activeTab !== 'home' &&
               activeTab !== 'history' &&
               activeTab !== 'goals' &&
+              activeTab !== 'subscriptions' &&
               activeTab !== 'reports' &&
               activeTab !== 'insights' && (
                 <div
@@ -380,22 +444,24 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
           </main>
 
           {activeTab !== 'reports' && activeTab !== 'insights' && (
-            <RightPanel
-              theme={theme}
-              userId={userId}
-              transactions={transactions}
-              savingsAmount={savings}
-              goals={goalsList}
-              onGoalCreated={async () => {
-                const updatedGoals = await savingsService.getGoals(userId)
-                setGoalsList(updatedGoals)
-                const totalCurrent = (updatedGoals || []).reduce(
-                  (acc, g) => acc + (Number(g.current_amount) || 0),
-                  0
-                )
-                setSavings(totalCurrent)
-              }}
-            />
+            <div className="hidden xl:block xl:col-span-4 w-full">
+              <RightPanel
+                theme={theme}
+                userId={userId}
+                transactions={transactions}
+                savingsAmount={savings}
+                goals={goalsList}
+                onGoalCreated={async () => {
+                  const updatedGoals = await savingsService.getGoals(userId)
+                  setGoalsList(updatedGoals)
+                  const totalCurrent = (updatedGoals || []).reduce(
+                    (acc, g) => acc + (Number(g.current_amount) || 0),
+                    0
+                  )
+                  setSavings(totalCurrent)
+                }}
+              />
+            </div>
           )}
         </div>
       </div>

@@ -3,11 +3,10 @@ import {
   Home,
   Clock,
   Target,
-  TrendingUp,
+  CreditCard,
   MoreHorizontal,
-  Repeat,
+  TrendingUp,
   Lightbulb,
-  Settings,
 } from 'lucide-react'
 
 export default function BottomNavigation({
@@ -23,13 +22,12 @@ export default function BottomNavigation({
     { id: 'home', label: 'Home', icon: Home },
     { id: 'history', label: 'History', icon: Clock },
     { id: 'goals', label: 'Goals', icon: Target },
-    { id: 'reports', label: 'Reports', icon: TrendingUp },
+    { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
   ]
 
   const moreItems = [
-    { id: 'recurring', label: 'Recurring', icon: Repeat },
+    { id: 'reports', label: 'Reports', icon: TrendingUp },
     { id: 'insights', label: 'Insights', icon: Lightbulb },
-    { id: 'settings', label: 'Settings', icon: Settings },
   ]
 
   const isMoreActive = moreItems.some((item) => item.id === activeTab)
@@ -70,11 +68,10 @@ export default function BottomNavigation({
         <div ref={moreRef} className="relative w-full max-w-[600px] pointer-events-auto">
           {showMoreMenu && (
             <div
-              className={`absolute bottom-full right-0 mb-2 z-[60] w-fit max-w-[calc(100vw-24px)] p-1.5 backdrop-blur-xl border rounded-2xl shadow-2xl animate-fade-in ${
-                isLight
+              className={`absolute bottom-full right-0 mb-2 z-[60] w-fit max-w-[calc(100vw-24px)] p-1.5 backdrop-blur-xl border rounded-2xl shadow-2xl animate-fade-in ${isLight
                   ? 'bg-white/95 border-slate-200 shadow-slate-300/50'
                   : 'bg-[#24292e]/95 border-[#4a5156]/60 shadow-black/90'
-              }`}
+                }`}
             >
               {moreItems.map((item) => {
                 const Icon = item.icon
@@ -85,15 +82,14 @@ export default function BottomNavigation({
                     key={item.id}
                     onClick={() => handleTabChange(item.id)}
                     aria-label={item.label}
-                    className={`w-max flex items-center gap-2 px-2.5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 active:scale-[0.97] ${
-                      isActive
+                    className={`w-max flex items-center gap-2 px-2.5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 active:scale-[0.97] ${isActive
                         ? isLight
                           ? 'bg-slate-900 text-white'
                           : 'bg-[#bdc7ce] text-black'
                         : isLight
-                        ? 'text-slate-600 hover:text-black hover:bg-slate-100'
-                        : 'text-[#9aa3aa] hover:text-white hover:bg-[#4a5156]/30'
-                    }`}
+                          ? 'text-slate-600 hover:text-black hover:bg-slate-100'
+                          : 'text-[#9aa3aa] hover:text-white hover:bg-[#4a5156]/30'
+                      }`}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
                     <span>{item.label}</span>
@@ -104,11 +100,10 @@ export default function BottomNavigation({
           )}
 
           <nav
-            className={`w-full backdrop-blur-xl border rounded-[20px] p-1.5 sm:p-2 flex items-center shadow-3xl ${
-              isLight
+            className={`w-full backdrop-blur-xl border rounded-[20px] p-1.5 sm:p-2 flex items-center shadow-3xl ${isLight
                 ? 'bg-white/90 border-slate-200 shadow-slate-300/90'
                 : 'bg-[#24292e]/90 border-[#4a5156]/60 shadow-black'
-            }`}
+              }`}
           >
             {navItems.map((item) => {
               const Icon = item.icon
@@ -120,24 +115,22 @@ export default function BottomNavigation({
                   onClick={() => handleTabChange(item.id)}
                   aria-label={item.label}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 sm:py-1.5 px-0.5 sm:px-1 rounded-2xl active:scale-95 transition-all duration-150 cursor-pointer ${
-                    isActive
+                  className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 sm:py-1.5 px-0.5 sm:px-1 rounded-2xl active:scale-95 transition-all duration-150 cursor-pointer ${isActive
                       ? isLight
                         ? 'text-slate-900'
                         : 'text-white'
                       : isLight
-                      ? 'text-slate-500 hover:text-black'
-                      : 'text-[#808a92] hover:text-[#bdc7ce]'
-                  }`}
+                        ? 'text-slate-500 hover:text-black'
+                        : 'text-[#808a92] hover:text-[#bdc7ce]'
+                    }`}
                 >
                   <div
-                    className={`p-1.5 sm:p-2 rounded-xl transition-all duration-150 ${
-                      isActive
+                    className={`p-1.5 sm:p-2 rounded-xl transition-all duration-150 ${isActive
                         ? isLight
                           ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20'
                           : 'bg-[#bdc7ce] text-black shadow-md shadow-[#bdc7ce]/20'
                         : ''
-                    }`}
+                      }`}
                   >
                     <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                   </div>
@@ -153,24 +146,22 @@ export default function BottomNavigation({
               onClick={handleMoreClick}
               aria-label="More navigation options"
               aria-expanded={showMoreMenu}
-              className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 sm:py-1.5 px-0.5 sm:px-1 rounded-2xl active:scale-95 transition-all duration-150 cursor-pointer ${
-                isMoreSelected
+              className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 sm:py-1.5 px-0.5 sm:px-1 rounded-2xl active:scale-95 transition-all duration-150 cursor-pointer ${isMoreSelected
                   ? isLight
                     ? 'text-slate-900'
                     : 'text-white'
                   : isLight
-                  ? 'text-slate-500 hover:text-black'
-                  : 'text-[#808a92] hover:text-[#bdc7ce]'
-              }`}
+                    ? 'text-slate-500 hover:text-black'
+                    : 'text-[#808a92] hover:text-[#bdc7ce]'
+                }`}
             >
               <div
-                className={`p-1.5 sm:p-2 rounded-xl transition-all duration-150 ${
-                  isMoreSelected
+                className={`p-1.5 sm:p-2 rounded-xl transition-all duration-150 ${isMoreSelected
                     ? isLight
                       ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20'
                       : 'bg-[#bdc7ce] text-black shadow-md shadow-[#bdc7ce]/20'
                     : ''
-                }`}
+                  }`}
               >
                 <MoreHorizontal className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
               </div>

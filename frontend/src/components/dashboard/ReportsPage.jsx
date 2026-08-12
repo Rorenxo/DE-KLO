@@ -261,22 +261,24 @@ export default function ReportsPage({
 
   return (
     <div className="w-full max-w-full space-y-5 select-none pb-12 animate-fade-in">
-      <div className="pt-1">
-        <h2
-          className={`text-xl sm:text-2xl font-bold tracking-tight ${
-            isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
-          }`}
-        >
-          Reports
-        </h2>
-        <p
-          className={`text-xs mt-0.5 ${
-            isLight ? 'text-[#68707C] font-medium' : 'text-[#94A3B8]'
-          }`}
-        >
-          Your financial overview and insights.
-        </p>
-      </div>
+      <header className="flex items-center justify-between pt-1 pb-1">
+        <div>
+          <h2
+            className={`text-xl sm:text-2xl font-bold font-sans tracking-tight ${
+              isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
+            }`}
+          >
+            Reports
+          </h2>
+          <p
+            className={`text-xs mt-0.5 ${
+              isLight ? 'text-[#68707C] font-medium' : 'text-[#B8C0C8]'
+            }`}
+          >
+            Your financial overview and insights.
+          </p>
+        </div>
+      </header>
 
       <ScrollFadeIn delay={100}>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

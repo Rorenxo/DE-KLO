@@ -133,9 +133,8 @@ export default function RightPanel({
     <aside className="hidden xl:flex flex-col space-y-6 w-full max-w-[420px] select-none shrink-0 self-start">
       <ScrollFadeIn delay={100}>
         <div
-          className={`p-3.5 rounded-2xl border space-y-3 shadow-sm transition-colors ${
-            isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-          }`}
+          className={`p-3.5 rounded-2xl border space-y-3 shadow-sm transition-colors ${isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+            }`}
         >
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold tracking-wide uppercase">
@@ -146,9 +145,8 @@ export default function RightPanel({
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
                 aria-label="Select timeframe"
-                className={`flex items-center gap-1 px-2.5 py-1 border rounded-xl text-[10px] sm:text-[11px] transition-all cursor-pointer ${
-                  isLight ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40]' : 'bg-[#181b20] border-[#242830] text-[#F1F3F5]'
-                }`}
+                className={`flex items-center gap-1 px-2.5 py-1 border rounded-xl text-[10px] sm:text-[11px] transition-all cursor-pointer ${isLight ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40]' : 'bg-[#181b20] border-[#242830] text-[#F1F3F5]'
+                  }`}
               >
                 <span>{period}</span>
                 <ChevronDown className="w-3 h-3" />
@@ -156,9 +154,8 @@ export default function RightPanel({
 
               {showDropdown && (
                 <div
-                  className={`absolute right-0 mt-1 w-32 border rounded-xl shadow-2xl z-30 overflow-hidden py-1 ${
-                    isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-                  }`}
+                  className={`absolute right-0 mt-1 w-32 border rounded-xl shadow-2xl z-30 overflow-hidden py-1 ${isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+                    }`}
                 >
                   {['This Week', 'This Month'].map((p) => (
                     <button
@@ -167,15 +164,14 @@ export default function RightPanel({
                         setPeriod(p)
                         setShowDropdown(false)
                       }}
-                      className={`w-full text-left px-3 py-1.5 text-xs transition-colors cursor-pointer ${
-                        period === p
+                      className={`w-full text-left px-3 py-1.5 text-xs transition-colors cursor-pointer ${period === p
                           ? isLight
                             ? 'bg-[#343A40] text-[#F8F8FF] font-bold'
                             : 'bg-[#F1F3F5] text-[#000000] font-bold'
                           : isLight
-                          ? 'text-[#68707C] hover:bg-[#ECEEF4]'
-                          : 'text-[#94A3B8] hover:bg-[#1E222A]'
-                      }`}
+                            ? 'text-[#68707C] hover:bg-[#ECEEF4]'
+                            : 'text-[#94A3B8] hover:bg-[#1E222A]'
+                        }`}
                     >
                       {p}
                     </button>
@@ -187,9 +183,8 @@ export default function RightPanel({
 
           <div className="grid grid-cols-2 gap-2.5">
             <div
-              className={`p-3 rounded-xl border space-y-1 ${
-                isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
-              }`}
+              className={`p-3 rounded-xl border space-y-1 ${isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
@@ -203,9 +198,8 @@ export default function RightPanel({
             </div>
 
             <div
-              className={`p-3 rounded-xl border space-y-1 ${
-                isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
-              }`}
+              className={`p-3 rounded-xl border space-y-1 ${isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
@@ -221,9 +215,8 @@ export default function RightPanel({
             </div>
 
             <div
-              className={`p-3 rounded-xl border space-y-1 ${
-                isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
-              }`}
+              className={`p-3 rounded-xl border space-y-1 ${isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
@@ -239,9 +232,8 @@ export default function RightPanel({
             </div>
 
             <div
-              className={`p-3 rounded-xl border space-y-1 ${
-                isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
-              }`}
+              className={`p-3 rounded-xl border space-y-1 ${isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
@@ -261,9 +253,8 @@ export default function RightPanel({
 
       <ScrollFadeIn delay={200}>
         <div
-          className={`p-4 sm:p-5 rounded-2xl border space-y-4 shadow-sm transition-colors flex flex-col justify-between ${
-            isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-          }`}
+          className={`p-4 sm:p-5 rounded-2xl border space-y-4 shadow-sm transition-colors flex flex-col justify-between ${isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+            }`}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -277,11 +268,10 @@ export default function RightPanel({
           {goals.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-4 px-3 space-y-2.5 min-h-[224px] my-auto">
               <div
-                className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
-                  isLight
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center ${isLight
                     ? 'bg-[#F4F5FA] text-[#4B535E] border border-[#DEE2EA]'
                     : 'bg-[#181b20] text-[#D1D5DB] border border-[#242830]'
-                }`}
+                  }`}
               >
                 <Target className="w-5.5 h-5.5" />
               </div>
@@ -328,11 +318,10 @@ export default function RightPanel({
           <button
             onClick={() => setIsGoalModalOpen(true)}
             aria-label="Create new savings goal"
-            className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-dashed rounded-xl text-xs font-semibold transition-colors cursor-pointer active:scale-[0.985] ${
-              isLight
+            className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-dashed rounded-xl text-xs font-semibold transition-colors cursor-pointer active:scale-[0.985] ${isLight
                 ? 'border-slate-300 text-slate-700 hover:bg-slate-100'
                 : 'border-[#4a5156]/60 text-[#bdc7ce] hover:text-white hover:border-white/40 hover:bg-white/5'
-            }`}
+              }`}
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{goals.length === 0 ? 'Create Your First Goal' : 'Create New Goal'}</span>
@@ -344,18 +333,16 @@ export default function RightPanel({
         createPortal(
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 select-none animate-fade-in">
             <div
-              className={`fixed inset-0 backdrop-blur-sm transition-opacity ${
-                isLight ? 'bg-black/40' : 'bg-black/80'
-              }`}
+              className={`fixed inset-0 backdrop-blur-sm transition-opacity ${isLight ? 'bg-black/40' : 'bg-black/80'
+                }`}
               onClick={() => setIsGoalModalOpen(false)}
             />
 
             <div
-              className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${
-                isLight
+              className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${isLight
                   ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
                   : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
                 <div className="flex items-center gap-2.5">
@@ -364,11 +351,10 @@ export default function RightPanel({
                 </div>
                 <button
                   onClick={() => setIsGoalModalOpen(false)}
-                  className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
-                    isLight
+                  className={`p-1.5 rounded-xl transition-colors cursor-pointer ${isLight
                       ? 'text-[#68707C] hover:text-[#343A40] hover:bg-[#ECEEF4]'
                       : 'text-[#94A3B8] hover:text-white hover:bg-[#1E222A]'
-                  }`}
+                    }`}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -377,11 +363,10 @@ export default function RightPanel({
               <form onSubmit={handleCreateGoalSubmit} className="space-y-4 pt-4">
                 {goalError && (
                   <div
-                    className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
-                      isLight
+                    className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${isLight
                         ? 'bg-rose-50 border-rose-200 text-rose-700'
                         : 'bg-rose-500/15 border-rose-500/30 text-rose-400'
-                    }`}
+                      }`}
                   >
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{goalError}</span>
@@ -398,11 +383,10 @@ export default function RightPanel({
                     value={goalName}
                     onChange={(e) => setGoalName(e.target.value)}
                     autoFocus
-                    className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-semibold outline-none border transition-all ${
-                      isLight
+                    className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-semibold outline-none border transition-all ${isLight
                         ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
                         : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
-                    }`}
+                      }`}
                   />
                 </div>
 
@@ -417,11 +401,10 @@ export default function RightPanel({
                     placeholder="50000"
                     value={targetAmount}
                     onChange={(e) => setTargetAmount(e.target.value)}
-                    className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${
-                      isLight
+                    className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${isLight
                         ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
                         : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
-                    }`}
+                      }`}
                   />
                 </div>
 
@@ -436,11 +419,10 @@ export default function RightPanel({
                     placeholder="0"
                     value={initialAmount}
                     onChange={(e) => setInitialAmount(e.target.value)}
-                    className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${
-                      isLight
+                    className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${isLight
                         ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
                         : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
-                    }`}
+                      }`}
                   />
                 </div>
 
@@ -448,22 +430,20 @@ export default function RightPanel({
                   <button
                     type="button"
                     onClick={() => setIsGoalModalOpen(false)}
-                    className={`flex-1 py-2.5 px-3 rounded-2xl border text-xs font-semibold transition-colors cursor-pointer ${
-                      isLight
+                    className={`flex-1 py-2.5 px-3 rounded-2xl border text-xs font-semibold transition-colors cursor-pointer ${isLight
                         ? 'border-[#DEE2EA] text-[#68707C] hover:text-[#343A40]'
                         : 'border-[#242830] text-[#94A3B8] hover:text-white'
-                    }`}
+                      }`}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmittingGoal}
-                    className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs shadow-md transition-all active:scale-[0.985] cursor-pointer ${
-                      isLight
+                    className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs shadow-md transition-all active:scale-[0.985] cursor-pointer ${isLight
                         ? 'bg-[#343A40] text-[#F8F8FF] hover:bg-[#212529]'
                         : 'bg-[#F1F3F5] text-[#000000] hover:bg-white'
-                    }`}
+                      }`}
                   >
                     {isSubmittingGoal ? 'Saving...' : 'Save Goal'}
                   </button>

@@ -7,7 +7,7 @@ async function getAuthenticatedUserId(fallbackId) {
     const { data } = await supabase.auth.getSession()
     const sessionUserId = data?.session?.user?.id
     if (sessionUserId) return sessionUserId
-  } catch {}
+  } catch { }
 
   const isUuid =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(fallbackId)
@@ -16,7 +16,7 @@ async function getAuthenticatedUserId(fallbackId) {
 
 export const transactionService = {
   subscribeSync() {
-    return () => {}
+    return () => { }
   },
 
   async getLocalTransactions(userId) {

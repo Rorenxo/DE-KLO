@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Search,
   SlidersHorizontal,
@@ -1113,22 +1114,23 @@ export default function TransactionHistoryPage({
           </div>
         )}
 
-      {selectedTx && (
-        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center select-none animate-fade-in">
-          <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-            onClick={() =>
-              setSelectedTx(null)
-            }
-          />
+      {selectedTx &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 select-none animate-fade-in">
+            <div
+              className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+              onClick={() =>
+                setSelectedTx(null)
+              }
+            />
 
-          <div
-            className={`relative w-full max-w-md rounded-t-[32px] sm:rounded-3xl border p-6 shadow-2xl z-10 transition-all ${
-              isLight
-                ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
-                : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
-            }`}
-          >
+            <div
+              className={`relative w-full max-w-md rounded-3xl border p-6 shadow-2xl z-10 transition-all ${
+                isLight
+                  ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
+                  : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
+              }`}
+            >
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <span className="text-xs font-bold uppercase tracking-wider text-[#808a92]">
                 Transaction Detail
@@ -1269,7 +1271,8 @@ export default function TransactionHistoryPage({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
