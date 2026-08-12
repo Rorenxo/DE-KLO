@@ -1,5 +1,8 @@
 {
-  "dependencies": {
-    "impeccable": "^3.5.0"
+  "name": "de-klo-savings-tracker",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "dev": "npm --prefix frontend run dev"
   }
 }
