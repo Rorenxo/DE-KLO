@@ -7,13 +7,34 @@ import { authService } from './services/authService'
 import { profileService } from './services/profileService'
 
 const checkShouldShowMobileIntro = () => {
-  if (typeof window === 'undefined') return false
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (prefersReducedMotion) return false
-  const alreadyPlayed = sessionStorage.getItem('deklo_intro_played')
-  if (alreadyPlayed) return false
-  const isMobile = window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches
-  return isMobile
+  try {
+    if (typeof window === 'undefined') return false
+
+    const prefersReducedMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)')?.matches
+    if (prefersReducedMotion) return false
+
+    let alreadyPlayed = false
+    try {
+      alreadyPlayed = sessionStorage.getItem('deklo_intro_played') === 'true'
+    } catch (e) {
+      alreadyPlayed = false
+    }
+    if (alreadyPlayed) return false
+
+    const isMobileByWidth = typeof window.innerWidth === 'number' && window.innerWidth <= 768
+    const isMobileByMedia =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(max-width: 768px)')?.matches
+    const isMobileUserAgent =
+      typeof navigator !== 'undefined' &&
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(navigator.userAgent || '')
+
+    return Boolean(isMobileByWidth || isMobileByMedia || isMobileUserAgent)
+  } catch (err) {
+    return false
+  }
 }
 
 export default function App() {

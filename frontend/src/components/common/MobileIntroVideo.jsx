@@ -19,22 +19,12 @@ export default function MobileIntroVideo({ onComplete }) {
     let timer
 
     if (videoRef.current) {
-      // Attempt unmuted autoplay first as requested by user
-      const playPromise = videoRef.current.play()
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // If browser restricts unmuted autoplay, mute and attempt autoplay fallback so user is never stuck
-          if (videoRef.current) {
-            videoRef.current.muted = true
-            videoRef.current.play().catch(() => {
-              handleFinish()
-            })
-          }
-        })
-      }
+      videoRef.current.play().catch(() => {
+        handleFinish()
+      })
     }
 
-    // Fallback safety timeout (6 seconds) to ensure app always proceeds
+    // Safety fallback timeout (6 seconds max)
     timer = setTimeout(() => {
       handleFinish()
     }, 6000)
@@ -54,6 +44,7 @@ export default function MobileIntroVideo({ onComplete }) {
         ref={videoRef}
         src={introVideo}
         autoPlay
+        muted
         playsInline
         webkit-playsinline="true"
         controls={false}
@@ -61,8 +52,11 @@ export default function MobileIntroVideo({ onComplete }) {
         controlsList="nodownload nofullscreen noremoteplayback"
         onEnded={handleFinish}
         onError={handleFinish}
+        onStalled={handleFinish}
         className="w-full h-full object-cover"
       />
     </div>
   )
 }
+
+
