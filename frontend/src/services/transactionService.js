@@ -9,7 +9,8 @@ async function getAuthenticatedUserId(fallbackId) {
     if (sessionUserId) return sessionUserId
   } catch {}
 
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(fallbackId)
+  const isUuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(fallbackId)
   return isUuid ? fallbackId : null
 }
 
@@ -49,8 +50,12 @@ export const transactionService = {
   },
 
   async createTransaction({ userId, type, amount, category, description }) {
-    if (typeof amount !== 'number' || amount <= 0) throw new Error('Transaction amount must be a positive number')
-    if (!VALID_TYPES.includes(type)) throw new Error(`Invalid transaction type: ${type}`)
+    if (typeof amount !== 'number' || amount <= 0) {
+      throw new Error('Transaction amount must be a positive number')
+    }
+    if (!VALID_TYPES.includes(type)) {
+      throw new Error(`Invalid transaction type: ${type}`)
+    }
 
     const activeId = await getAuthenticatedUserId(userId)
     if (!activeId) {

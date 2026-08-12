@@ -1,6 +1,8 @@
 import { supabase } from './supabaseClient'
 
-const isUuid = (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+const isUuid = (id) =>
+  typeof id === 'string' &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
 
 export const recurringService = {
   async getRecurring(userId) {
@@ -20,7 +22,14 @@ export const recurringService = {
     return data || []
   },
 
-  async createRecurring({ userId, name, amount, type = 'expense', frequency = 'monthly', next_date = null }) {
+  async createRecurring({
+    userId,
+    name,
+    amount,
+    type = 'expense',
+    frequency = 'monthly',
+    next_date = null,
+  }) {
     if (!isUuid(userId)) {
       throw new Error('Please sign in with a valid account to create recurring transactions.')
     }

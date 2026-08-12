@@ -58,9 +58,7 @@ function normalizeTransactions(transactions) {
   return (transactions || [])
     .map((tx) => {
       const timestamp = toTimestampMs(tx)
-
       if (!timestamp) return null
-
       return {
         id: tx.id,
         timestamp,
@@ -94,12 +92,10 @@ function buildEvents(sortedTx) {
 
 function rangeCutoffMs(range) {
   const now = Date.now()
-
   if (range === '7D') return now - 7 * 24 * 60 * 60 * 1000
   if (range === '1M') return now - 30 * 24 * 60 * 60 * 1000
   if (range === '3M') return now - 90 * 24 * 60 * 60 * 1000
   if (range === '1Y') return now - 365 * 24 * 60 * 60 * 1000
-
   return null
 }
 
@@ -107,12 +103,10 @@ function toCandles(events, range) {
   if (!events.length) return []
 
   let usableEvents = events
-
   if (range === '10') {
     usableEvents = events.slice(-10)
   } else {
     const cutoff = rangeCutoffMs(range)
-
     if (cutoff) {
       usableEvents = events.filter((e) => e.timestamp >= cutoff)
     }
@@ -154,7 +148,6 @@ function computeAutoscaleRange(candles) {
   if (min === max) {
     const base = Math.abs(min) || 100
     const pad = Math.max(base * 0.1, 10)
-
     return {
       minValue: min - pad,
       maxValue: max + pad,
@@ -192,7 +185,6 @@ function buildDisplayCandles(candles, autoscaleRange) {
 
   return candles.map((c) => {
     const paddedLow = c.low - wickPad
-
     return {
       ...c,
       high: c.high + wickPad,
@@ -203,19 +195,14 @@ function buildDisplayCandles(candles, autoscaleRange) {
 
 function buildMA(candles, period) {
   const result = []
-
   for (let i = period - 1; i < candles.length; i += 1) {
     const slice = candles.slice(i - period + 1, i + 1)
-
-    const value =
-      slice.reduce((acc, c) => acc + c.close, 0) / period
-
+    const value = slice.reduce((acc, c) => acc + c.close, 0) / period
     result.push({
       time: candles[i].time,
       value,
     })
   }
-
   return result
 }
 
@@ -228,17 +215,12 @@ function buildBiColorLine(candles) {
       time: candles[0].time,
       value: candles[0].close,
     }
-
-    return {
-      green,
-      red,
-    }
+    return { green, red }
   }
 
   for (let i = 1; i < candles.length; i += 1) {
     const prev = candles[i - 1]
     const curr = candles[i]
-
     const isUp = curr.close >= prev.close
     const target = isUp ? green : red
 
@@ -253,10 +235,7 @@ function buildBiColorLine(candles) {
     }
   }
 
-  return {
-    green,
-    red,
-  }
+  return { green, red }
 }
 
 export default function BalanceTrendChart({ transactions = [] }) {
@@ -296,59 +275,35 @@ export default function BalanceTrendChart({ transactions = [] }) {
     [candles]
   )
 
-  const ma7Data = useMemo(
-    () => buildMA(candles, 7),
-    [candles]
-  )
-
-  const ma14Data = useMemo(
-    () => buildMA(candles, 14),
-    [candles]
-  )
-
-  const ma28Data = useMemo(
-    () => buildMA(candles, 28),
-    [candles]
-  )
+  const ma7Data = useMemo(() => buildMA(candles, 7), [candles])
+  const ma14Data = useMemo(() => buildMA(candles, 14), [candles])
+  const ma28Data = useMemo(() => buildMA(candles, 28), [candles])
 
   const latest = candles[candles.length - 1] || null
   const previous = candles[candles.length - 2] || null
 
   useEffect(() => {
     const container = chartContainerRef.current
-
     if (!container || candles.length === 0) {
       return undefined
     }
 
     const width = Math.max(260, container.clientWidth)
     const isMobile = width < MOBILE_BREAKPOINT
-    const height = isMobile
-      ? CHART_HEIGHT_MOBILE
-      : CHART_HEIGHT_DESKTOP
+    const height = isMobile ? CHART_HEIGHT_MOBILE : CHART_HEIGHT_DESKTOP
 
     const chart = createChart(container, {
       width,
       height,
       layout: {
-        background: {
-          color: COLORS.bgDark,
-        },
+        background: { color: COLORS.bgDark },
         textColor: COLORS.textMuted,
         attributionLogo: false,
         fontSize: isMobile ? 10 : 12,
       },
       grid: {
-        vertLines: {
-          color: COLORS.grid,
-          style: LineStyle.Solid,
-          visible: true,
-        },
-        horzLines: {
-          color: COLORS.grid,
-          style: LineStyle.Solid,
-          visible: true,
-        },
+        vertLines: { color: COLORS.grid, style: LineStyle.Solid, visible: true },
+        horzLines: { color: COLORS.grid, style: LineStyle.Solid, visible: true },
       },
       rightPriceScale: {
         visible: true,
@@ -399,11 +354,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
     })
 
     const autoscaleInfoProvider = () =>
-      autoscaleRange
-        ? {
-            priceRange: autoscaleRange,
-          }
-        : null
+      autoscaleRange ? { priceRange: autoscaleRange } : null
 
     const candleSeries = chart.addCandlestickSeries({
       upColor: COLORS.bull,
@@ -438,9 +389,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
 
     const activitySeries = chart.addHistogramSeries({
       priceScaleId: 'activity',
-      priceFormat: {
-        type: 'volume',
-      },
+      priceFormat: { type: 'volume' },
       base: 0,
       lastValueVisible: false,
       priceLineVisible: false,
@@ -448,10 +397,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
 
     chart.priceScale('activity').applyOptions({
       visible: false,
-      scaleMargins: {
-        top: 0.78,
-        bottom: 0,
-      },
+      scaleMargins: { top: 0.78, bottom: 0 },
     })
 
     const ma7Series = chart.addLineSeries({
@@ -488,14 +434,8 @@ export default function BalanceTrendChart({ transactions = [] }) {
     activitySeries.setData(
       candles.map((c) => {
         let color = 'rgba(139, 148, 158, 0.24)'
-
-        if (c.isBullish) {
-          color = 'rgba(32, 212, 123, 0.24)'
-        }
-
-        if (c.isBearish) {
-          color = 'rgba(255, 77, 94, 0.24)'
-        }
+        if (c.isBullish) color = 'rgba(32, 212, 123, 0.24)'
+        if (c.isBearish) color = 'rgba(255, 77, 94, 0.24)'
 
         return {
           time: c.time,
@@ -505,29 +445,13 @@ export default function BalanceTrendChart({ transactions = [] }) {
       })
     )
 
-    candleSeries.applyOptions({
-      visible: mode === 'Candle',
-    })
+    candleSeries.applyOptions({ visible: mode === 'Candle' })
+    greenLineSeries.applyOptions({ visible: mode === 'Line' })
+    redLineSeries.applyOptions({ visible: mode === 'Line' })
 
-    greenLineSeries.applyOptions({
-      visible: mode === 'Line',
-    })
-
-    redLineSeries.applyOptions({
-      visible: mode === 'Line',
-    })
-
-    ma7Series.applyOptions({
-      visible: mode === 'Candle' && ma7Data.length > 0,
-    })
-
-    ma14Series.applyOptions({
-      visible: mode === 'Candle' && ma14Data.length > 0,
-    })
-
-    ma28Series.applyOptions({
-      visible: mode === 'Candle' && ma28Data.length > 0,
-    })
+    ma7Series.applyOptions({ visible: mode === 'Candle' && ma7Data.length > 0 })
+    ma14Series.applyOptions({ visible: mode === 'Candle' && ma14Data.length > 0 })
+    ma28Series.applyOptions({ visible: mode === 'Candle' && ma28Data.length > 0 })
 
     chart.timeScale().applyOptions({
       barSpacing: BAR_SPACING,
@@ -541,9 +465,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
     if (latest) {
       const isUp = latest.close >= latest.open
       const labelColor = isUp ? COLORS.bull : COLORS.bear
-
-      const lastIsUp =
-        !previous || latest.close >= previous.close
+      const lastIsUp = !previous || latest.close >= previous.close
 
       const anchorSeries =
         mode === 'Candle'
@@ -561,45 +483,31 @@ export default function BalanceTrendChart({ transactions = [] }) {
         title: formatPeso(latest.close, 2),
       })
 
-      const candleByTime = new Map(
-        candles.map((c) => [Number(c.time), c])
-      )
+      const candleByTime = new Map(candles.map((c) => [Number(c.time), c]))
 
       handleMove = (param) => {
         if (!param?.time) {
           setHoveredCandle(null)
           return
         }
-
         const target = candleByTime.get(Number(param.time))
-
         if (!target) {
           setHoveredCandle(null)
           return
         }
-
         setHoveredCandle(target)
       }
 
       chart.subscribeCrosshairMove(handleMove)
 
       resizeObserver = new ResizeObserver(() => {
-        const newWidth = Math.max(
-          260,
-          container.clientWidth
-        )
-
-        const newIsMobile =
-          newWidth < MOBILE_BREAKPOINT
+        const newWidth = Math.max(260, container.clientWidth)
+        const newIsMobile = newWidth < MOBILE_BREAKPOINT
 
         chart.applyOptions({
           width: newWidth,
-          height: newIsMobile
-            ? CHART_HEIGHT_MOBILE
-            : CHART_HEIGHT_DESKTOP,
-          layout: {
-            fontSize: newIsMobile ? 10 : 12,
-          },
+          height: newIsMobile ? CHART_HEIGHT_MOBILE : CHART_HEIGHT_DESKTOP,
+          layout: { fontSize: newIsMobile ? 10 : 12 },
         })
 
         chart.priceScale('right').applyOptions({
@@ -627,9 +535,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
         const anchor =
           mode === 'Candle'
             ? candleSeries
-            : latest &&
-                (!previous ||
-                  latest.close >= previous.close)
+            : latest && (!previous || latest.close >= previous.close)
               ? greenLineSeries
               : redLineSeries
 
@@ -655,38 +561,15 @@ export default function BalanceTrendChart({ transactions = [] }) {
     mode,
   ])
 
-  const hasTransactions =
-    normalizedTransactions.length > 0
-
-  const latestBalance = latest
-    ? latest.close
-    : 0
-
-  const diff =
-    latest && previous
-      ? latest.close - previous.close
-      : 0
-
-  const diffPct =
-    previous && previous.close !== 0
-      ? (diff / previous.close) * 100
-      : 0
+  const hasTransactions = normalizedTransactions.length > 0
+  const latestBalance = latest ? latest.close : 0
+  const diff = latest && previous ? latest.close - previous.close : 0
+  const diffPct = previous && previous.close !== 0 ? (diff / previous.close) * 100 : 0
 
   const latestMa = {
-    ma7:
-      ma7Data.length > 0
-        ? ma7Data[ma7Data.length - 1].value
-        : null,
-
-    ma14:
-      ma14Data.length > 0
-        ? ma14Data[ma14Data.length - 1].value
-        : null,
-
-    ma28:
-      ma28Data.length > 0
-        ? ma28Data[ma28Data.length - 1].value
-        : null,
+    ma7: ma7Data.length > 0 ? ma7Data[ma7Data.length - 1].value : null,
+    ma14: ma14Data.length > 0 ? ma14Data[ma14Data.length - 1].value : null,
+    ma28: ma28Data.length > 0 ? ma28Data[ma28Data.length - 1].value : null,
   }
 
   return (
@@ -696,7 +579,6 @@ export default function BalanceTrendChart({ transactions = [] }) {
           <span className="text-sm font-bold tracking-tight text-[#D1D7E0]">
             Chart
           </span>
-
           <Info className="w-3 h-3 text-[#7F8A9A]" />
         </div>
 
@@ -749,14 +631,11 @@ export default function BalanceTrendChart({ transactions = [] }) {
             {latest && previous ? (
               <span
                 className={`text-[10px] font-mono font-bold ${
-                  diff >= 0
-                    ? 'text-[#20D47B]'
-                    : 'text-[#FF4D5E]'
+                  diff >= 0 ? 'text-[#20D47B]' : 'text-[#FF4D5E]'
                 }`}
               >
                 {diff >= 0 ? '+' : ''}
-                {formatPeso(diff, 2)} (
-                {diff >= 0 ? '+' : ''}
+                {formatPeso(diff, 2)} ({diff >= 0 ? '+' : ''}
                 {diffPct.toFixed(2)}%)
               </span>
             ) : null}
@@ -785,10 +664,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
           </div>
 
           <div className="relative rounded-xl border border-[#1E2937] bg-[#0B1018] overflow-hidden">
-            <div
-              ref={chartContainerRef}
-              className="w-full"
-            />
+            <div ref={chartContainerRef} className="w-full" />
 
             {hoveredCandle ? (
               <div className="absolute left-2 top-2 z-20 rounded-lg border border-[#2B3648] bg-[#0D1524]/95 px-2.5 py-2 text-[10px] font-mono text-[#FFFFFF] shadow-lg backdrop-blur-sm">
@@ -796,11 +672,9 @@ export default function BalanceTrendChart({ transactions = [] }) {
                   <div className="text-[9px] uppercase tracking-wider text-[#8FA0B5]">
                     Balance
                   </div>
-
                   <div
                     className={`text-sm font-bold ${
-                      hoveredCandle.close >=
-                      hoveredCandle.open
+                      hoveredCandle.close >= hoveredCandle.open
                         ? 'text-[#20D47B]'
                         : 'text-[#FF4D5E]'
                     }`}
@@ -814,7 +688,6 @@ export default function BalanceTrendChart({ transactions = [] }) {
                     <div className="text-[8px] uppercase tracking-wider text-[#8FA0B5]">
                       Open
                     </div>
-
                     <div className="text-[#FFFFFF]">
                       {formatPeso(hoveredCandle.open, 2)}
                     </div>
@@ -824,7 +697,6 @@ export default function BalanceTrendChart({ transactions = [] }) {
                     <div className="text-[8px] uppercase tracking-wider text-[#8FA0B5]">
                       Close
                     </div>
-
                     <div className="text-[#FFFFFF]">
                       {formatPeso(hoveredCandle.close, 2)}
                     </div>
@@ -834,7 +706,6 @@ export default function BalanceTrendChart({ transactions = [] }) {
                     <div className="text-[8px] uppercase tracking-wider text-[#20D47B]">
                       High
                     </div>
-
                     <div className="text-[#FFFFFF]">
                       {formatPeso(hoveredCandle.high, 2)}
                     </div>
@@ -844,7 +715,6 @@ export default function BalanceTrendChart({ transactions = [] }) {
                     <div className="text-[8px] uppercase tracking-wider text-[#FF4D5E]">
                       Low
                     </div>
-
                     <div className="text-[#FFFFFF]">
                       {formatPeso(hoveredCandle.low, 2)}
                     </div>
@@ -855,7 +725,6 @@ export default function BalanceTrendChart({ transactions = [] }) {
                   <span className="text-[8px] uppercase tracking-wider text-[#8FA0B5]">
                     Activity{' '}
                   </span>
-
                   <span className="text-[#FFFFFF]">
                     {formatPeso(hoveredCandle.activity, 2)}
                   </span>
@@ -875,8 +744,7 @@ export default function BalanceTrendChart({ transactions = [] }) {
           </p>
 
           <p className="mt-1 text-xs text-[#7F8A9A]">
-            Add your first transaction to start building
-            your balance trend.
+            Add your first transaction to start building your balance trend.
           </p>
         </div>
       )}

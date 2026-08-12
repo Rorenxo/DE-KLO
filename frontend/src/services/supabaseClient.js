@@ -1,10 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabaseOrigin = supabaseUrl ? supabaseUrl.replace(/\/+$/, '') : ''
 
-// Initialize Supabase client configured for persistent PWA offline session storage
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: window.localStorage,
@@ -25,7 +26,6 @@ export async function checkSupabaseConnectivity(timeoutMs = 4000) {
       cache: 'no-store',
       signal: controller.signal,
     })
-    // Any HTTP response means the network path to Supabase is alive.
     return response.status > 0
   } catch {
     return false

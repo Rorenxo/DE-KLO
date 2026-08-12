@@ -18,8 +18,6 @@ export default function Header({
 }) {
   const [dateTimeStr, setDateTimeStr] = useState('')
   const [showProfileMenu, setShowProfileMenu] = useState(false)
-
-  // Profile Edit Modal State
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
   const [nicknameInput, setNicknameInput] = useState('')
   const [avatarInput, setAvatarInput] = useState('')
@@ -66,7 +64,6 @@ export default function Header({
     return () => clearInterval(timer)
   }, [])
 
-  // Close dropdown menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -113,12 +110,16 @@ export default function Header({
   }
 
   return (
-    <header className={`w-full max-w-full flex items-center justify-between py-3 border-b select-none relative z-40 ${
-      isLight ? 'border-[#DEE2EA]' : 'border-[#242830]'
-    }`}>
-      <div className={`flex items-center gap-2 text-xs font-Manrope font-semibold tracking-wide ${
-        isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
-      }`}>
+    <header
+      className={`w-full max-w-full flex items-center justify-between py-3 border-b select-none relative z-40 ${
+        isLight ? 'border-[#DEE2EA]' : 'border-[#242830]'
+      }`}
+    >
+      <div
+        className={`flex items-center gap-2 text-xs font-Manrope font-semibold tracking-wide ${
+          isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'
+        }`}
+      >
         <span>{dateTimeStr}</span>
       </div>
 
@@ -133,7 +134,11 @@ export default function Header({
               : 'bg-[#121418] border-[#242830] text-[#D1D5DB] hover:text-white'
           }`}
         >
-          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-[#343A40]" />}
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-300" />
+          ) : (
+            <Moon className="w-4 h-4 text-[#343A40]" />
+          )}
         </button>
 
         <button
@@ -146,12 +151,13 @@ export default function Header({
           aria-label="Notifications"
         >
           <Bell className="w-4 h-4" />
-          <span className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
-            isLight ? 'bg-[#343A40]' : 'bg-[#F1F3F5]'
-          }`} />
+          <span
+            className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
+              isLight ? 'bg-[#343A40]' : 'bg-[#F1F3F5]'
+            }`}
+          />
         </button>
 
-        {/* Profile Avatar Button & Dropdown */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -169,7 +175,6 @@ export default function Header({
             )}
           </button>
 
-          {/* Profile Dropdown Popover */}
           {showProfileMenu && (
             <div
               className={`absolute right-0 mt-2 w-64 rounded-2xl border shadow-2xl p-3 space-y-3 z-50 animate-fade-in ${
@@ -178,7 +183,6 @@ export default function Header({
                   : 'bg-[#121418] border-[#242830] text-[#F1F3F5] shadow-black/90'
               }`}
             >
-              {/* User Header Info */}
               <div className="flex items-center gap-3 pb-2.5 border-b border-white/10">
                 <div className="w-10 h-10 rounded-full bg-[#bdc7ce]/20 border border-[#4a5156]/40 flex items-center justify-center overflow-hidden shrink-0">
                   {avatarUrl ? (
@@ -193,10 +197,12 @@ export default function Header({
                 </div>
               </div>
 
-              {/* Card Number Info Badge */}
               <div
-                className={`p-2.5 rounded-xl border flex items-center gap-2.5 ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-[#000000]/50 border-[#4a5156]/30'
-                  }`}
+                className={`p-2.5 rounded-xl border flex items-center gap-2.5 ${
+                  isLight
+                    ? 'bg-slate-50 border-slate-200'
+                    : 'bg-[#000000]/50 border-[#4a5156]/30'
+                }`}
               >
                 <CreditCard className="w-4 h-4 text-[#bdc7ce] shrink-0" />
                 <div className="flex flex-col min-w-0">
@@ -209,14 +215,14 @@ export default function Header({
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="space-y-1.5 pt-1">
                 <button
                   onClick={handleOpenEditModal}
-                  className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${isLight
-                    ? 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200'
-                    : 'bg-[#24292e] border-[#4a5156]/60 text-[#bdc7ce] hover:text-white hover:border-white/40'
-                    }`}
+                  className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                    isLight
+                      ? 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200'
+                      : 'bg-[#24292e] border-[#4a5156]/60 text-[#bdc7ce] hover:text-white hover:border-white/40'
+                  }`}
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                   <span>Customize Profile</span>
@@ -238,7 +244,6 @@ export default function Header({
         </div>
       </div>
 
-      {/* Customize Profile Modal */}
       {isEditProfileOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-fade-in">
           <div
@@ -247,10 +252,11 @@ export default function Header({
           />
 
           <div
-            className={`relative w-full max-w-md rounded-3xl border p-6 shadow-2xl z-10 transition-all ${isLight
-              ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
-              : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
-              }`}
+            className={`relative w-full max-w-md rounded-3xl border p-6 shadow-2xl z-10 transition-all ${
+              isLight
+                ? 'bg-white border-slate-200 text-slate-900 shadow-slate-300/50'
+                : 'bg-[#1a1e22] border-[#4a5156]/60 text-white'
+            }`}
           >
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2.5">
@@ -266,7 +272,6 @@ export default function Header({
             </div>
 
             <form onSubmit={handleSaveProfile} className="space-y-4 pt-4">
-              {/* Profile Avatar Preview */}
               <div className="flex flex-col items-center justify-center space-y-2 py-2">
                 <div className="relative w-20 h-20 rounded-full bg-[#bdc7ce]/20 border-2 border-[#bdc7ce]/50 flex items-center justify-center overflow-hidden shadow-xl">
                   {avatarInput ? (
@@ -281,7 +286,6 @@ export default function Header({
                 <span className="text-[10px] text-[#808a92]">Profile Picture Preview</span>
               </div>
 
-              {/* Nickname Input */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold uppercase text-[#808a92]">
                   Account Nickname
@@ -291,14 +295,14 @@ export default function Header({
                   placeholder="e.g. Lorenxo"
                   value={nicknameInput}
                   onChange={(e) => setNicknameInput(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-semibold outline-none border transition-all ${isLight
-                    ? 'bg-slate-100 border-slate-300 text-slate-900'
-                    : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                    }`}
+                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-semibold outline-none border transition-all ${
+                    isLight
+                      ? 'bg-slate-100 border-slate-300 text-slate-900'
+                      : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
+                  }`}
                 />
               </div>
 
-              {/* Avatar URL Input */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold uppercase text-[#808a92]">
                   Avatar Image URL (Optional)
@@ -308,29 +312,29 @@ export default function Header({
                   placeholder="https://..."
                   value={avatarInput}
                   onChange={(e) => setAvatarInput(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none border transition-all ${isLight
-                    ? 'bg-slate-100 border-slate-300 text-slate-900'
-                    : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
-                    }`}
+                  className={`w-full py-2.5 px-3.5 rounded-xl text-xs outline-none border transition-all ${
+                    isLight
+                      ? 'bg-slate-100 border-slate-300 text-slate-900'
+                      : 'bg-[#000000]/70 border-[#4a5156]/60 text-white focus:border-[#bdc7ce]'
+                  }`}
                 />
               </div>
 
-              {/* Card Number Display */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold uppercase text-[#808a92]">
                   De'klo Card Number
                 </label>
                 <div
-                  className={`py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold border ${isLight
-                    ? 'bg-slate-200 border-slate-300 text-slate-700'
-                    : 'bg-[#000000]/40 border-[#4a5156]/40 text-[#bdc7ce]'
-                    }`}
+                  className={`py-2.5 px-3.5 rounded-xl text-xs font-mono font-bold border ${
+                    isLight
+                      ? 'bg-slate-200 border-slate-300 text-slate-700'
+                      : 'bg-[#000000]/40 border-[#4a5156]/40 text-[#bdc7ce]'
+                  }`}
                 >
                   {cardNumber}
                 </div>
               </div>
 
-              {/* Submit Buttons */}
               <div className="flex items-center gap-3 pt-2">
                 <button
                   type="button"

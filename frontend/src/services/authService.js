@@ -44,7 +44,9 @@ export const authService = {
 
     if (error) {
       if (error.message?.toLowerCase().includes('invalid login credentials')) {
-        throw new Error('Invalid email or password. If you just registered, ensure Email Confirmation is disabled in your Supabase Dashboard (Auth -> Providers -> Email).')
+        throw new Error(
+          'Invalid email or password. If you just registered, ensure Email Confirmation is disabled in your Supabase Dashboard (Auth -> Providers -> Email).'
+        )
       }
       throw new Error(error.message || 'Login failed')
     }
@@ -135,9 +137,11 @@ export const authService = {
       try {
         localStorage.setItem(`deklo_card_${userId}`, cardNumber)
         localStorage.setItem(`deklo_ctd_${userId}`, ctdDate)
-        supabase.auth.updateUser({
-          data: { card_number: cardNumber, ctd_date: ctdDate }
-        }).catch(() => {})
+        supabase.auth
+          .updateUser({
+            data: { card_number: cardNumber, ctd_date: ctdDate },
+          })
+          .catch(() => {})
       } catch (e) {}
     }
 
@@ -215,7 +219,6 @@ export const authService = {
     return data
   },
 
-  // Permanent Device & User PIN Management
   getStoredPin(userId, email) {
     try {
       let pin = null
@@ -229,7 +232,6 @@ export const authService = {
   },
 
   savePin(userId, email, pin) {
-    // Overload support for (userId, pin) or (userId, email, pin)
     let actualPin = pin
     let actualEmail = email
     if (!pin && typeof email === 'string' && /^\d{4}$/.test(email)) {
@@ -264,7 +266,10 @@ export const authService = {
   hasDeviceAccount() {
     try {
       const lastUserId = this.getLastUserId()
-      return Boolean(lastUserId && (this.isDeviceConfigured(lastUserId) || localStorage.getItem('deklo_device_pin')))
+      return Boolean(
+        lastUserId &&
+          (this.isDeviceConfigured(lastUserId) || localStorage.getItem('deklo_device_pin'))
+      )
     } catch (e) {
       return false
     }
@@ -278,7 +283,6 @@ export const authService = {
     }
   },
 
-  // On Logout: sign out of Supabase auth, but PRESERVE the user's saved PIN on device!
   async logout(userId) {
     try {
       await supabase.auth.signOut()
@@ -294,12 +298,15 @@ export const authService = {
   },
 
   async getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
     if (error) throw error
     return user
   },
 
   onAuthStateChange(callback) {
     return supabase.auth.onAuthStateChange(callback)
-  }
+  },
 }

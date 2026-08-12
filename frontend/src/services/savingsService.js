@@ -1,6 +1,8 @@
 import { supabase } from './supabaseClient'
 
-const isUuid = (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+const isUuid = (id) =>
+  typeof id === 'string' &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
 
 export const savingsService = {
   subscribeSync() {
@@ -29,7 +31,9 @@ export const savingsService = {
       throw new Error('Please sign in with a valid account to create savings goals.')
     }
     if (!name) throw new Error('Goal name is required')
-    if (typeof target_amount !== 'number' || target_amount <= 0) throw new Error('Target amount must be positive')
+    if (typeof target_amount !== 'number' || target_amount <= 0) {
+      throw new Error('Target amount must be positive')
+    }
 
     const now = new Date().toISOString()
     const payload = {

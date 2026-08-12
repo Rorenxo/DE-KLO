@@ -25,8 +25,6 @@ export default function RightPanel({
 }) {
   const [period, setPeriod] = useState('This Month')
   const [showDropdown, setShowDropdown] = useState(false)
-
-  // Goal Creation Modal State
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
   const [goalName, setGoalName] = useState('')
   const [targetAmount, setTargetAmount] = useState('')
@@ -66,7 +64,7 @@ export default function RightPanel({
 
     const totalBalance = transactions.reduce((acc, t) => {
       const amt = Number(t.amount) || 0
-      return (t.type === 'deposit' || t.type === 'income') ? acc + amt : acc - amt
+      return t.type === 'deposit' || t.type === 'income' ? acc + amt : acc - amt
     }, 0)
 
     return {
@@ -134,9 +132,11 @@ export default function RightPanel({
   return (
     <aside className="hidden xl:flex flex-col space-y-6 w-full max-w-[420px] select-none shrink-0 self-start">
       <ScrollFadeIn delay={100}>
-        <div className={`p-3.5 rounded-2xl border space-y-3 shadow-sm transition-colors ${
-          isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-        }`}>
+        <div
+          className={`p-3.5 rounded-2xl border space-y-3 shadow-sm transition-colors ${
+            isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+          }`}
+        >
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold tracking-wide uppercase">
               Financial Overview
@@ -155,9 +155,11 @@ export default function RightPanel({
               </button>
 
               {showDropdown && (
-                <div className={`absolute right-0 mt-1 w-32 border rounded-xl shadow-2xl z-30 overflow-hidden py-1 ${
-                  isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-                }`}>
+                <div
+                  className={`absolute right-0 mt-1 w-32 border rounded-xl shadow-2xl z-30 overflow-hidden py-1 ${
+                    isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+                  }`}
+                >
                   {['This Week', 'This Month'].map((p) => (
                     <button
                       key={p}
@@ -167,8 +169,12 @@ export default function RightPanel({
                       }}
                       className={`w-full text-left px-3 py-1.5 text-xs transition-colors cursor-pointer ${
                         period === p
-                          ? isLight ? 'bg-[#343A40] text-[#F8F8FF] font-bold' : 'bg-[#F1F3F5] text-[#000000] font-bold'
-                          : isLight ? 'text-[#68707C] hover:bg-[#ECEEF4]' : 'text-[#94A3B8] hover:bg-[#1E222A]'
+                          ? isLight
+                            ? 'bg-[#343A40] text-[#F8F8FF] font-bold'
+                            : 'bg-[#F1F3F5] text-[#000000] font-bold'
+                          : isLight
+                          ? 'text-[#68707C] hover:bg-[#ECEEF4]'
+                          : 'text-[#94A3B8] hover:bg-[#1E222A]'
                       }`}
                     >
                       {p}
@@ -180,11 +186,15 @@ export default function RightPanel({
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
-            <div className={`p-3 rounded-xl border space-y-1 ${
-              isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
-            }`}>
+            <div
+              className={`p-3 rounded-xl border space-y-1 ${
+                isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
+              }`}
+            >
               <div className="flex items-center justify-between">
-                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>Total Balance</span>
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
+                  Total Balance
+                </span>
                 <Wallet className={`w-3.5 h-3.5 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
               </div>
               <div className={`text-base font-bold font-mono ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`}>
@@ -192,11 +202,15 @@ export default function RightPanel({
               </div>
             </div>
 
-            <div className={`p-3 rounded-xl border space-y-1 ${
-              isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
-            }`}>
+            <div
+              className={`p-3 rounded-xl border space-y-1 ${
+                isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
+              }`}
+            >
               <div className="flex items-center justify-between">
-                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>Income</span>
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
+                  Income
+                </span>
                 <TrendingUp className={`w-3.5 h-3.5 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
               </div>
               <div>
@@ -206,11 +220,15 @@ export default function RightPanel({
               </div>
             </div>
 
-            <div className={`p-3 rounded-xl border space-y-1 ${
-              isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
-            }`}>
+            <div
+              className={`p-3 rounded-xl border space-y-1 ${
+                isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
+              }`}
+            >
               <div className="flex items-center justify-between">
-                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>Savings</span>
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
+                  Savings
+                </span>
                 <PiggyBank className={`w-3.5 h-3.5 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
               </div>
               <div>
@@ -220,11 +238,15 @@ export default function RightPanel({
               </div>
             </div>
 
-            <div className={`p-3 rounded-xl border space-y-1 ${
-              isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
-            }`}>
+            <div
+              className={`p-3 rounded-xl border space-y-1 ${
+                isLight ? 'bg-[#F4F5FA] border-[#E8EAF0]' : 'bg-[#181b20] border-[#242830]'
+              }`}
+            >
               <div className="flex items-center justify-between">
-                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>Expenses</span>
+                <span className={`text-[10px] sm:text-[11px] font-medium tracking-wide ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
+                  Expenses
+                </span>
                 <ArrowDownRight className={`w-3.5 h-3.5 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
               </div>
               <div>
@@ -238,9 +260,11 @@ export default function RightPanel({
       </ScrollFadeIn>
 
       <ScrollFadeIn delay={200}>
-        <div className={`p-4 sm:p-5 rounded-2xl border space-y-4 shadow-sm transition-colors flex flex-col justify-between ${
-          isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-        }`}>
+        <div
+          className={`p-4 sm:p-5 rounded-2xl border space-y-4 shadow-sm transition-colors flex flex-col justify-between ${
+            isLight ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]' : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+          }`}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Target className={`w-4 h-4 ${isLight ? 'text-[#4B535E]' : 'text-[#D1D5DB]'}`} />
@@ -252,9 +276,13 @@ export default function RightPanel({
 
           {goals.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-4 px-3 space-y-2.5 min-h-[224px] my-auto">
-              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
-                isLight ? 'bg-[#F4F5FA] text-[#4B535E] border border-[#DEE2EA]' : 'bg-[#181b20] text-[#D1D5DB] border border-[#242830]'
-              }`}>
+              <div
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
+                  isLight
+                    ? 'bg-[#F4F5FA] text-[#4B535E] border border-[#DEE2EA]'
+                    : 'bg-[#181b20] text-[#D1D5DB] border border-[#242830]'
+                }`}
+              >
                 <Target className="w-5.5 h-5.5" />
               </div>
               <div className="space-y-1">
@@ -280,8 +308,7 @@ export default function RightPanel({
                       <span className="text-[#d4af37] font-mono font-bold">{progressPct}%</span>
                     </div>
 
-                    <div className={`w-full h-2 rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-black/60'
-                      }`}>
+                    <div className={`w-full h-2 rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-black/60'}`}>
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-[#d4af37] to-[#bdc7ce] transition-all duration-500"
                         style={{ width: `${progressPct}%` }}
@@ -301,10 +328,11 @@ export default function RightPanel({
           <button
             onClick={() => setIsGoalModalOpen(true)}
             aria-label="Create new savings goal"
-            className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-dashed rounded-xl text-xs font-semibold transition-colors cursor-pointer active:scale-[0.985] ${isLight
+            className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 border border-dashed rounded-xl text-xs font-semibold transition-colors cursor-pointer active:scale-[0.985] ${
+              isLight
                 ? 'border-slate-300 text-slate-700 hover:bg-slate-100'
                 : 'border-[#4a5156]/60 text-[#bdc7ce] hover:text-white hover:border-white/40 hover:bg-white/5'
-              }`}
+            }`}
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{goals.length === 0 ? 'Create Your First Goal' : 'Create New Goal'}</span>
@@ -312,135 +340,139 @@ export default function RightPanel({
         </div>
       </ScrollFadeIn>
 
-      {/* Goal Creation Modal */}
-      {isGoalModalOpen && createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 select-none animate-fade-in">
-          <div
-            className={`fixed inset-0 backdrop-blur-sm transition-opacity ${
-              isLight ? 'bg-black/40' : 'bg-black/80'
-            }`}
-            onClick={() => setIsGoalModalOpen(false)}
-          />
+      {isGoalModalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 select-none animate-fade-in">
+            <div
+              className={`fixed inset-0 backdrop-blur-sm transition-opacity ${
+                isLight ? 'bg-black/40' : 'bg-black/80'
+              }`}
+              onClick={() => setIsGoalModalOpen(false)}
+            />
 
-          <div className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${
-            isLight
-              ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
-              : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
-          }`}>
-            <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
-              <div className="flex items-center gap-2.5">
-                <Target className={`w-5 h-5 ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`} />
-                <h3 className="text-base font-bold">Set Savings Goal</h3>
-              </div>
-              <button
-                onClick={() => setIsGoalModalOpen(false)}
-                className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
-                  isLight
-                    ? 'text-[#68707C] hover:text-[#343A40] hover:bg-[#ECEEF4]'
-                    : 'text-[#94A3B8] hover:text-white hover:bg-[#1E222A]'
-                }`}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateGoalSubmit} className="space-y-4 pt-4">
-              {goalError && (
-                <div className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
-                  isLight
-                    ? 'bg-rose-50 border-rose-200 text-rose-700'
-                    : 'bg-rose-500/15 border-rose-500/30 text-rose-400'
-                }`}>
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{goalError}</span>
+            <div
+              className={`relative w-full max-w-md rounded-3xl border p-5 sm:p-6 shadow-2xl z-10 transition-all ${
+                isLight
+                  ? 'bg-[#F1F3F8] border-[#DEE2EA] text-[#343A40]'
+                  : 'bg-[#121418] border-[#242830] text-[#F1F3F5]'
+              }`}
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
+                <div className="flex items-center gap-2.5">
+                  <Target className={`w-5 h-5 ${isLight ? 'text-[#343A40]' : 'text-[#F1F3F5]'}`} />
+                  <h3 className="text-base font-bold">Set Savings Goal</h3>
                 </div>
-              )}
-
-              <div className="space-y-1.5">
-                <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
-                  Goal Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Emergency Fund, New Laptop"
-                  value={goalName}
-                  onChange={(e) => setGoalName(e.target.value)}
-                  autoFocus
-                  className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-semibold outline-none border transition-all ${
-                    isLight
-                      ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
-                      : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
-                  }`}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
-                  Target Amount (₱)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  step="any"
-                  placeholder="50000"
-                  value={targetAmount}
-                  onChange={(e) => setTargetAmount(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${
-                    isLight
-                      ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
-                      : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
-                  }`}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
-                  Initial Saved Amount (Optional ₱)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  placeholder="0"
-                  value={initialAmount}
-                  onChange={(e) => setInitialAmount(e.target.value)}
-                  className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${
-                    isLight
-                      ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
-                      : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
-                  }`}
-                />
-              </div>
-
-              <div className="flex items-center gap-3 pt-2">
                 <button
-                  type="button"
                   onClick={() => setIsGoalModalOpen(false)}
-                  className={`flex-1 py-2.5 px-3 rounded-2xl border text-xs font-semibold transition-colors cursor-pointer ${
+                  className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
                     isLight
-                      ? 'border-[#DEE2EA] text-[#68707C] hover:text-[#343A40]'
-                      : 'border-[#242830] text-[#94A3B8] hover:text-white'
+                      ? 'text-[#68707C] hover:text-[#343A40] hover:bg-[#ECEEF4]'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E222A]'
                   }`}
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmittingGoal}
-                  className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs shadow-md transition-all active:scale-[0.985] cursor-pointer ${
-                    isLight
-                      ? 'bg-[#343A40] text-[#F8F8FF] hover:bg-[#212529]'
-                      : 'bg-[#F1F3F5] text-[#000000] hover:bg-white'
-                  }`}
-                >
-                  {isSubmittingGoal ? 'Saving...' : 'Save Goal'}
+                  <X className="w-5 h-5" />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>,
-        document.body
-      )}
+
+              <form onSubmit={handleCreateGoalSubmit} className="space-y-4 pt-4">
+                {goalError && (
+                  <div
+                    className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
+                      isLight
+                        ? 'bg-rose-50 border-rose-200 text-rose-700'
+                        : 'bg-rose-500/15 border-rose-500/30 text-rose-400'
+                    }`}
+                  >
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{goalError}</span>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
+                    Goal Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Emergency Fund, New Laptop"
+                    value={goalName}
+                    onChange={(e) => setGoalName(e.target.value)}
+                    autoFocus
+                    className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-semibold outline-none border transition-all ${
+                      isLight
+                        ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
+                        : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
+                    }`}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
+                    Target Amount (₱)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="any"
+                    placeholder="50000"
+                    value={targetAmount}
+                    onChange={(e) => setTargetAmount(e.target.value)}
+                    className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${
+                      isLight
+                        ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
+                        : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
+                    }`}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className={`block text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}`}>
+                    Initial Saved Amount (Optional ₱)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="0"
+                    value={initialAmount}
+                    onChange={(e) => setInitialAmount(e.target.value)}
+                    className={`w-full py-2.5 px-3.5 rounded-2xl text-xs font-mono font-bold outline-none border transition-all ${
+                      isLight
+                        ? 'bg-[#F4F5FA] border-[#DEE2EA] text-[#343A40] focus:border-[#343A40]'
+                        : 'bg-[#181b20] border-[#242830] text-[#F1F3F5] focus:border-[#F1F3F5]'
+                    }`}
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsGoalModalOpen(false)}
+                    className={`flex-1 py-2.5 px-3 rounded-2xl border text-xs font-semibold transition-colors cursor-pointer ${
+                      isLight
+                        ? 'border-[#DEE2EA] text-[#68707C] hover:text-[#343A40]'
+                        : 'border-[#242830] text-[#94A3B8] hover:text-white'
+                    }`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingGoal}
+                    className={`flex-1 py-2.5 px-3 rounded-2xl font-bold text-xs shadow-md transition-all active:scale-[0.985] cursor-pointer ${
+                      isLight
+                        ? 'bg-[#343A40] text-[#F8F8FF] hover:bg-[#212529]'
+                        : 'bg-[#F1F3F5] text-[#000000] hover:bg-white'
+                    }`}
+                  >
+                    {isSubmittingGoal ? 'Saving...' : 'Save Goal'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
     </aside>
   )
 }

@@ -1,6 +1,22 @@
 import React, { useState, useMemo } from 'react'
-import {PieChart,Pie,Cell,BarChart,Bar,XAxis,YAxis,Tooltip,ResponsiveContainer,} from 'recharts'
-import {Wallet,TrendingUp,TrendingDown,ArrowUpRight,ArrowDownRight,Info,} from 'lucide-react'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
+import {
+  Wallet,
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  Info,
+} from 'lucide-react'
 import ScrollFadeIn from '../ui/ScrollFadeIn'
 import BalanceTrendChart from './BalanceTrendChart'
 
@@ -14,6 +30,26 @@ const CATEGORY_COLORS = [
   '#32D74B',
   '#AC8E68',
 ]
+
+const CustomIncomeVsExpenseTooltip = ({ active, payload }) => {
+  if (!active || !payload || !payload.length) return null
+
+  const data = payload[0].payload
+  const isIncome = data.name === 'Income'
+  const textColor = isIncome ? '#FFFFFF' : '#FF3B30'
+
+  return (
+    <div className="p-2.5 rounded-xl border bg-[#181b20] border-[#242830] shadow-xl text-xs font-mono select-none space-y-1">
+      <p className="font-bold text-[#F1F3F5] text-xs">{data.name}</p>
+      <p className="text-xs font-semibold" style={{ color: textColor }}>
+        Amount : ₱{Number(data.amount).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+      </p>
+    </div>
+  )
+}
 
 export default function ReportsPage({
   theme = 'dark',
@@ -88,7 +124,6 @@ export default function ReportsPage({
       netFlow,
     }
   }, [transactions, filteredTransactions])
-
 
   const categoryData = useMemo(() => {
     const catMap = {}
@@ -224,8 +259,6 @@ export default function ReportsPage({
       .slice(0, 5)
   }, [filteredTransactions])
 
-
-
   return (
     <div className="w-full max-w-full space-y-5 select-none pb-12 animate-fade-in">
       <div className="pt-1">
@@ -247,7 +280,6 @@ export default function ReportsPage({
 
       <ScrollFadeIn delay={100}>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* Card 1: Total Balance */}
           <div
             className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
               isLight
@@ -276,7 +308,6 @@ export default function ReportsPage({
             </div>
           </div>
 
-          {/* Card 2: Income */}
           <div
             className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
               isLight
@@ -307,7 +338,6 @@ export default function ReportsPage({
             </div>
           </div>
 
-          {/* Card 3: Expenses */}
           <div
             className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
               isLight
@@ -338,7 +368,6 @@ export default function ReportsPage({
             </div>
           </div>
 
-          {/* Card 4: Net Flow */}
           <div
             className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
               isLight
@@ -378,7 +407,6 @@ export default function ReportsPage({
       </ScrollFadeIn>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* COLUMN 1: EXPENSE BREAKDOWN */}
         <ScrollFadeIn delay={200}>
           <div
             className={`p-4 sm:p-5 rounded-3xl border shadow-sm transition-all h-full flex flex-col justify-between ${
@@ -393,7 +421,6 @@ export default function ReportsPage({
                   <h3 className="text-sm font-bold tracking-tight">Expense Breakdown</h3>
                   <Info className="w-3.5 h-3.5 opacity-50" />
                 </div>
-                {/* Amount / % Switcher */}
                 <div
                   className={`flex items-center p-0.5 rounded-xl border ${
                     isLight ? 'bg-[#F4F5FA] border-[#DEE2EA]' : 'bg-[#181b20] border-[#242830]'
@@ -430,10 +457,8 @@ export default function ReportsPage({
                 </div>
               </div>
 
-              {/* Donut Chart & Category List Legend */}
               {categoryData.list.length > 0 ? (
                 <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
-                  {/* Recharts Donut */}
                   <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -453,7 +478,6 @@ export default function ReportsPage({
                         </Pie>
                       </PieChart>
                     </ResponsiveContainer>
-                    {/* Donut Center Display */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
                       <span className="text-xs font-bold font-mono block max-w-[80px] truncate">
                         ₱
@@ -469,7 +493,6 @@ export default function ReportsPage({
                     </div>
                   </div>
 
-                  {/* Category Legend List */}
                   <div className="flex-1 w-full space-y-1.5 text-xs">
                     {categoryData.list.map((cat, idx) => (
                       <div
@@ -504,7 +527,6 @@ export default function ReportsPage({
           </div>
         </ScrollFadeIn>
 
-        {/* COLUMN 2: INCOME VS EXPENSES COMPARISON */}
         <ScrollFadeIn delay={250}>
           <div
             className={`p-4 sm:p-5 rounded-3xl border shadow-sm transition-all h-full flex flex-col justify-between ${
@@ -519,7 +541,6 @@ export default function ReportsPage({
                 <Info className="w-3.5 h-3.5 opacity-50" />
               </div>
 
-              {/* Bar Comparison Chart */}
               <div className="h-48 pt-2 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -529,8 +550,6 @@ export default function ReportsPage({
                     <XAxis
                       dataKey="name"
                       stroke={isLight ? '#68707C' : '#94A3B8'}
-                      fontColor={isLight ? '#68707C' : '#94A3B8'}
-                      
                       fontSize={11}
                       tickLine={false}
                       axisLine={false}
@@ -542,22 +561,7 @@ export default function ReportsPage({
                       axisLine={false}
                       tickFormatter={(val) => `₱${val / 1000}K`}
                     />
-                    <Tooltip
-                      formatter={(val) => [
-                        `₱${Number(val).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                        })}`,
-                        'Amount',
-                      ]}
-                      contentStyle={{
-                        backgroundColor: '#181b20',
-                        borderColor: '#242830',
-                        borderRadius: '12px',
-                        color: '#F1F3F5',
-                        fontSize: '11px',
-                        fontFamily: 'monospace',
-                      }}
-                    />
+                    <Tooltip content={<CustomIncomeVsExpenseTooltip />} />
                     <Bar dataKey="amount" radius={[8, 8, 0, 0]} barSize={40}>
                       {incomeVsExpenseData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -570,7 +574,6 @@ export default function ReportsPage({
           </div>
         </ScrollFadeIn>
 
-        {/* COLUMN 3: SUMMARY */}
         <ScrollFadeIn delay={300}>
           <div
             className={`p-4 sm:p-5 rounded-3xl border shadow-sm transition-all h-full flex flex-col justify-between ${
@@ -584,7 +587,6 @@ export default function ReportsPage({
                 <h3 className="text-sm font-bold tracking-tight">Summary</h3>
               </div>
 
-              {/* Derived Statistics List */}
               <div className="space-y-3 pt-1 text-xs">
                 <div className="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/5">
                   <span className={isLight ? 'text-[#68707C]' : 'text-[#94A3B8]'}>
@@ -666,7 +668,6 @@ export default function ReportsPage({
 
           {recentTransactionsList.length > 0 ? (
             <>
-              {/* Desktop Table View */}
               <div className="hidden sm:block overflow-x-auto pt-1">
                 <table className="w-full text-left text-xs font-medium border-collapse">
                   <thead>
@@ -728,7 +729,6 @@ export default function ReportsPage({
                 </table>
               </div>
 
-              {/* Mobile Scannable Row View */}
               <div className="sm:hidden space-y-2.5 pt-1">
                 {recentTransactionsList.map((tx) => {
                   const isIncome = tx.type === 'deposit' || tx.type === 'income'
@@ -784,7 +784,6 @@ export default function ReportsPage({
           )}
         </div>
       </ScrollFadeIn>
-
     </div>
   )
 }

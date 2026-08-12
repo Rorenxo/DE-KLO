@@ -11,6 +11,7 @@ import TransactionModal from './TransactionModal'
 import TransactionHistoryPage from './TransactionHistoryPage'
 import SavingsGoalsPage from './SavingsGoalsPage'
 import ReportsPage from './ReportsPage'
+import InsightsPage from './InsightsPage'
 import { authService } from '../../services/authService'
 import { transactionService } from '../../services/transactionService'
 import { profileService } from '../../services/profileService'
@@ -45,7 +46,6 @@ function computeChartDatasets(txList = []) {
     const dayName = weekDays[txDate.getDay()]
     const monthName = monthsOrder[txDate.getMonth()]
     const yearStr = String(txDate.getFullYear())
-
     const isIncome = tx.type === 'deposit' || tx.type === 'income'
 
     if (weekMap[dayName]) {
@@ -85,7 +85,6 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
   const userId = user?.id || 'guest'
   const cardInfo = authService.getUserCardInfo(user)
 
-  // Online transactions state
   const [transactions, setTransactions] = useState([])
   const [isTxLoading, setIsTxLoading] = useState(false)
   const [pendingSyncCount, setPendingSyncCount] = useState(0)
@@ -94,20 +93,15 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
   const [hasSyncError, setHasSyncError] = useState(false)
   const [goalsList, setGoalsList] = useState([])
 
-  // Dynamic Financial Metrics
   const [balance, setBalance] = useState(0)
   const [income, setIncome] = useState(0)
   const [expenses, setExpenses] = useState(0)
   const [savings, setSavings] = useState(0)
 
-  // Transaction Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalType, setModalType] = useState('deposit')
-
-  // Dynamic Cash Flow Chart Datasets State
   const [chartData, setChartData] = useState(() => computeChartDatasets([]))
 
-  // 1. Load online profile, transactions, and goals on mount.
   useEffect(() => {
     if (!userId || userId === 'guest') return
 
@@ -128,7 +122,6 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
 
       const dynamicChart = computeChartDatasets(txList || [])
       setChartData(dynamicChart)
-
       setIsTxLoading(false)
     }
 
@@ -224,16 +217,6 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
     return 'online'
   }
 
-  const overviewData = {
-    balance: `₱${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-    income: `₱${income.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-    incomeGrowth: '0%',
-    savings: `₱${savings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-    savingsGrowth: '0%',
-    expenses: `₱${expenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-    expensesGrowth: '0%',
-  }
-
   const formattedCardBalance = `₱${balance.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -241,8 +224,9 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
 
   return (
     <div
-      className={`min-h-dvh lg:h-dvh lg:max-h-dvh w-full max-w-full transition-colors duration-300 flex flex-col lg:flex-row select-none overflow-x-hidden lg:overflow-hidden ${theme === 'light' ? 'bg-[#F8F8FF] text-[#343A40]' : 'bg-[#000000] text-[#F1F3F5]'
-        }`}
+      className={`min-h-dvh lg:h-dvh lg:max-h-dvh w-full max-w-full transition-colors duration-300 flex flex-col lg:flex-row select-none overflow-x-hidden lg:overflow-hidden ${
+        theme === 'light' ? 'bg-[#F8F8FF] text-[#343A40]' : 'bg-[#000000] text-[#F1F3F5]'
+      }`}
     >
       <Sidebar
         activeTab={activeTab}
@@ -322,7 +306,6 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
 
                   const dynamicChart = computeChartDatasets(updated)
                   setChartData(dynamicChart)
-
                   setIsTxLoading(false)
                 }}
                 onAddTransaction={handleOpenDeposit}
@@ -366,10 +349,19 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
               />
             )}
 
+            {activeTab === 'insights' && (
+              <InsightsPage
+                theme={theme}
+                transactions={transactions}
+                onNavigateTab={setActiveTab}
+              />
+            )}
+
             {activeTab !== 'home' &&
               activeTab !== 'history' &&
               activeTab !== 'goals' &&
-              activeTab !== 'reports' && (
+              activeTab !== 'reports' &&
+              activeTab !== 'insights' && (
                 <div
                   className={`p-8 text-center rounded-2xl border animate-fade-in my-8 ${
                     theme === 'light'
@@ -387,7 +379,7 @@ export default function DashboardLayout({ user, onLockApp, onLogout }) {
               )}
           </main>
 
-          {activeTab !== 'reports' && (
+          {activeTab !== 'reports' && activeTab !== 'insights' && (
             <RightPanel
               theme={theme}
               userId={userId}

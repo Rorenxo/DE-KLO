@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react'
-import { ArrowLeft, Eye, EyeOff, Lock } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
 import { authService } from '../../services/authService'
 
 export default function ForgotPasswordForm({ onBackToLogin }) {
-  const [step, setStep] = useState(1) // 1: Email, 2: 6-digit passcode, 3: New Password
+  const [step, setStep] = useState(1)
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [newPassword, setNewPassword] = useState('')
@@ -180,7 +180,6 @@ export default function ForgotPasswordForm({ onBackToLogin }) {
 
       {step === 2 && (
         <form onSubmit={handleVerifyCode} className="space-y-5 pt-2">
-          {/* 6-Digit Passcode Input Boxes */}
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             {otp.map((digit, idx) => (
               <input
